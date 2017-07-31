@@ -20,7 +20,7 @@ double wind()
 vector3d atmosphere_rotation()
 {
   vector3d tangential = { -position.norm().y, position.norm().x, 0 };
-  return planetary_rotation*tangential;
+  return planetary_rotation*tangential*0;
 }
 
 vector3d fluid_rotation(void)

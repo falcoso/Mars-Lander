@@ -20,7 +20,7 @@ fstream fout;
 void autopilot(const double &lander_mass)
 // Autopilot to adjust the engine throttle, parachute and attitude control
 {
-  constexpr double ideal_ver = 0;
+  constexpr double ideal_ver = 0.5;
   constexpr double Kp        = 1;
   bool engage                = 0;
   double ground_speed        = ((velocity - atmosphere_rotation()) - (velocity - atmosphere_rotation())*position.norm()*position.norm()).abs();
@@ -72,7 +72,7 @@ void autopilot(const double &lander_mass)
     altitude = position.abs() - MARS_RADIUS;
     delta = gravity(lander_mass).abs() / MAX_THRUST; // - drag()*gravity(lander_mass).norm() considering drag as part of the thrus seems to make fuel efficiency worse
     
-    if (parachute_status == LOST)  Kh = 0.02;
+    if (parachute_status == LOST)  Kh = 0.01898;
     else                           Kh = 0.03;
 
     error = -(ideal_ver + Kh*altitude + ver);
