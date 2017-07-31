@@ -142,10 +142,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Source\Dynamics.cpp" />
     <ClCompile Include="..\Source\lander.cpp" />
     <ClCompile Include="..\Source\lander_graphics.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Source\Dynamics.h" />
     <ClInclude Include="..\Source\lander.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

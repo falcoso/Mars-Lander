@@ -1,3 +1,5 @@
+#ifndef LANDER
+#define LANDER
 // Mars lander simulator
 // Version 1.9
 // Header file
@@ -13,6 +15,7 @@
 // ahg@eng.cam.ac.uk and gc121@eng.cam.ac.uk.
 
 // Some reports suggest that Dev-C++/MinGW does not define WIN32
+
 #if defined (__MINGW32__) && !defined (WIN32)
 #define WIN32
 #endif
@@ -139,6 +142,7 @@ struct closeup_coords_t {
 
 // Enumerated data type for parachute status
 enum parachute_status_t { NOT_DEPLOYED = 0, DEPLOYED = 1, LOST = 2 };
+enum intergrator_t { VERLET = 0, EULER = 1 };
 
 #ifdef DECLARE_GLOBAL_VARIABLES // actual declarations of all global variables for lander_graphics.cpp
 
@@ -251,3 +255,4 @@ void closeup_mouse_button (int button, int state, int x, int y);
 void closeup_mouse_motion (int x, int y);
 void glut_special (int key, int x, int y);
 void glut_key (unsigned char k, int x, int y);
+#endif

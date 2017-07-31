@@ -13,21 +13,105 @@
 // ahg@eng.cam.ac.uk and gc121@eng.cam.ac.uk.
 
 #include "lander.h"
+#include "Dynamics.h"
 
-void autopilot (void)
-  // Autopilot to adjust the engine throttle, parachute and attitude control
+constexpr intergrator_t intergrator = VERLET;
+void autopilot(const double &lander_mass)
+// Autopilot to adjust the engine throttle, parachute and attitude control
 {
-  // INSERT YOUR CODE HERE
+  /*If no parachute is available then Kh = 0.018 will land safely, if parachute is available
+  a more efficient configuration is Kh = 0.03 Kp = 1 ideal_ver = 0.5
+  ***MOST EFFICIENT Kh WITH PARACHUTE***        ***SOFEST LANDING Kh WITH PARACHUTE***
+  Scenario 1  Kh = 0.1525   Fuel Used = 7.9         Kh = 0.0104
+  Scenario 3  Kh = 0.04775  Fuel Used = 35          Kh = 0.0147
+  Scenario 4  Kh = 0.1525   Fuel Used = 7.9         Kh = 0.01095
+  Scenario 5  Kh = 0.05143  Fuel Used = 30.1        Kh = 0.0145
+
+  ***Most EFFICIENT Kh WITHOUT PARACHUTE***
+  Scenario 1  Kh = 0.04125  Fuel Used = 33.1        Kh = 0.0137
+  Scenario 3  Kh = 0.01812  Fuel Used = 59.1        Kh = 0.01625
+  Scenario 5  Kh = 0.01898  Fuel Used = 57.1        Kh = 0.01675
+  */
+  constexpr double ideal_ver = 0.5;
+  constexpr double Kp = 3.51*0.45;
+  double Kh;
+  if (parachute_status == LOST)
+  {
+    Kh = 0.018;
+    if (velocity.abs() > 0.01)
+    {
+      stabilized_attitude_angle = acos(position.norm()*velocity.norm()) - M_PI;
+    }
+    else
+    {
+      stabilized_attitude_angle = 0;
+    }
+  }
+  else
+  {
+    Kh = 0.02 / 1.2;
+  }
+
+  //Proportional gain control
+  double ver = velocity*position.norm();
+  double altitude = position.abs() - MARS_RADIUS;
+  double delta = (gravity(lander_mass).abs() - drag()*gravity(lander_mass).norm()) / MAX_THRUST; //considering drag as part of the thrus seems to make fuel efficiency worse
+  double error = -(ideal_ver + Kh*altitude + ver);
+  double Pout = Kp*error;
+
+  bool engage = 0;
+  if (Pout <= -delta)
+  {
+    throttle = 0;
+  }
+  else if (Pout >= 1 - delta)
+  {
+    throttle = 1;
+    engage = 1;
+  }
+  else
+  {
+    throttle = delta + Pout;
+    engage = 1;
+  }
 }
 
-void numerical_dynamics (void)
-  // This is the function that performs the numerical integration to update the
-  // lander's pose. The time step is delta_t (global variable).
+void numerical_dynamics(void)
+// This is the function that performs the numerical integration to update the
+// lander's pose. The time step is delta_t (global variable).
 {
-  // INSERT YOUR CODE HERE
+  //declare old and new potision variables for verlet intergrator
+  static vector3d old_position; //do not assign here, as will not reset when new scenario selected
+  vector3d new_position;
+
+
+  //calculate the lander's mass and acceleration
+  double lander_mass = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY;
+  vector3d acceleration = (gravity(lander_mass) + thrust_wrt_world() + drag()) / lander_mass;
+
+  //so that if the simulation is reset so does the old position
+  if (simulation_time == 0.0)
+  {
+    old_position = position - delta_t*velocity;
+  }
+
+  switch (intergrator) //switch based on intergration method chosen
+  {
+  case VERLET:
+    new_position = 2 * position - old_position + delta_t*delta_t*acceleration;
+    velocity = (1 / delta_t)*(new_position - position);
+    //shift along positions
+    old_position = position;
+    position = new_position;
+    break;
+  case EULER:
+    position += delta_t*velocity;
+    velocity += delta_t*acceleration;
+    break;
+  }
 
   // Here we can apply an autopilot to adjust the thrust, parachute and attitude
-  if (autopilot_enabled) autopilot();
+  if (autopilot_enabled) autopilot(lander_mass);
 
   // Here we can apply 3-axis stabilization to ensure the base is always pointing downwards
   if (stabilized_attitude) attitude_stabilization();
