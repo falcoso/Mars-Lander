@@ -1,95 +1,29 @@
-﻿  lander_graphics.cpp
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(373): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(382): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(399): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(402): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(413): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(417): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(494): warning C4838: conversion from 'double' to 'GLfloat' requires a narrowing conversion
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(494): warning C4305: 'initializing': truncation from 'double' to 'GLfloat'
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(587): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(588): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(590): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(596): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(599): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(602): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(605): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(608): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(611): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(614): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(617): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(620): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(623): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(626): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(635): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(649): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(670): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(671): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(718): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(721): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(727): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(729): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(731): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(733): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(735): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(737): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(754): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(759): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(761): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(763): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(801): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(818): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(843): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(844): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(845): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(847): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(848): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(850): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(852): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(853): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(854): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(856): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(857): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(858): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(860): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(861): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(862): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(863): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(869): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(870): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(891): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(906): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(945): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(957): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(971): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1147): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1148): warning C4244: 'argument': conversion from 'double' to 'GLclampf', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1180): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1242): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1254): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1255): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1256): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1257): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1258): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1259): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1260): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1261): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1262): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1263): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1264): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1265): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1266): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1267): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1268): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1269): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1288): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1288): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1301): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander_graphics.cpp(1445): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
-  lander.cpp
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander.cpp(43): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-  Dynamics.cpp
-  Generating Code...
-  LINK : C:\Users\jones\OneDrive - University Of Cambridge\University\Mars Lander\Lander Project\Debug\Lander.exe not found or not built by the last incremental link; performing full link
-  Lander.vcxproj -> C:\Users\jones\OneDrive - University Of Cambridge\University\Mars Lander\Lander Project\Debug\Lander.exe
-  Lander.vcxproj -> C:\Users\jones\OneDrive - University Of Cambridge\University\Mars Lander\Lander Project\Debug\Lander.pdb (Partial PDB)
+﻿Dynamics.obj : error LNK2019: unresolved external symbol "double __cdecl atmospheric_density(class vector3d)" (?atmospheric_density@@YANVvector3d@@@Z) referenced in function "class vector3d __cdecl lander_drag(void)" (?lander_drag@@YA?AVvector3d@@XZ)
+Dynamics.obj : error LNK2019: unresolved external symbol "class vector3d __cdecl thrust_wrt_world(void)" (?thrust_wrt_world@@YA?AVvector3d@@XZ) referenced in function "bool __cdecl open_chute_query(void)" (?open_chute_query@@YA_NXZ)
+lander.obj : error LNK2001: unresolved external symbol "class vector3d __cdecl thrust_wrt_world(void)" (?thrust_wrt_world@@YA?AVvector3d@@XZ)
+Dynamics.obj : error LNK2001: unresolved external symbol "bool wind_enabled" (?wind_enabled@@3_NA)
+lander.obj : error LNK2001: unresolved external symbol "bool wind_enabled" (?wind_enabled@@3_NA)
+Dynamics.obj : error LNK2001: unresolved external symbol "double fuel" (?fuel@@3NA)
+lander.obj : error LNK2001: unresolved external symbol "double fuel" (?fuel@@3NA)
+Dynamics.obj : error LNK2001: unresolved external symbol "double planetary_rotation" (?planetary_rotation@@3NA)
+lander.obj : error LNK2001: unresolved external symbol "double planetary_rotation" (?planetary_rotation@@3NA)
+Dynamics.obj : error LNK2001: unresolved external symbol "class vector3d position" (?position@@3Vvector3d@@A)
+lander.obj : error LNK2001: unresolved external symbol "class vector3d position" (?position@@3Vvector3d@@A)
+Dynamics.obj : error LNK2001: unresolved external symbol "class vector3d velocity" (?velocity@@3Vvector3d@@A)
+lander.obj : error LNK2001: unresolved external symbol "class vector3d velocity" (?velocity@@3Vvector3d@@A)
+lander.obj : error LNK2019: unresolved external symbol "bool __cdecl safe_to_deploy_parachute(void)" (?safe_to_deploy_parachute@@YA_NXZ) referenced in function "void __cdecl autopilot(double const &)" (?autopilot@@YAXABN@Z)
+lander.obj : error LNK2019: unresolved external symbol "void __cdecl attitude_stabilization(void)" (?attitude_stabilization@@YAXXZ) referenced in function "void __cdecl numerical_dynamics(void)" (?numerical_dynamics@@YAXXZ)
+lander.obj : error LNK2001: unresolved external symbol "bool stabilized_attitude" (?stabilized_attitude@@3_NA)
+lander.obj : error LNK2001: unresolved external symbol "bool autopilot_enabled" (?autopilot_enabled@@3_NA)
+lander.obj : error LNK2001: unresolved external symbol "double delta_t" (?delta_t@@3NA)
+lander.obj : error LNK2001: unresolved external symbol "double simulation_time" (?simulation_time@@3NA)
+lander.obj : error LNK2001: unresolved external symbol "double throttle" (?throttle@@3NA)
+lander.obj : error LNK2001: unresolved external symbol "unsigned short scenario" (?scenario@@3GA)
+lander.obj : error LNK2001: unresolved external symbol "class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > * scenario_description" (?scenario_description@@3PAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@A)
+lander.obj : error LNK2001: unresolved external symbol "class vector3d orientation" (?orientation@@3Vvector3d@@A)
+lander.obj : error LNK2001: unresolved external symbol "enum parachute_status_t parachute_status" (?parachute_status@@3W4parachute_status_t@@A)
+lander.obj : error LNK2001: unresolved external symbol "float stabilized_attitude_angle" (?stabilized_attitude_angle@@3MA)
+lander.obj : error LNK2001: unresolved external symbol "enum autopilot_t autopilot_status" (?autopilot_status@@3W4autopilot_t@@A)
+lander.obj : error LNK2001: unresolved external symbol "struct closeup_coords_t closeup_coords" (?closeup_coords@@3Ucloseup_coords_t@@A)
+MSVCRTD.lib(exe_main.obj) : error LNK2019: unresolved external symbol _main referenced in function "int __cdecl invoke_main(void)" (?invoke_main@@YAHXZ)
+C:\Users\jones\OneDrive - University Of Cambridge\University\Mars Lander\Lander Project\Debug\Lander.exe : fatal error LNK1120: 22 unresolved externals

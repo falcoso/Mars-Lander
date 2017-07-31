@@ -1,24 +1,46 @@
 /* Functions to calculate the Dynamics on an object*/
 
 #include "lander.h"
+#include <random>
 
-//calculates the drag on the lander returning a Force vector
-//PERFORMANCE IMPROVEMENT: graphics also calculates drag so combine two if necessary
-vector3d drag(void)
+void planetary_rotation_update(void)
 {
-  vector3d F;
-  constexpr double front_facing_area = M_PI*LANDER_SIZE*LANDER_SIZE;
-  switch (parachute_status)
-  {
-  case DEPLOYED:
-    F = -0.5*atmospheric_density(position)*(DRAG_COEF_LANDER*front_facing_area + DRAG_COEF_CHUTE*5.0*2.0*LANDER_SIZE*2.0*LANDER_SIZE)*velocity.abs()*velocity;
-    break;
+  planetary_rotation = pow(pow(position.x, 2) + pow(position.y, 2), 0.5)*(2 * M_PI / MARS_DAY);
+}
 
-  default:
-    F = -0.5*front_facing_area*atmospheric_density(position)*(DRAG_COEF_LANDER)*velocity.abs()*velocity;
-    break;
-  }
-  return F;
+double wind()
+{
+  constexpr double average_speed = -5; //(m/s)
+  std::normal_distribution<double> distribution(average_speed, 100.0);
+  std::default_random_engine generator;
+  return wind_enabled*distribution(generator);
+
+}
+
+vector3d atmosphere_rotation()
+{
+  vector3d tangential = { -position.norm().y, position.norm().x, 0 };
+  return planetary_rotation*tangential;
+}
+
+vector3d fluid_rotation(void)
+{
+  double fluid_motion = ((MARS_RADIUS * 2 * M_PI) / MARS_DAY) - ((MARS_RADIUS * 2 * M_PI) / (EXOSPHERE*MARS_DAY))*(position.abs() - MARS_RADIUS);
+  vector3d tangential = { -position.norm().y, position.norm().x, 0 };
+  return tangential*fluid_motion;
+}
+//calculates the drag on the lander returning a Force vector
+vector3d lander_drag(void)
+{
+  constexpr double front_facing_area = M_PI*LANDER_SIZE*LANDER_SIZE;
+  vector3d rotation = atmosphere_rotation() + wind()*atmosphere_rotation().norm();
+  return -0.5*front_facing_area*atmospheric_density(position)*(DRAG_COEF_LANDER)*(velocity - rotation).abs()*(velocity - rotation);
+}
+
+vector3d parachute_drag(void)
+{
+  vector3d rotation = atmosphere_rotation() + wind()*atmosphere_rotation().norm();
+  return -0.5*atmospheric_density(position)*DRAG_COEF_CHUTE*5.0*2.0*LANDER_SIZE*2.0*LANDER_SIZE*(velocity - rotation).abs()*(velocity - rotation);
 }
 
 //calculates gravity on the lander returning a Force vector
@@ -27,6 +49,7 @@ vector3d gravity(const double &lander_mass)
   vector3d F = -(GRAVITY*MARS_MASS*lander_mass / position.abs2())*position.norm();
   return F;
 }
+
 
 bool open_chute_query(void)
 {
@@ -41,7 +64,7 @@ bool open_chute_query(void)
   double virt_time = virt_dt;
   while (conclusion)
   {
-    virt_drag = -0.5*atmospheric_density(position)*(DRAG_COEF_LANDER*M_PI*LANDER_SIZE*LANDER_SIZE + DRAG_COEF_CHUTE*5.0*2.0*LANDER_SIZE*2.0*LANDER_SIZE)*velocity.abs()*velocity;
+    virt_drag = -0.5*atmospheric_density(position)*(DRAG_COEF_LANDER*M_PI*LANDER_SIZE*LANDER_SIZE + DRAG_COEF_CHUTE*5.0*2.0*LANDER_SIZE*2.0*LANDER_SIZE)*(velocity - fluid_rotation()).abs()*(velocity - fluid_rotation());
     virt_mass = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY; //note this assumes effectively constant mass in virtual calulation
     virt_acceleration = (gravity(virt_mass) + thrust_wrt_world() + virt_drag) / virt_mass;
     virt_position += virt_dt*virt_velocity;
