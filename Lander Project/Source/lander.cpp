@@ -17,7 +17,7 @@
 
 constexpr intergrator_t intergrator = VERLET;
 fstream fout;
-void autopilot(const double &lander_mass)
+void autopilot(const double &lander_mass, const double &kp_test)
 // Autopilot to adjust the engine throttle, parachute and attitude control
 {
   constexpr double ideal_ver = 0.5;
@@ -72,7 +72,7 @@ void autopilot(const double &lander_mass)
     altitude = position.abs() - MARS_RADIUS;
     delta = gravity(lander_mass).abs() / MAX_THRUST; // - drag()*gravity(lander_mass).norm() considering drag as part of the thrus seems to make fuel efficiency worse
     
-    if (parachute_status == LOST)  Kh = 0.01898;
+    if (parachute_status == LOST)  Kh = 0.018;
     else                           Kh = 0.03;
 
     error = -(ideal_ver + Kh*altitude + ver);
@@ -152,6 +152,7 @@ void numerical_dynamics(void)
   //declare old and new potision variables for verlet intergrator
   static vector3d old_position; //do not assign here, as will not reset when new scenario selected
   vector3d new_position;
+  static double kp_test;
   //calculate the lander's mass and acceleration
   planetary_rotation_update(); //update the rotation of the planet relative to the lander
   double lander_mass = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY;
@@ -170,6 +171,7 @@ void numerical_dynamics(void)
   if (simulation_time == 0.0)
   {
     old_position = position - delta_t*velocity;
+    kp_test = 0;//kh_set(0.01, 0.025);
   }
 
   switch (intergrator) //switch based on intergration method chosen
@@ -194,7 +196,7 @@ void numerical_dynamics(void)
   {
     stabilized_attitude = 1;
   //  stabilized_attitude_angle = -(acos(position.norm()*(velocity-atmosphere_rotation()).norm()) + M_PI);
-    autopilot(lander_mass);
+    autopilot(lander_mass, kp_test);
   }
 
 }

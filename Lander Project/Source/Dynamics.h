@@ -18,4 +18,6 @@ void planetary_rotation_update();
 
 //queries whether chute would be effective now
 bool open_chute_query();
+
+double kh_set(double kh_upper, double kh_lower);
 #endif
