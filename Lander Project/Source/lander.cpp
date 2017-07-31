@@ -132,6 +132,7 @@ void numerical_dynamics(void)
 void initialize_simulation (void)
   // Lander pose initialization - selects one of 10 possible scenarios
 {
+  static double aerostationary_radius = pow((GRAVITY*MARS_MASS*MARS_DAY*MARS_DAY) / (4 * M_PI*M_PI), 0.333333333);
   // The parameters to set are:
   // position - in Cartesian planetary coordinate system (m)
   // velocity - in Cartesian planetary coordinate system (m/s)
@@ -146,7 +147,7 @@ void initialize_simulation (void)
   scenario_description[3] = "polar launch at escape velocity (but drag prevents escape)";
   scenario_description[4] = "elliptical orbit that clips the atmosphere and decays";
   scenario_description[5] = "descent from 200km";
-  scenario_description[6] = "";
+  scenario_description[6] = "aerostationary orbit";
   scenario_description[7] = "";
   scenario_description[8] = "";
   scenario_description[9] = "";
@@ -220,6 +221,12 @@ void initialize_simulation (void)
     break;
 
   case 6:
+    //orbit above a fixed point on the martian equator
+    position = vector3d(aerostationary_radius, 0.0, 0.0);
+    velocity = vector3d(0.0, pow(GRAVITY*MARS_MASS / aerostationary_radius, 0.5), 0.0);
+    orientation = vector3d(0.0, 0.0, 90.0);
+    stabilized_attitude = true;
+    autopilot_enabled = false;
     break;
 
   case 7:
