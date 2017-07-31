@@ -34,7 +34,7 @@ vector3d lander_drag(void)
 {
   constexpr double front_facing_area = M_PI*LANDER_SIZE*LANDER_SIZE;
   vector3d rotation = atmosphere_rotation() + wind()*atmosphere_rotation().norm();
-  return -0.5*front_facing_area*atmospheric_density(position)*(DRAG_COEF_LANDER)*(velocity - rotation).abs()*(velocity - rotation);
+  return -0.5*front_facing_area*atmospheric_density(position)*(DRAG_COEF_LANDER)*(velocity-rotation).abs()*(velocity-rotation);
 }
 
 vector3d parachute_drag(void)
@@ -53,16 +53,15 @@ vector3d gravity(const double &lander_mass)
 
 bool open_chute_query(void)
 {
-  vector3d virt_velocity = velocity;
+  vector3d virt_velocity   = velocity;
+  vector3d virt_position   = position;
   double old_virt_velocity = velocity.abs();
-  vector3d virt_position = position;
-  vector3d virt_acceleration;
-  double virt_dt = 0.1;
+  double virt_dt           = 0.1;
+  double virt_time         = virt_dt;
   double virt_mass;
   vector3d virt_drag;
-  bool conclusion = 1;
-  double virt_time = virt_dt;
-  while (conclusion)
+  vector3d virt_acceleration;
+  while(TRUE)
   {
     virt_drag = -0.5*atmospheric_density(position)*(DRAG_COEF_LANDER*M_PI*LANDER_SIZE*LANDER_SIZE + DRAG_COEF_CHUTE*5.0*2.0*LANDER_SIZE*2.0*LANDER_SIZE)*(velocity - fluid_rotation()).abs()*(velocity - fluid_rotation());
     virt_mass = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY; //note this assumes effectively constant mass in virtual calulation

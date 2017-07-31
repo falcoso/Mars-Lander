@@ -97,25 +97,25 @@ using namespace std;
 class vector3d {
   // Utility class for three-dimensional vector operations
 public:
-  vector3d() { x = 0.0; y = 0.0; z = 0.0; }
-  vector3d(double a, double b, double c = 0.0) { x = a; y = b; z = c; }
-  bool operator== (const vector3d &v) const { if ((x == v.x) && (y == v.y) && (z == v.z)) return true; else return false; }
-  bool operator!= (const vector3d &v) const { if ((x != v.x) || (y != v.y) || (z != v.z)) return true; else return false; }
-  vector3d operator+ (const vector3d &v) const { return vector3d(x + v.x, y + v.y, z + v.z); }
-  vector3d operator- (const vector3d &v) const { return vector3d(x - v.x, y - v.y, z - v.z); }
+  vector3d() {x=0.0; y=0.0; z=0.0;}
+  vector3d (double a, double b, double c=0.0) {x=a; y=b; z=c;}
+  bool operator== (const vector3d &v) const { if ((x==v.x)&&(y==v.y)&&(z==v.z)) return true; else return false; }
+  bool operator!= (const vector3d &v) const { if ((x!=v.x)||(y!=v.y)||(z!=v.z)) return true; else return false; }
+  vector3d operator+ (const vector3d &v) const { return vector3d(x+v.x, y+v.y, z+v.z); }
+  vector3d operator- (const vector3d &v) const { return vector3d(x-v.x, y-v.y, z-v.z); }
   friend vector3d operator- (const vector3d &v) { return vector3d(-v.x, -v.y, -v.z); }
-  vector3d& operator+= (const vector3d &v) { x += v.x; y += v.y; z += v.z; return *this; }
-  vector3d& operator-= (const vector3d &v) { x -= v.x; y -= v.y; z -= v.z; return *this; }
-  vector3d operator^ (const vector3d &v) const { return vector3d(y*v.z - z*v.y, z*v.x - x*v.z, x*v.y - y*v.x); }
-  double operator* (const vector3d &v) const { return (x*v.x + y*v.y + z*v.z); }
+  vector3d& operator+= (const vector3d &v) { x+=v.x; y+=v.y; z+=v.z; return *this; }
+  vector3d& operator-= (const vector3d &v) { x-=v.x; y-=v.y; z-=v.z; return *this; }
+  vector3d operator^ (const vector3d &v) const { return vector3d(y*v.z-z*v.y, z*v.x-x*v.z, x*v.y-y*v.x); }
+  double operator* (const vector3d &v) const { return (x*v.x + y*v.y +z*v.z); }
   friend vector3d operator* (const vector3d &v, const double &a) { return vector3d(v.x*a, v.y*a, v.z*a); }
   friend vector3d operator* (const double &a, const vector3d &v) { return vector3d(v.x*a, v.y*a, v.z*a); }
-  vector3d& operator*= (const double &a) { x *= a; y *= a; z *= a; return *this; }
-  vector3d operator/ (const double &a) const { return vector3d(x / a, y / a, z / a); }
-  vector3d& operator/= (const double &a) { x /= a; y /= a; z /= a; return *this; }
+  vector3d& operator*= (const double &a) { x*=a; y*=a; z*=a; return *this; }
+  vector3d operator/ (const double &a) const { return vector3d(x/a, y/a, z/a); }
+  vector3d& operator/= (const double &a) { x/=a; y/=a; z/=a; return *this; }
   double abs2() const { return (x*x + y*y + z*z); }
   double abs() const { return sqrt(this->abs2()); }
-  vector3d norm() const { double s(this->abs()); if (s == 0) return *this; else return vector3d(x / s, y / s, z / s); }
+  vector3d norm() const { double s(this->abs()); if (s==0) return *this; else return vector3d(x/s, y/s, z/s); }
   friend ostream& operator << (ostream &out, const vector3d &v) { out << v.x << ' ' << v.y << ' ' << v.z; return out; }
   double x, y, z;
 private:
@@ -143,8 +143,8 @@ struct closeup_coords_t {
 
 // Enumerated data type for parachute status
 enum parachute_status_t { NOT_DEPLOYED = 0, DEPLOYED = 1, LOST = 2 };
-enum intergrator_t { VERLET = 0, EULER = 1 };
-enum autopilot_t { ORBIT_RE_ENTRY, ORBIT_DESCENT, ORBIT_INJECTION, HOVER };
+enum intergrator_t {VERLET = 0, EULER = 1};
+enum autopilot_t {ORBIT_RE_ENTRY, ORBIT_DESCENT, ORBIT_INJECTION, HOVER};
 
 #ifdef DECLARE_GLOBAL_VARIABLES // actual declarations of all global variables for lander_graphics.cpp
 
@@ -210,54 +210,54 @@ extern closeup_coords_t closeup_coords;
 #endif
 
 // Function prototypes
-void invert(double m[], double mout[]);
-void xyz_euler_to_matrix(vector3d ang, double m[]);
-vector3d matrix_to_xyz_euler(double m[]);
-void normalize_quat(quat_t &q);
-quat_t axis_to_quat(vector3d a, const double phi);
-double project_to_sphere(const double r, const double x, const double y);
-quat_t add_quats(quat_t q1, quat_t q2);
-void quat_to_matrix(double m[], const quat_t q);
-quat_t track_quats(const double p1x, const double p1y, const double p2x, const double p2y);
-void microsecond_time(unsigned long long &t);
-void fghCircleTable(double **sint, double **cost, const int n);
-void glutOpenHemisphere(GLdouble radius, GLint slices, GLint stacks);
-void glutMottledSphere(GLdouble radius, GLint slices, GLint stacks);
-void glutCone(GLdouble base, GLdouble height, GLint slices, GLint stacks, bool closed);
-void enable_lights(void);
-void setup_lights(void);
-void glut_print(float x, float y, string s);
-double atmospheric_density(vector3d pos);
-void draw_dial(double cx, double cy, double val, string title, string units);
-void draw_control_bar(double tlx, double tly, double val, double red, double green, double blue, string title);
-void draw_indicator_lamp(double tcx, double tcy, string off_text, string on_text, bool on);
-void draw_instrument_window(void);
-void display_help_arrows(void);
-void display_help_prompt(void);
-void display_help_text(void);
-void draw_orbital_window(void);
-void draw_parachute_quad(double d);
-void draw_parachute(double d);
-bool generate_terrain_texture(void);
-void update_closeup_coords(void);
-void draw_closeup_window(void);
-void draw_main_window(void);
-void refresh_all_subwindows(void);
-bool safe_to_deploy_parachute(void);
-void update_visualization(void);
-void attitude_stabilization(void);
-vector3d thrust_wrt_world(void);
-void autopilot(void);
-void numerical_dynamics(void);
-void initialize_simulation(void);
-void update_lander_state(void);
-void reset_simulation(void);
-void set_orbital_projection_matrix(void);
-void reshape_main_window(int width, int height);
-void orbital_mouse_button(int button, int state, int x, int y);
-void orbital_mouse_motion(int x, int y);
-void closeup_mouse_button(int button, int state, int x, int y);
-void closeup_mouse_motion(int x, int y);
-void glut_special(int key, int x, int y);
-void glut_key(unsigned char k, int x, int y);
+void invert (double m[], double mout[]);
+void xyz_euler_to_matrix (vector3d ang, double m[]);
+vector3d matrix_to_xyz_euler (double m[]);
+void normalize_quat (quat_t &q);
+quat_t axis_to_quat (vector3d a, const double phi);
+double project_to_sphere (const double r, const double x, const double y);
+quat_t add_quats (quat_t q1, quat_t q2);
+void quat_to_matrix (double m[], const quat_t q);
+quat_t track_quats (const double p1x, const double p1y, const double p2x, const double p2y);
+void microsecond_time (unsigned long long &t);
+void fghCircleTable (double **sint, double **cost, const int n);
+void glutOpenHemisphere (GLdouble radius, GLint slices, GLint stacks);
+void glutMottledSphere (GLdouble radius, GLint slices, GLint stacks);
+void glutCone (GLdouble base, GLdouble height, GLint slices, GLint stacks, bool closed);
+void enable_lights (void);
+void setup_lights (void);
+void glut_print (float x, float y, string s);
+double atmospheric_density (vector3d pos);
+void draw_dial (double cx, double cy, double val, string title, string units);
+void draw_control_bar (double tlx, double tly, double val, double red, double green, double blue, string title);
+void draw_indicator_lamp (double tcx, double tcy, string off_text, string on_text, bool on);
+void draw_instrument_window (void);
+void display_help_arrows (void);
+void display_help_prompt (void);
+void display_help_text (void);
+void draw_orbital_window (void);
+void draw_parachute_quad (double d);
+void draw_parachute (double d);
+bool generate_terrain_texture (void);
+void update_closeup_coords (void);
+void draw_closeup_window (void);
+void draw_main_window (void);
+void refresh_all_subwindows (void);
+bool safe_to_deploy_parachute (void);
+void update_visualization (void);
+void attitude_stabilization (void);
+vector3d thrust_wrt_world (void);
+void autopilot (void);
+void numerical_dynamics (void);
+void initialize_simulation (void);
+void update_lander_state (void);
+void reset_simulation (void);
+void set_orbital_projection_matrix (void);
+void reshape_main_window (int width, int height);
+void orbital_mouse_button (int button, int state, int x, int y);
+void orbital_mouse_motion (int x, int y);
+void closeup_mouse_button (int button, int state, int x, int y);
+void closeup_mouse_motion (int x, int y);
+void glut_special (int key, int x, int y);
+void glut_key (unsigned char k, int x, int y);
 #endif

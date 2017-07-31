@@ -21,10 +21,10 @@ void autopilot(const double &lander_mass)
 // Autopilot to adjust the engine throttle, parachute and attitude control
 {
   constexpr double ideal_ver = 0;
-  constexpr double Kp = 1;
-  bool engage = 0;
-  double ground_speed = ((velocity - atmosphere_rotation()) - (velocity - atmosphere_rotation())*position.norm()*position.norm()).abs();
-  double direction = position.norm()*(velocity - atmosphere_rotation()).norm();
+  constexpr double Kp        = 1;
+  bool engage                = 0;
+  double ground_speed        = ((velocity - atmosphere_rotation()) - (velocity - atmosphere_rotation())*position.norm()*position.norm()).abs();
+  double direction           = position.norm()*(velocity - atmosphere_rotation()).norm();
   static double timer;
   double Kh, ver, altitude, delta, error, Pout;
 
@@ -71,12 +71,12 @@ void autopilot(const double &lander_mass)
     ver = velocity*position.norm();
     altitude = position.abs() - MARS_RADIUS;
     delta = gravity(lander_mass).abs() / MAX_THRUST; // - drag()*gravity(lander_mass).norm() considering drag as part of the thrus seems to make fuel efficiency worse
-
-    if (parachute_status == LOST)  Kh = 0.01812;
+    
+    if (parachute_status == LOST)  Kh = 0.02;
     else                           Kh = 0.03;
 
-    error = -(ideal_ver + Kh*(altitude - 10) + ver);
-    Pout = Kp*error;
+    error = -(ideal_ver + Kh*altitude + ver);
+    Pout  = Kp*error;
 
     //Proportional gain control
     if (Pout <= -delta)
@@ -103,7 +103,7 @@ void autopilot(const double &lander_mass)
     {
       if ((safe_to_deploy_parachute() && ver < 0) && (engage == 1 || open_chute_query()))
       {//must always be safe to deploy and falling towards mars, as well as either, cause correct deceleration 
-       //to not break or already have the throttle engaged
+       //to not break or already have the throttle engaged, which will assist in braking
         parachute_status = DEPLOYED;
         std::cout << "PARACHUTE SUCCESSFULLY OPENED\n";
         std::cout << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n";
@@ -193,7 +193,7 @@ void numerical_dynamics(void)
   if (autopilot_enabled)
   {
     stabilized_attitude = 1;
-    //  stabilized_attitude_angle = -(acos(position.norm()*(velocity-atmosphere_rotation()).norm()) + M_PI);
+  //  stabilized_attitude_angle = -(acos(position.norm()*(velocity-atmosphere_rotation()).norm()) + M_PI);
     autopilot(lander_mass);
   }
 

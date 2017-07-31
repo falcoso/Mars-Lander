@@ -1,29 +1,7 @@
-﻿Dynamics.obj : error LNK2019: unresolved external symbol "double __cdecl atmospheric_density(class vector3d)" (?atmospheric_density@@YANVvector3d@@@Z) referenced in function "class vector3d __cdecl lander_drag(void)" (?lander_drag@@YA?AVvector3d@@XZ)
-Dynamics.obj : error LNK2019: unresolved external symbol "class vector3d __cdecl thrust_wrt_world(void)" (?thrust_wrt_world@@YA?AVvector3d@@XZ) referenced in function "bool __cdecl open_chute_query(void)" (?open_chute_query@@YA_NXZ)
-lander.obj : error LNK2001: unresolved external symbol "class vector3d __cdecl thrust_wrt_world(void)" (?thrust_wrt_world@@YA?AVvector3d@@XZ)
-Dynamics.obj : error LNK2001: unresolved external symbol "bool wind_enabled" (?wind_enabled@@3_NA)
-lander.obj : error LNK2001: unresolved external symbol "bool wind_enabled" (?wind_enabled@@3_NA)
-Dynamics.obj : error LNK2001: unresolved external symbol "double fuel" (?fuel@@3NA)
-lander.obj : error LNK2001: unresolved external symbol "double fuel" (?fuel@@3NA)
-Dynamics.obj : error LNK2001: unresolved external symbol "double planetary_rotation" (?planetary_rotation@@3NA)
-lander.obj : error LNK2001: unresolved external symbol "double planetary_rotation" (?planetary_rotation@@3NA)
-Dynamics.obj : error LNK2001: unresolved external symbol "class vector3d position" (?position@@3Vvector3d@@A)
-lander.obj : error LNK2001: unresolved external symbol "class vector3d position" (?position@@3Vvector3d@@A)
-Dynamics.obj : error LNK2001: unresolved external symbol "class vector3d velocity" (?velocity@@3Vvector3d@@A)
-lander.obj : error LNK2001: unresolved external symbol "class vector3d velocity" (?velocity@@3Vvector3d@@A)
-lander.obj : error LNK2019: unresolved external symbol "bool __cdecl safe_to_deploy_parachute(void)" (?safe_to_deploy_parachute@@YA_NXZ) referenced in function "void __cdecl autopilot(double const &)" (?autopilot@@YAXABN@Z)
-lander.obj : error LNK2019: unresolved external symbol "void __cdecl attitude_stabilization(void)" (?attitude_stabilization@@YAXXZ) referenced in function "void __cdecl numerical_dynamics(void)" (?numerical_dynamics@@YAXXZ)
-lander.obj : error LNK2001: unresolved external symbol "bool stabilized_attitude" (?stabilized_attitude@@3_NA)
-lander.obj : error LNK2001: unresolved external symbol "bool autopilot_enabled" (?autopilot_enabled@@3_NA)
-lander.obj : error LNK2001: unresolved external symbol "double delta_t" (?delta_t@@3NA)
-lander.obj : error LNK2001: unresolved external symbol "double simulation_time" (?simulation_time@@3NA)
-lander.obj : error LNK2001: unresolved external symbol "double throttle" (?throttle@@3NA)
-lander.obj : error LNK2001: unresolved external symbol "unsigned short scenario" (?scenario@@3GA)
-lander.obj : error LNK2001: unresolved external symbol "class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > * scenario_description" (?scenario_description@@3PAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@A)
-lander.obj : error LNK2001: unresolved external symbol "class vector3d orientation" (?orientation@@3Vvector3d@@A)
-lander.obj : error LNK2001: unresolved external symbol "enum parachute_status_t parachute_status" (?parachute_status@@3W4parachute_status_t@@A)
-lander.obj : error LNK2001: unresolved external symbol "float stabilized_attitude_angle" (?stabilized_attitude_angle@@3MA)
-lander.obj : error LNK2001: unresolved external symbol "enum autopilot_t autopilot_status" (?autopilot_status@@3W4autopilot_t@@A)
-lander.obj : error LNK2001: unresolved external symbol "struct closeup_coords_t closeup_coords" (?closeup_coords@@3Ucloseup_coords_t@@A)
-MSVCRTD.lib(exe_main.obj) : error LNK2019: unresolved external symbol _main referenced in function "int __cdecl invoke_main(void)" (?invoke_main@@YAHXZ)
-C:\Users\jones\OneDrive - University Of Cambridge\University\Mars Lander\Lander Project\Debug\Lander.exe : fatal error LNK1120: 22 unresolved externals
+﻿  lander.cpp
+c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander.cpp(39): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander.cpp(98): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander.cpp(99): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander.cpp(135): warning C4305: '=': truncation from 'double' to 'float'
+  Lander.vcxproj -> C:\Users\jones\OneDrive - University Of Cambridge\University\Mars Lander\Lander Project\Debug\Lander.exe
+  Lander.vcxproj -> C:\Users\jones\OneDrive - University Of Cambridge\University\Mars Lander\Lander Project\Debug\Lander.pdb (Partial PDB)
