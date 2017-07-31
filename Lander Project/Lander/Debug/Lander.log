@@ -1,4 +1,3 @@
-﻿  lander.cpp
-c:\users\jones\onedrive - university of cambridge\university\mars lander\lander project\source\lander.cpp(43): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+﻿  Dynamics.cpp
   Lander.vcxproj -> C:\Users\jones\OneDrive - University Of Cambridge\University\Mars Lander\Lander Project\Debug\Lander.exe
   Lander.vcxproj -> C:\Users\jones\OneDrive - University Of Cambridge\University\Mars Lander\Lander Project\Debug\Lander.pdb (Partial PDB)

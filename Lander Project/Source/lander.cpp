@@ -74,6 +74,18 @@ void autopilot(const double &lander_mass)
     throttle = delta + Pout;
     engage = 1;
   }
+
+  if (parachute_status == NOT_DEPLOYED && altitude < 50000) //if lost or already deployed, save processing and skip next
+  {
+    if ((safe_to_deploy_parachute() && ver < 0) && (engage == 1 || open_chute_query()))
+    {//must always be safe to deploy and falling towards mars, as well as either, cause correct deceleration 
+     //to not break or already have the throttle engaged
+      parachute_status = DEPLOYED;
+      std::cout << "PARACHUTE SUCCESSFULLY OPENED\n";
+      std::cout << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n";
+      std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
+    }
+  }
 }
 
 void numerical_dynamics(void)
