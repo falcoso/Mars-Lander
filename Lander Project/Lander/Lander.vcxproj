@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="..\Source\Dynamics.h" />
     <ClInclude Include="..\Source\lander.h" />
+    <ClInclude Include="..\Source\lander_graphics.h" />
     <ClInclude Include="..\Source\Orbiter class.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

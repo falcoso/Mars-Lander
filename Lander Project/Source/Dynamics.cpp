@@ -1,6 +1,7 @@
 /* Functions to calculate the Dynamics on an object*/
 
 #include "lander.h"
+#include "lander_graphics.h"
 #include <random>
 
 void planetary_rotation_update(void)

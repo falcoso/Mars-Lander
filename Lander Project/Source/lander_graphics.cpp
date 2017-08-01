@@ -77,6 +77,7 @@
 #define DECLARE_GLOBAL_VARIABLES
 #include "lander.h"
 #include "Dynamics.h"
+#include "lander_graphics.h"
 
 void invert(double m[], double mout[])
 // Inverts a 4x4 OpenGL rotation matrix

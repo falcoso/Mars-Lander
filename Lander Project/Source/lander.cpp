@@ -14,6 +14,7 @@
 
 #include "lander.h"
 #include "Dynamics.h"
+#include "lander_graphics.h"
 
 
 fstream fout;
