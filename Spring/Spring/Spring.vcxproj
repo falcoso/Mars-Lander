@@ -209,6 +209,10 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="intergrator_types.cpp" />
+    <ClCompile Include="Spring_class.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Spring_class.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

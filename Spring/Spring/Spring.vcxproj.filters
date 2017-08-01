@@ -21,5 +21,13 @@
     <ClCompile Include="intergrator_types.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Spring_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Spring_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
