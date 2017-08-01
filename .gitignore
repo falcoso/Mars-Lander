@@ -35,4 +35,9 @@
 *.out
 *.app
 
+#Folders
+Lander\ Project/Debug/*
+Lander\ Project/Lander/Debug/*
+.vs
+
 # End of https://www.gitignore.io/api/c++
