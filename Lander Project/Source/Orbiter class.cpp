@@ -7,6 +7,8 @@ void orbiter::numerical_dynamics()
   static vector3d old_position; //do not assign here, as will not reset when new scenario selected
   vector3d new_position;
 
+  planetary_rotation = pow(pow(position.x, 2) + pow(position.y, 2), 0.5)*(2 * M_PI / MARS_DAY);
+
   acceleration = gravity() / mass;
   if (simulation_time == 0.0) old_position = position - delta_t*velocity;
 
@@ -45,13 +47,12 @@ lander::lander(double construction_radius)
 
 void lander::numerical_dynamics()
 {
-  {
     //declare old and new potision variables for verlet intergrator
     static vector3d old_position; //do not assign here, as will not reset when new scenario selected
     vector3d new_position;
     static double kp_test;
     //calculate the lander's mass and acceleration
-    planetary_rotation_update(); //update the rotation of the planet relative to the lander
+    planetary_rotation = pow(pow(position.x, 2) + pow(position.y, 2), 0.5)*(2 * M_PI / MARS_DAY); //update the rotation of the planet relative to the lander
     mass = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY;
     switch (parachute_status)
     {
@@ -64,11 +65,7 @@ void lander::numerical_dynamics()
     }
 
     //so that if the simulation is reset so does the old position
-    if (simulation_time == 0.0)
-    {
-      old_position = position - delta_t*velocity;
-      if (autopilot_status == ORBIT_DESCENT) kp_test = kh_set(0.01, 0.025);
-    }
+    if (simulation_time == 0.0) old_position = position - delta_t*velocity;
 
     switch (intergrator) //switch based on intergration method chosen
     {
@@ -94,7 +91,6 @@ void lander::numerical_dynamics()
       //  stabilized_attitude_angle = -(acos(position.norm()*(velocity-atmosphere_rotation()).norm()) + M_PI);
       autopilot();
     }
-  }
 }
 
 
@@ -115,125 +111,117 @@ void lander::autopilot()
 {
   constexpr double ideal_ver = 0.5;
   constexpr double Kp = 1;
-  bool engage = 0;
-  double ground_speed = ((velocity - atmosphere_rotation()) - (velocity - atmosphere_rotation())*position.norm()*position.norm()).abs();
-  double direction = position.norm()*(velocity - atmosphere_rotation()).norm();
-  static double timer;
   double Kh, ver, altitude, delta, error, Pout;
 
-  if (simulation_time == 0)
-  {
-    timer = 0.0;
+  /*If no parachute is available then Kh = 0.018 will land safely, if parachute is available
+  a more efficient configuration is Kh = 0.03 Kp = 1 ideal_ver = 0.5
+  ***MOST EFFICIENT Kh WITH PARACHUTE***        ***SOFEST LANDING Kh WITH PARACHUTE***
+  Scenario 1  Kh = 0.1525   Fuel Used = 7.9         Kh = 0.0104
+  Scenario 3  Kh = 0.04775  Fuel Used = 35          Kh = 0.0147
+  Scenario 4  Kh = 0.1525   Fuel Used = 7.9         Kh = 0.01095
+  Scenario 5  Kh = 0.05143  Fuel Used = 30.1        Kh = 0.0145
+
+  ***Most EFFICIENT Kh WITHOUT PARACHUTE***
+  Scenario 1  Kh = 0.04125  Fuel Used = 33.1        Kh = 0.0137
+  Scenario 3  Kh = 0.01812  Fuel Used = 59.1        Kh = 0.01625
+  Scenario 5  Kh = 0.01898  Fuel Used = 57.1        Kh = 0.01675
+  */
+  ver = velocity*position.norm();
+  altitude = position.abs() - MARS_RADIUS;
+  delta = gravity().abs() / MAX_THRUST; 
+  
+  Kh = 0.03;
+
+  error = -(ideal_ver + Kh*altitude + ver);
+  Pout = Kp*error;
+
+  //Proportional gain control
+  if (Pout <= -delta)          throttle = 0;
+  else if (Pout >= 1 - delta)  throttle = 1;
+  else                         throttle = delta + Pout;
+}
+
+vector3d lander::thrust_wrt_world(void)
+// Works out thrust vector in the world reference frame, given the lander's orientation
+{
+  double m[16], k, delayed_throttle, lag = ENGINE_LAG;
+  vector3d a, b;
+  static double lagged_throttle = 0.0;
+  static double last_time_lag_updated = -1.0;
+
+  if (simulation_time < last_time_lag_updated) lagged_throttle = 0.0; // simulation restarted
+  if (throttle < 0.0) throttle = 0.0;
+  if (throttle > 1.0) throttle = 1.0;
+  if (landed || (fuel == 0.0)) throttle = 0.0;
+
+  if (simulation_time != last_time_lag_updated) {
+
+    delayed_throttle = throttle;
+
+    // Lag, with time constant ENGINE_LAG
+    k = 0.0;
+
+    last_time_lag_updated = simulation_time;
   }
 
-  switch (autopilot_status)
-  {
-  case ORBIT_RE_ENTRY:
-    stabilized_attitude_angle = acos(position.norm()*(velocity - atmosphere_rotation()).norm()) + M_PI;
-    if ((abs(velocity*position.norm()) < 10 && velocity.abs() != 0) && timer <= 60)
-    {
-      throttle = 1;
-      timer += delta_t;
-    }
-    else
-    {
-      autopilot_status = ORBIT_DESCENT;
-      throttle = 0;
-      stabilized_attitude_angle = 0;
-      std::cout << "ORBITAL RE-ENTRY COMPLETE\n";
-      std::cout << "Fuel level: " << fuel * 100 / FUEL_CAPACITY << "%\n";
-      std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
-      std::cout << "COMMENCE ORBITAL DESCENT" << std::endl;
-    }
-    break;
-
-  case ORBIT_DESCENT:
-    /*If no parachute is available then Kh = 0.018 will land safely, if parachute is available
-    a more efficient configuration is Kh = 0.03 Kp = 1 ideal_ver = 0.5
-    ***MOST EFFICIENT Kh WITH PARACHUTE***        ***SOFEST LANDING Kh WITH PARACHUTE***
-    Scenario 1  Kh = 0.1525   Fuel Used = 7.9         Kh = 0.0104
-    Scenario 3  Kh = 0.04775  Fuel Used = 35          Kh = 0.0147
-    Scenario 4  Kh = 0.1525   Fuel Used = 7.9         Kh = 0.01095
-    Scenario 5  Kh = 0.05143  Fuel Used = 30.1        Kh = 0.0145
-
-    ***Most EFFICIENT Kh WITHOUT PARACHUTE***
-    Scenario 1  Kh = 0.04125  Fuel Used = 33.1        Kh = 0.0137
-    Scenario 3  Kh = 0.01812  Fuel Used = 59.1        Kh = 0.01625
-    Scenario 5  Kh = 0.01898  Fuel Used = 57.1        Kh = 0.01675
-    */
-    ver = velocity*position.norm();
-    altitude = position.abs() - MARS_RADIUS;
-    delta = gravity().abs() / MAX_THRUST; // - drag()*gravity(mass).norm() considering drag as part of the thrus seems to make fuel efficiency worse
-
-    if (parachute_status == LOST)  Kh = 0.018;
-    else                           Kh = 0.03;
-
-    error = -(ideal_ver + Kh*altitude + ver);
-    Pout = Kp*error;
-
-    //Proportional gain control
-    if (Pout <= -delta)
-    {
-      throttle = 0;
-    }
-    else if (Pout >= 1 - delta)
-    {
-      throttle = 1;
-      engage = 1;
-    }
-    else
-    {
-      throttle = delta + Pout;
-      engage = 1;
-    }
-
-    //in attitude_stabilization() up is set to velocity direction, though this is still required for it to stay stable???
-    if (velocity*closeup_coords.right < 0) stabilized_attitude_angle = M_PI + acos(position.norm()*(velocity - atmosphere_rotation()).norm());
-    else                                   stabilized_attitude_angle = M_PI - acos(position.norm()*(velocity - atmosphere_rotation()).norm());
-
-    //Determine parachute release
-    if (parachute_status == NOT_DEPLOYED && altitude < 50000) //if lost or already deployed, save processing and skip next
-    {
-      if ((safe_to_deploy_parachute() && ver < 0) && (engage == 1 || open_chute_query()))
-      {//must always be safe to deploy and falling towards mars, as well as either, cause correct deceleration 
-       //to not break or already have the throttle engaged, which will assist in braking
-        parachute_status = DEPLOYED;
-        std::cout << "PARACHUTE SUCCESSFULLY OPENED\n";
-        std::cout << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n";
-        std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
-      }
-    }
-    else if (parachute_status == DEPLOYED && altitude < 1000) //reduce drag at lower level
-    {
-      if (ground_speed < abs(1.1*wind()) && wind() > 20)
-      {
-        parachute_status = LOST;
-        std::cout << "PARACHUTE EJECTED TO REDUCE GROUND SPEED\n";
-        std::cout << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n";
-        std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
-      }
-    }
-    break;
-  case ORBIT_INJECTION:
-    fuel = 1;
-    if (position.abs() < 1.2*MARS_RADIUS)
-    {
-      Kh = 0.3;
-      ver = 0;
-      error = -Kh*(1.2*MARS_RADIUS - position.abs()) + ver;
-      Pout = Kp*error;
-    }
-    else
-    {
-      stabilized_attitude_angle = M_PI / 2;
-      error = pow(GRAVITY*MARS_MASS / (position.abs()), 0.5) - velocity.abs()*cos(M_PI / 2);
-      Pout = Kp*error;
-    }
-
-    if (Pout < 0)      throttle = 0;
-    else if (Pout > 1) throttle = 1;
-    else               throttle = Pout;
-
-    break;
+  if (stabilized_attitude && (abs(stabilized_attitude_angle) < 1E-7)) { // specific solution, avoids rounding errors in the more general calculation below
+    b = lagged_throttle*MAX_THRUST*position.norm();
   }
+  else {
+    a.x = 0.0; a.y = 0.0; a.z = lagged_throttle*MAX_THRUST;
+    xyz_euler_to_matrix(orientation, m);
+    b.x = m[0] * a.x + m[4] * a.y + m[8] * a.z;
+    b.y = m[1] * a.x + m[5] * a.y + m[9] * a.z;
+    b.z = m[2] * a.x + m[6] * a.y + m[10] * a.z;
+  }
+  return b;
+}
+
+void lander::attitude_stabilization(void)
+// Three-axis stabilization to ensure the lander's base is always pointing downwards 
+{
+  vector3d up, left, out, axis;
+  double m[16];
+  //define axis of rotation
+  if (autopilot_status == ORBIT_DESCENT && autopilot_enabled)
+  {
+    up = -(velocity - atmosphere_rotation()).norm();
+  }
+  else if (abs(stabilized_attitude_angle) < 1E-7) //skip expensive calulcations if aproximately 0
+  {
+    up = position.norm();
+  }
+  else
+  { //define the axis of rotation
+    axis = (position.norm() ^ closeup_coords.right).norm();
+    //convert to quaternion 
+    quat_t rotation_quat = axis_to_quat(axis, stabilized_attitude_angle);
+    //create rotation matrix from quaternion, recycling m[] as it is re-assigned later
+    quat_to_matrix(m, rotation_quat);
+    //multiply position vector by rotation matrix
+    up.x = position.norm().x*m[0] + position.norm().y*m[1] + position.norm().z*m[2]; // this is the direction we want the lander's nose to point in
+    up.y = position.norm().x*m[4] + position.norm().y*m[5] + position.norm().z*m[6];
+    up.z = position.norm().x*m[8] + position.norm().y*m[9] + position.norm().z*m[10];
+  }
+  // !!!!!!!!!!!!! HINT TO STUDENTS ATTEMPTING THE EXTENSION EXERCISES !!!!!!!!!!!!!!
+  // For any-angle attitude control, we just need to set "up" to something different,
+  // and leave the remainder of this function unchanged. For example, suppose we want
+  // the attitude to be stabilized at stabilized_attitude_angle to the vertical in the
+  // close-up view. So we need to rotate "up" by stabilized_attitude_angle degrees around
+  // an axis perpendicular to the plane of the close-up view. This axis is given by the
+  // vector product of "up"and "closeup_coords.right". To calculate the result of the
+  // rotation, search the internet for information on the axis-angle rotation formula.
+
+  // Set left to something perpendicular to up
+  left.x = -up.y; left.y = up.x; left.z = 0.0;
+  if (left.abs() < SMALL_NUM) { left.x = -up.z; left.y = 0.0; left.z = up.x; }
+  left = left.norm();
+  out = left^up;
+  // Construct modelling matrix (rotation only) from these three vectors
+  m[0] = out.x; m[1] = out.y; m[2] = out.z; m[3] = 0.0;
+  m[4] = left.x; m[5] = left.y; m[6] = left.z; m[7] = 0.0;
+  m[8] = up.x; m[9] = up.y; m[10] = up.z; m[11] = 0.0;
+  m[12] = 0.0; m[13] = 0.0; m[14] = 0.0; m[15] = 1.0;
+  // Decomponse into xyz Euler angles
+  orientation = matrix_to_xyz_euler(m);
 }
