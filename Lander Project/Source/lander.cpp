@@ -15,9 +15,9 @@
 #include "lander.h"
 #include "Dynamics.h"
 
-constexpr intergrator_t intergrator = VERLET;
+
 fstream fout;
-void autopilot(const double &lander_mass, const double &kp_test)
+void autopilot(const double &lander_mass)
 // Autopilot to adjust the engine throttle, parachute and attitude control
 {
   constexpr double ideal_ver = 0.5;
@@ -171,7 +171,6 @@ void numerical_dynamics(void)
   if (simulation_time == 0.0)
   {
     old_position = position - delta_t*velocity;
-    kp_test = 0;//kh_set(0.01, 0.025);
   }
 
   switch (intergrator) //switch based on intergration method chosen
@@ -196,7 +195,7 @@ void numerical_dynamics(void)
   {
     stabilized_attitude = 1;
   //  stabilized_attitude_angle = -(acos(position.norm()*(velocity-atmosphere_rotation()).norm()) + M_PI);
-    autopilot(lander_mass, kp_test);
+    autopilot(lander_mass);
   }
 
 }

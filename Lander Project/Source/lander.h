@@ -206,6 +206,7 @@ extern parachute_status_t parachute_status;
 extern float stabilized_attitude_angle;
 extern autopilot_t autopilot_status;
 extern closeup_coords_t closeup_coords;
+extern constexpr intergrator_t intergrator = VERLET;
 
 #endif
 
