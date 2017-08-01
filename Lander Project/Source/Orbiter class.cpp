@@ -42,7 +42,7 @@ lander::lander(double construction_radius)
   parachute_status = NOT_DEPLOYED;
   radius = construction_radius;
   front_facing_area = M_PI*pow(radius, 2);
-
+  return;
 }
 
 void lander::numerical_dynamics()

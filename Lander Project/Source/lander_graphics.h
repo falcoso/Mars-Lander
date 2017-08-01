@@ -1,6 +1,7 @@
 #ifndef LANDER_GRAPHICS
 #define LANDER_GRAPHICS
 #include "lander.h"
+#include "Orbiter class.h"
 
 #ifdef DECLARE_GLOBAL_VARIABLES
 // GL windows and objects
@@ -38,6 +39,7 @@ bool stabilized_attitude, autopilot_enabled, parachute_lost, wind_enabled;
 parachute_status_t parachute_status;
 float stabilized_attitude_angle;
 autopilot_t autopilot_status;
+lander Mars_Lander(LANDER_SIZE);
 
 // Orbital and closeup view parameters
 double orbital_zoom, save_orbital_zoom, closeup_offset, closeup_xr, closeup_yr, terrain_angle;

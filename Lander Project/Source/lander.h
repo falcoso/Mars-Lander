@@ -160,7 +160,7 @@ extern constexpr intergrator_t intergrator = VERLET;
 
 
 // Function prototypes
-void autopilot (void);
+void autopilot (const double &lander_mass);
 void numerical_dynamics (void);
 void initialize_simulation (void);
 #endif

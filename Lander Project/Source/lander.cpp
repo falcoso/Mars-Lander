@@ -16,7 +16,7 @@
 #include "Dynamics.h"
 #include "lander_graphics.h"
 
-
+extern lander Mars_Lander;
 fstream fout;
 void autopilot(const double &lander_mass)
 // Autopilot to adjust the engine throttle, parachute and attitude control
