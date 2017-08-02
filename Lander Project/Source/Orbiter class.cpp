@@ -31,9 +31,9 @@ void orbiter::numerical_dynamics()
 vector3d orbiter::gravity()      { return -(GRAVITY*MARS_MASS*mass / position.abs2())*position.norm(); }
 vector3d orbiter::get_position() { return position; }
 vector3d orbiter::get_velocity() { return velocity; }
+vector3d orbiter::get_planetary_rotation() { return planetary_rotation; }
 double orbiter::get_altitude()   { return altitude; }
 double orbiter::get_mass()       { return mass; }
-double orbiter::get_planetary_rotation() { return planetary_rotation; }
 
 void orbiter::set_position(vector3d input_pos) { position = input_pos; }
 void orbiter::set_velocity(vector3d input_vel) { velocity = input_vel; }
@@ -59,8 +59,9 @@ orbiter::orbiter()
 void orbiter::update_members()
 {
   altitude = position.abs() - MARS_RADIUS;
-  planetary_rotation = pow(pow(position.x, 2) + pow(position.y, 2), 0.5)*(2 * M_PI / MARS_DAY);
   acceleration = gravity() / mass;
+  planetary_rotation = (pow(pow(position.x, 2) + pow(position.y, 2), 0.5))
+                      *(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
 }
 
 //===========================================================================================================
@@ -134,7 +135,7 @@ void lander::autopilot()
 {
   constexpr double ideal_ver = 0.5;
   constexpr double Kp = 1;
-  double Kh, ver, altitude, delta, error, Pout;
+  double Kh, ver, delta, error, Pout;
 
   /*If no parachute is available then Kh = 0.018 will land safely, if parachute is available
   a more efficient configuration is Kh = 0.03 Kp = 1 ideal_ver = 0.5
@@ -149,14 +150,11 @@ void lander::autopilot()
   Scenario 3  Kh = 0.01812  Fuel Used = 59.1        Kh = 0.01625
   Scenario 5  Kh = 0.01898  Fuel Used = 57.1        Kh = 0.01675
   */
-  ver = velocity*position.norm();
-  altitude = position.abs() - MARS_RADIUS;
-  delta = gravity().abs() / MAX_THRUST; 
-  
-  Kh = 0.03;
-
+  ver   = velocity*position.norm();
+  delta = gravity().abs() / MAX_THRUST;   
+  Kh    = 0.03;
   error = -(ideal_ver + Kh*altitude + ver);
-  Pout = Kp*error;
+  Pout  = Kp*error;
 
   //Proportional gain control
   if (Pout <= -delta)          throttle = 0;
@@ -247,6 +245,7 @@ void lander::attitude_stabilization(void)
   m[12] = 0.0; m[13] = 0.0; m[14] = 0.0; m[15] = 1.0;
   // Decomponse into xyz Euler angles
   orientation = matrix_to_xyz_euler(m);
+  return;
 }
 
 void lander::update_members()
@@ -261,8 +260,11 @@ void lander::update_members()
     break;
   }
 
-  mass = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY;
+  mass     = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY;
   altitude = position.abs() - MARS_RADIUS;
-  planetary_rotation = pow(pow(position.x, 2) + pow(position.y, 2), 0.5)*(2 * M_PI / MARS_DAY);
-  fuel -= delta_t * (FUEL_RATE_AT_MAX_THRUST*throttle) / FUEL_CAPACITY;
+  fuel    -= delta_t * (FUEL_RATE_AT_MAX_THRUST*throttle) / FUEL_CAPACITY;
+  planetary_rotation = (pow(pow(position.x, 2) + pow(position.y, 2), 0.5))
+                       *(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
+
+  return;
 }

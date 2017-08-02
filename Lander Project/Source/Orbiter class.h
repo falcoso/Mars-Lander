@@ -11,10 +11,10 @@ public:
   virtual void numerical_dynamics();
   double get_altitude();
   double get_mass();
-  double get_planetary_rotation();
   vector3d gravity();
   vector3d get_position();
   vector3d get_velocity();
+  vector3d get_planetary_rotation();
 
   void set_velocity(vector3d input_vel);
   void set_position(vector3d input_pos);
@@ -28,7 +28,7 @@ protected:
   
   vector3d acceleration;
   double altitude;
-  double planetary_rotation;
+  vector3d planetary_rotation;
 };
 
 
