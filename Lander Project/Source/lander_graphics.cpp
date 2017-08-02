@@ -687,23 +687,23 @@ void draw_instrument_window(void)
   glClear(GL_COLOR_BUFFER_BIT);
 
   // Draw altimeter
-  draw_dial(view_width + GAP - 400, INSTRUMENT_HEIGHT / 2, altitude, "Altitude", "m");
+  draw_dial(view_width + GAP - 400, INSTRUMENT_HEIGHT / 2, mars_lander.get_altitude(), "Altitude", "m");
 
   // Draw auto-pilot lamp
-  draw_indicator_lamp(view_width + GAP - 400, INSTRUMENT_HEIGHT - 18, "Auto-pilot off", "Auto-pilot on", autopilot_enabled);
+  draw_indicator_lamp(view_width + GAP - 400, INSTRUMENT_HEIGHT - 18, "Auto-pilot off", "Auto-pilot on", mars_lander.autopilot_enabled);
 
   // Draw climb rate meter
-  if (climb_speed >= 0.0) draw_dial(view_width + GAP - 150, INSTRUMENT_HEIGHT / 2, landed ? 0.0 : climb_speed, "Climb rate", "m/s");
-  else draw_dial(view_width + GAP - 150, INSTRUMENT_HEIGHT / 2, landed ? 0.0 : -climb_speed, "Descent rate", "m/s");
+  if (climb_speed >= 0.0) draw_dial(view_width + GAP - 150, INSTRUMENT_HEIGHT / 2, mars_lander.landed ? 0.0 : climb_speed, "Climb rate", "m/s");
+  else draw_dial(view_width + GAP - 150, INSTRUMENT_HEIGHT / 2, mars_lander.landed ? 0.0 : -climb_speed, "Descent rate", "m/s");
 
   // Draw attitude stabilizer lamp
   draw_indicator_lamp(view_width + GAP - 150, INSTRUMENT_HEIGHT - 18, "Attitude stabilizer off", "Attitude stabilizer on", stabilized_attitude);
 
   // Draw ground speed meter
-  draw_dial(view_width + GAP + 100, INSTRUMENT_HEIGHT / 2, landed ? 0.0 : ground_speed, "Ground speed", "m/s");
+  draw_dial(view_width + GAP + 100, INSTRUMENT_HEIGHT / 2, mars_lander.landed ? 0.0 : ground_speed, "Ground speed", "m/s");
 
   // Draw parachute lamp
-  switch (parachute_status) {
+  switch (mars_lander.parachute_status) {
   case NOT_DEPLOYED:
     draw_indicator_lamp(view_width + GAP + 100, INSTRUMENT_HEIGHT - 18, "Parachute not deployed", "Do not deploy parachute", !safe_to_deploy_parachute());
     break;
@@ -729,39 +729,39 @@ void draw_instrument_window(void)
 
   // Display coordinates
   glColor3f(1.0, 1.0, 1.0);
-  s.str(""); s << "x position " << fixed << position.x << " m";
+  s.str(""); s << "x position " << fixed << mars_lander.get_position().x << " m";
   glut_print(view_width + GAP + 240, INSTRUMENT_HEIGHT - 97, s.str());
-  s.str(""); s << "velocity " << fixed << velocity.x << " m/s";
+  s.str(""); s << "velocity " << fixed << mars_lander.get_velocity().x << " m/s";
   glut_print(view_width + GAP + 380, INSTRUMENT_HEIGHT - 97, s.str());
-  s.str(""); s << "y position " << fixed << position.y << " m";
+  s.str(""); s << "y position " << fixed << mars_lander.get_position().y << " m";
   glut_print(view_width + GAP + 240, INSTRUMENT_HEIGHT - 117, s.str());
-  s.str(""); s << "velocity " << fixed << velocity.y << " m/s";
+  s.str(""); s << "velocity " << fixed << mars_lander.get_velocity().y << " m/s";
   glut_print(view_width + GAP + 380, INSTRUMENT_HEIGHT - 117, s.str());
-  s.str(""); s << "z position " << fixed << position.z << " m";
+  s.str(""); s << "z position " << fixed << mars_lander.get_position().z << " m";
   glut_print(view_width + GAP + 240, INSTRUMENT_HEIGHT - 137, s.str());
-  s.str(""); s << "velocity " << fixed << velocity.z << " m/s";
+  s.str(""); s << "velocity " << fixed << mars_lander.get_velocity().z << " m/s";
   glut_print(view_width + GAP + 380, INSTRUMENT_HEIGHT - 137, s.str());
 
   // Draw thrust bar
-  s.str(""); s << "Thrust " << fixed << thrust_wrt_world().abs() << " N";
-  draw_control_bar(view_width + GAP + 240, INSTRUMENT_HEIGHT - 170, throttle, 1.0, 0.0, 0.0, s.str());
+  s.str(""); s << "Thrust " << fixed << mars_lander.thrust_wrt_world().abs() << " N";
+  draw_control_bar(view_width + GAP + 240, INSTRUMENT_HEIGHT - 170, mars_lander.throttle, 1.0, 0.0, 0.0, s.str());
 
   // Draw fuel bar
-  s.str(""); s << "Fuel " << fixed << fuel*FUEL_CAPACITY << " litres";
-  if (fuel > 0.5) draw_control_bar(view_width + GAP + 240, INSTRUMENT_HEIGHT - 242, fuel, 0.0, 1.0, 0.0, s.str());
-  else if (fuel > 0.2) draw_control_bar(view_width + GAP + 240, INSTRUMENT_HEIGHT - 242, fuel, 1.0, 0.5, 0.0, s.str());
-  else draw_control_bar(view_width + GAP + 240, INSTRUMENT_HEIGHT - 242, fuel, 1.0, 0.0, 0.0, s.str());
+  s.str(""); s << "Fuel " << fixed << mars_lander.fuel*FUEL_CAPACITY << " litres";
+  if (mars_lander.fuel > 0.5) draw_control_bar(view_width + GAP + 240, INSTRUMENT_HEIGHT - 242, mars_lander.fuel, 0.0, 1.0, 0.0, s.str());
+  else if (mars_lander.fuel > 0.2) draw_control_bar(view_width + GAP + 240, INSTRUMENT_HEIGHT - 242, mars_lander.fuel, 1.0, 0.5, 0.0, s.str());
+  else draw_control_bar(view_width + GAP + 240, INSTRUMENT_HEIGHT - 242, mars_lander.fuel, 1.0, 0.0, 0.0, s.str());
 
   // Display simulation status
-  if (landed) glColor3f(1.0, 1.0, 0.0);
+  if (mars_lander.landed) glColor3f(1.0, 1.0, 0.0);
   else glColor3f(1.0, 1.0, 1.0);
   s.str(""); s << "Scenario " << scenario;
-  if (!landed) s << ": " << scenario_description[scenario];
+  if (!mars_lander.landed) s << ": " << scenario_description[scenario];
   glut_print(view_width + GAP - 488, 17, s.str());
-  if (landed) {
-    if (altitude < LANDER_SIZE / 2.0) glut_print(80, 17, "Lander is below the surface!");
+  if (mars_lander.landed) {
+    if (mars_lander.get_altitude() < LANDER_SIZE / 2.0) glut_print(80, 17, "Lander is below the surface!");
     else {
-      s.str(""); s << "Fuel consumed " << fixed << FUEL_CAPACITY*(1.0 - fuel) << " litres";
+      s.str(""); s << "Fuel consumed " << fixed << FUEL_CAPACITY*(1.0 - mars_lander.fuel) << " litres";
       glut_print(view_width + GAP - 427, 17, s.str());
       s.str(""); s << "Descent rate at touchdown " << fixed << -climb_speed << " m/s";
       glut_print(view_width + GAP - 232, 17, s.str());
@@ -811,7 +811,7 @@ void display_help_arrows(void)
   glPopMatrix();
 
   // Ground speed arrow
-  if ((ground_speed > MAX_IMPACT_GROUND_SPEED) && !landed) {
+  if ((ground_speed > MAX_IMPACT_GROUND_SPEED) && !mars_lander.landed) {
     glBegin(GL_LINES);
     glVertex3d(-2.0*s, 0.0, 0.0);
     glVertex3d(-6.0*s, 0.0, 0.0);
@@ -941,7 +941,7 @@ void draw_orbital_window(void)
   glMultMatrixd(m);
   if (orbital_zoom > 2.0) { // gradual pan towards the lander when zoomed in
     sf = 1.0 - exp((2.0 - orbital_zoom) / 5.0);
-    glTranslated(-sf*position.x, -sf*position.y, -sf*position.z);
+    glTranslated(-sf*mars_lander.get_position().x, -sf*mars_lander.get_position().y, -sf*mars_lander.get_position().z);
   }
 
   if (static_lighting) {
@@ -987,7 +987,7 @@ void draw_orbital_window(void)
   glLineWidth(1.0);
   glBegin(GL_LINE_STRIP);
   glColor3f(0.0, 1.0, 1.0);
-  glVertex3d(position.x, position.y, position.z);
+  glVertex3d(mars_lander.get_position().x, mars_lander.get_position().y, mars_lander.get_position().z);
   j = (track.p + N_TRACK - 1) % N_TRACK;
   for (i = 0; i<track.n; i++) {
     glColor4f(0.0, 0.75*(N_TRACK - i) / N_TRACK, 0.75*(N_TRACK - i) / N_TRACK, 1.0*(N_TRACK - i) / N_TRACK);
@@ -1001,7 +1001,7 @@ void draw_orbital_window(void)
   glColor3f(0.0, 1.0, 1.0);
   glPointSize(3.0);
   glBegin(GL_POINTS);
-  glVertex3d(position.x, position.y, position.z);
+  glVertex3d(mars_lander.get_position().x, mars_lander.get_position().y, mars_lander.get_position().z);
   glEnd();
   glEnable(GL_LIGHTING);
 
@@ -1091,13 +1091,12 @@ void update_closeup_coords(void)
 {
   vector3d s, tv, t;
   double tmp;
-  vector3d relative_velocity = velocity - atmosphere_rotation();
 
   // Direction from surface to lander (radial) - this must map to the world y-axis
-  s = position.norm();
+  s = mars_lander.get_position().norm();
 
   // Direction of tangential velocity - this must map to the world x-axis
-  tv = relative_velocity - (relative_velocity*s)*s;
+  tv = mars_lander.get_relative_velocity() - (mars_lander.get_relative_velocity()*s)*s;
   if (tv.abs() < SMALL_NUM) // vertical motion only, use last recorded tangential velocity
     tv = closeup_coords.backwards ? (closeup_coords.right*s)*s - closeup_coords.right : closeup_coords.right - (closeup_coords.right*s)*s;
   if (tv.abs() > SMALL_NUM) t = tv.norm();
@@ -1116,13 +1115,13 @@ void update_closeup_coords(void)
     if (closeup_coords.backwards) {
       tmp = -closeup_coords.right*t;
       if (tmp > 1.0) tmp = 1.0; if (tmp < -1.0) tmp = -1.0;
-      if ((-closeup_coords.right^t)*position.norm() < 0.0) terrain_angle += (180.0 / M_PI)*acos(tmp);
+      if ((-closeup_coords.right^t)*mars_lander.get_position().norm() < 0.0) terrain_angle += (180.0 / M_PI)*acos(tmp);
       else terrain_angle -= (180.0 / M_PI)*acos(tmp);
     }
     else {
       tmp = closeup_coords.right*t;
       if (tmp > 1.0) tmp = 1.0; if (tmp < -1.0) tmp = -1.0;
-      if ((closeup_coords.right^t)*position.norm() < 0.0) terrain_angle += (180.0 / M_PI)*acos(tmp);
+      if ((closeup_coords.right^t)*mars_lander.get_position().norm() < 0.0) terrain_angle += (180.0 / M_PI)*acos(tmp);
       else terrain_angle -= (180.0 / M_PI)*acos(tmp);
     }
     while (terrain_angle < 0.0) terrain_angle += 360.0;
@@ -1168,13 +1167,13 @@ void draw_closeup_window(void)
   // Work out an atmospheric haze colour based on prevailing atmospheric density. The power law in the
   // expression below couples with the fog calculation further down, to ensure that the fog doesn't dim
   // the scene on the way down.
-  tmp = pow(atmospheric_density(position) / atmospheric_density(vector3d(MARS_RADIUS, 0.0, 0.0)), 0.5);
-  if (static_lighting) tmp *= 0.5 * (1.0 + position.norm()*vector3d(0.0, -1.0, 0.0)); // set sky colour
+  tmp = pow(atmospheric_density(mars_lander.get_position()) / atmospheric_density(vector3d(MARS_RADIUS, 0.0, 0.0)), 0.5);
+  if (static_lighting) tmp *= 0.5 * (1.0 + mars_lander.get_position().norm()*vector3d(0.0, -1.0, 0.0)); // set sky colour
   fogcolour[0] = tmp*0.98; fogcolour[1] = tmp*0.67; fogcolour[2] = tmp*0.52; fogcolour[3] = 0.0;
   glClearColor(tmp*0.98, tmp*0.67, tmp*0.52, 0.0);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  if (altitude < 0.0) { // just blank the screen if the lander is below the surface
+  if (mars_lander.get_altitude() < 0.0) { // just blank the screen if the lander is below the surface
     glutSwapBuffers();
     return;
   }
@@ -1187,16 +1186,16 @@ void draw_closeup_window(void)
   // At transition_altitude we have a totally opaque haze, to disguise the transition from spherical surface to flat surface.
   // Below transition_altitude, we can see as far as the horizon (or transition_altitude with no terrain texture), 
   // with the fog decreasing towards touchdown.
-  if (altitude > EXOSPHERE) gluPerspective(CLOSEUP_VIEW_ANGLE, aspect_ratio, 1.0, closeup_offset + 2.0*MARS_RADIUS);
+  if (mars_lander.get_altitude() > EXOSPHERE) gluPerspective(CLOSEUP_VIEW_ANGLE, aspect_ratio, 1.0, closeup_offset + 2.0*MARS_RADIUS);
   else {
-    horizon = sqrt(position.abs2() - MARS_RADIUS*MARS_RADIUS);
-    if (altitude > transition_altitude) {
-      f = (altitude - transition_altitude) / (EXOSPHERE - transition_altitude);
+    horizon = sqrt(mars_lander.get_position().abs2() - MARS_RADIUS*MARS_RADIUS);
+    if (mars_lander.get_altitude() > transition_altitude) {
+      f = (mars_lander.get_altitude() - transition_altitude) / (EXOSPHERE - transition_altitude);
       if (f < SMALL_NUM) fog_density = 1000.0; else fog_density = (1.0 - f) / (f*horizon);
       view_depth = closeup_offset + horizon;
     }
     else {
-      f = 1.0 - (altitude / transition_altitude);
+      f = 1.0 - (mars_lander.get_altitude() / transition_altitude);
       if (f < SMALL_NUM) fog_density = 1000.0; else fog_density = (1.0 - f) / (f*transition_altitude);
       if (do_texture) {
         fog_density = 0.00005 + 0.5*fog_density;
@@ -1221,7 +1220,7 @@ void draw_closeup_window(void)
   // coordinate system.
 
   // Direction from surface to lander (radial) - this must map to the world y-axis
-  s = position.norm();
+  s = mars_lander.get_position().norm();
 
   // Direction of tangential velocity - this must map to the world x-axis
   t = closeup_coords.backwards ? -closeup_coords.right : closeup_coords.right;
@@ -1269,7 +1268,7 @@ void draw_closeup_window(void)
   // Surface colour
   glColor3f(0.63, 0.33, 0.22);
 
-  if (altitude < transition_altitude) {
+  if (mars_lander.get_altitude() < transition_altitude) {
 
     // Draw ground plane below the lander's current position - we need to do this in quarters, with a vertex
     // nearby, to get the fog calculations correct in all OpenGL implementations.
@@ -1279,22 +1278,22 @@ void draw_closeup_window(void)
     glPushMatrix();
     glRotated(terrain_angle, 0.0, 1.0, 0.0);
     glBegin(GL_QUADS);
-    glTexCoord2f(1.0 + terrain_offset_x, 1.0 + terrain_offset_y); glVertex3d(ground_plane_size, -altitude, ground_plane_size);
-    glTexCoord2f(1.0 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(ground_plane_size, -altitude, 0.0);
-    glTexCoord2f(0.5 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(0.0, -altitude, 0.0);
-    glTexCoord2f(0.5 + terrain_offset_x, 1.0 + terrain_offset_y); glVertex3d(0.0, -altitude, ground_plane_size);
-    glTexCoord2f(0.5 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(0.0, -altitude, 0.0);
-    glTexCoord2f(1.0 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(ground_plane_size, -altitude, 0.0);
-    glTexCoord2f(1.0 + terrain_offset_x, 0.0 + terrain_offset_y); glVertex3d(ground_plane_size, -altitude, -ground_plane_size);
-    glTexCoord2f(0.5 + terrain_offset_x, 0.0 + terrain_offset_y); glVertex3d(0.0, -altitude, -ground_plane_size);
-    glTexCoord2f(0.5 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(0.0, -altitude, 0.0);
-    glTexCoord2f(0.5 + terrain_offset_x, 0.0 + terrain_offset_y); glVertex3d(0.0, -altitude, -ground_plane_size);
-    glTexCoord2f(0.0 + terrain_offset_x, 0.0 + terrain_offset_y); glVertex3d(-ground_plane_size, -altitude, -ground_plane_size);
-    glTexCoord2f(0.0 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(-ground_plane_size, -altitude, 0.0);
-    glTexCoord2f(0.5 + terrain_offset_x, 1.0 + terrain_offset_y); glVertex3d(0.0, -altitude, ground_plane_size);
-    glTexCoord2f(0.5 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(0.0, -altitude, 0.0);
-    glTexCoord2f(0.0 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(-ground_plane_size, -altitude, 0.0);
-    glTexCoord2f(0.0 + terrain_offset_x, 1.0 + terrain_offset_y); glVertex3d(-ground_plane_size, -altitude, ground_plane_size);
+    glTexCoord2f(1.0 + terrain_offset_x, 1.0 + terrain_offset_y); glVertex3d(ground_plane_size, -mars_lander.get_altitude(), ground_plane_size);
+    glTexCoord2f(1.0 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(ground_plane_size, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f(0.5 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f(0.5 + terrain_offset_x, 1.0 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), ground_plane_size);
+    glTexCoord2f(0.5 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f(1.0 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(ground_plane_size, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f(1.0 + terrain_offset_x, 0.0 + terrain_offset_y); glVertex3d(ground_plane_size, -mars_lander.get_altitude(), -ground_plane_size);
+    glTexCoord2f(0.5 + terrain_offset_x, 0.0 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), -ground_plane_size);
+    glTexCoord2f(0.5 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f(0.5 + terrain_offset_x, 0.0 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), -ground_plane_size);
+    glTexCoord2f(0.0 + terrain_offset_x, 0.0 + terrain_offset_y); glVertex3d(-ground_plane_size, -mars_lander.get_altitude(), -ground_plane_size);
+    glTexCoord2f(0.0 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(-ground_plane_size, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f(0.5 + terrain_offset_x, 1.0 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), ground_plane_size);
+    glTexCoord2f(0.5 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f(0.0 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(-ground_plane_size, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f(0.0 + terrain_offset_x, 1.0 + terrain_offset_y); glVertex3d(-ground_plane_size, -mars_lander.get_altitude(), ground_plane_size);
     glEnd();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -1312,12 +1311,12 @@ void draw_closeup_window(void)
         // We need to do draw each line in two parts, with a vertex nearby, to get the fog calculations correct in all OpenGL implementations.
         // To make the lines fade more strongly when landed, decrease the second number.
         // To make the lines less apparent at high altitude, decrease the first number. 
-        f = exp(-fabs(pow((transition_altitude - altitude) / transition_altitude, 10.0) * tmp / (10.0*GROUND_LINE_SPACING)));
+        f = exp(-fabs(pow((transition_altitude - mars_lander.get_altitude()) / transition_altitude, 10.0) * tmp / (10.0*GROUND_LINE_SPACING)));
         glColor4f(0.32, 0.17, 0.11, f);
-        glVertex3d(tmp, -altitude, -transition_altitude);
-        glVertex3d(tmp, -altitude, 0.0);
-        glVertex3d(tmp, -altitude, 0.0);
-        glVertex3d(tmp, -altitude, transition_altitude);
+        glVertex3d(tmp, -mars_lander.get_altitude(), -transition_altitude);
+        glVertex3d(tmp, -mars_lander.get_altitude(), 0.0);
+        glVertex3d(tmp, -mars_lander.get_altitude(), 0.0);
+        glVertex3d(tmp, -mars_lander.get_altitude(), transition_altitude);
         if (closeup_coords.backwards) tmp += GROUND_LINE_SPACING;
         else tmp -= GROUND_LINE_SPACING;
       }
@@ -1329,9 +1328,9 @@ void draw_closeup_window(void)
       glColor3f(0.32, 0.17, 0.11);
       glBegin(GL_TRIANGLES);
       for (i = 0; i<360; i += 10) {
-        glVertex3d(0.0, -altitude, 0.0);
-        glVertex3d(LANDER_SIZE*cos(M_PI*(i + 10) / 180.0), -altitude, LANDER_SIZE*sin(M_PI*(i + 10) / 180.0));
-        glVertex3d(LANDER_SIZE*cos(M_PI*i / 180.0), -altitude, LANDER_SIZE*sin(M_PI*i / 180.0));
+        glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
+        glVertex3d(LANDER_SIZE*cos(M_PI*(i + 10) / 180.0), -mars_lander.get_altitude(), LANDER_SIZE*sin(M_PI*(i + 10) / 180.0));
+        glVertex3d(LANDER_SIZE*cos(M_PI*i / 180.0), -mars_lander.get_altitude(), LANDER_SIZE*sin(M_PI*i / 180.0));
       }
       glEnd();
     }
@@ -1344,12 +1343,12 @@ void draw_closeup_window(void)
         cx = 40.0 * (rand_tri[0] - 0.5);
         cy = 40.0 * (rand_tri[1] - 0.5);
         glNormal3d(0.0, 1.0, 0.0);
-        glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[2], -altitude, cy + 2.0*LANDER_SIZE*rand_tri[3]);
-        glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[4], -altitude, cy + 2.0*LANDER_SIZE*rand_tri[5]);
-        glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[6], -altitude, cy + 2.0*LANDER_SIZE*rand_tri[7]);
+        glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[2], -mars_lander.get_altitude(), cy + 2.0*LANDER_SIZE*rand_tri[3]);
+        glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[4], -mars_lander.get_altitude(), cy + 2.0*LANDER_SIZE*rand_tri[5]);
+        glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[6], -mars_lander.get_altitude(), cy + 2.0*LANDER_SIZE*rand_tri[7]);
       }
       glEnd();
-      if (parachute_status != LOST) {
+      if (mars_lander.parachute_status != LOST) {
         glColor3f(1.0, 1.0, 0.0);
         glBegin(GL_TRIANGLES);  // draw some shreds of yellow canvas
         for (i = 0; i<30; i++) {
@@ -1357,9 +1356,9 @@ void draw_closeup_window(void)
           cx = 40.0 * (rand_tri[0] - 0.5);
           cy = 40.0 * (rand_tri[1] - 0.5);
           glNormal3d(0.0, 1.0, 0.0);
-          glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[2], -altitude, cy + 2.0*LANDER_SIZE*rand_tri[3]);
-          glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[4], -altitude, cy + 2.0*LANDER_SIZE*rand_tri[5]);
-          glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[6], -altitude, cy + 2.0*LANDER_SIZE*rand_tri[7]);
+          glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[2], -mars_lander.get_altitude(), cy + 2.0*LANDER_SIZE*rand_tri[3]);
+          glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[4], -mars_lander.get_altitude(), cy + 2.0*LANDER_SIZE*rand_tri[5]);
+          glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[6], -mars_lander.get_altitude(), cy + 2.0*LANDER_SIZE*rand_tri[7]);
         }
         glEnd();
       }
@@ -1373,19 +1372,19 @@ void draw_closeup_window(void)
     glDisable(GL_DEPTH_TEST);
     glPushMatrix();
 
-    if (altitude > EXOSPHERE) {
+    if (mars_lander.get_altitude() > EXOSPHERE) {
 
       // Draw the planet reduced size at a reduced displacement, to avoid numerical OpenGL problems with huge viewing distances.
       glTranslated(0.0, -MARS_RADIUS, 0.0);
       glMultMatrixd(m2); // now in the planetary coordinate system
       glRotated(360.0*simulation_time / MARS_DAY, 0.0, 0.0, 1.0); // to make the planet spin
-      glutMottledSphere(MARS_RADIUS * (MARS_RADIUS / (altitude + MARS_RADIUS)), 160, 100);
+      glutMottledSphere(MARS_RADIUS * (MARS_RADIUS / (mars_lander.get_altitude() + MARS_RADIUS)), 160, 100);
 
     }
     else {
 
       // Draw the planet actual size at the correct displacement
-      glTranslated(0.0, -(MARS_RADIUS + altitude), 0.0);
+      glTranslated(0.0, -(MARS_RADIUS + mars_lander.get_altitude()), 0.0);
       glMultMatrixd(m2); // now in the planetary coordinate system
       glRotated(360.0*simulation_time / MARS_DAY, 0.0, 0.0, 1.0); // to make the planet spin
       glutMottledSphere(MARS_RADIUS, 160, 100);
@@ -1398,7 +1397,7 @@ void draw_closeup_window(void)
   }
 
   glDisable(GL_FOG); // fog only applies to the ground
-  dark_side = (static_lighting && (position.y > 0.0) && (sqrt(position.x*position.x + position.z*position.z) < MARS_RADIUS));
+  dark_side = (static_lighting && (mars_lander.get_position().y > 0.0) && (sqrt(mars_lander.get_position().x*mars_lander.get_position().x + mars_lander.get_position().z*mars_lander.get_position().z) < MARS_RADIUS));
   if (dark_side) { // in the shadow of the planet, we need some diffuse lighting to highlight the lander
     glDisable(GL_LIGHT2); glDisable(GL_LIGHT3);
     glEnable(GL_LIGHT4); glEnable(GL_LIGHT5);
@@ -1411,8 +1410,8 @@ void draw_closeup_window(void)
   chute_drag_abs  = parachute_drag().abs();
 
   // Draw the lander's parachute - behind the lander in the direction of travel
-  if ((parachute_status == DEPLOYED) && !crashed) {
-    if (velocity.abs() < SMALL_NUM) {
+  if ((mars_lander.parachute_status == DEPLOYED) && !crashed) {
+    if (mars_lander.get_velocity().abs() < SMALL_NUM) {
       // Lander is apparently stationary - so draw the parachute above and near to the lander
       gs = 0.0; cs = -1.0; tmp = 2.0;
     }
@@ -1436,7 +1435,7 @@ void draw_closeup_window(void)
   glMultMatrixd(m2);
 
   // Lander orientation relative to planetary coordinate system - xyz Euler angles
-  xyz_euler_to_matrix(orientation, m);
+  xyz_euler_to_matrix(mars_lander.get_orientation(), m);
   glMultMatrixd(m);
 
   // Put lander's centre of gravity at the origin
@@ -1465,9 +1464,9 @@ void draw_closeup_window(void)
   glPopMatrix(); // back to the world coordinate system
 
                  // Draw incandescent glow surrounding lander
-  if (lander_drag_abs*velocity.abs() > HEAT_FLUX_GLOW_THRESHOLD) {
+  if (lander_drag_abs*mars_lander.get_velocity().abs() > HEAT_FLUX_GLOW_THRESHOLD) {
     // Calculate an heuristic "glow factor", in the range 0 to 1, for graphics effects
-    glow_factor = (lander_drag_abs*velocity.abs() - HEAT_FLUX_GLOW_THRESHOLD) / (4.0*HEAT_FLUX_GLOW_THRESHOLD);
+    glow_factor = (lander_drag_abs*mars_lander.get_velocity().abs() - HEAT_FLUX_GLOW_THRESHOLD) / (4.0*HEAT_FLUX_GLOW_THRESHOLD);
     if (glow_factor > 1.0) glow_factor = 1.0;
     glow_factor *= 0.7 + 0.3*randtab[rn]; rn = (rn + 1) % N_RAND; // a little random variation for added realism
     glRotated((180.0 / M_PI)*atan2(climb_speed, ground_speed), 0.0, 0.0, 1.0);
@@ -1525,7 +1524,7 @@ void refresh_all_subwindows(void)
       break;
     }
     if (n >= 1000) n = 0;
-    if (!paused && !landed && n) return;
+    if (!paused && !mars_lander.landed && n) return;
   }
 
   glutPostWindowRedisplay(closeup_window);
@@ -1542,7 +1541,7 @@ bool safe_to_deploy_parachute(void)
   drag = parachute_drag().abs();
   // Do not use the global variable "altitude" here, in case this function is called from within the
   // numerical_dynamics function, before altitude is updated in the update_visualization function
-  if ((drag > MAX_PARACHUTE_DRAG) || ((velocity.abs() > MAX_PARACHUTE_SPEED) && ((position.abs() - MARS_RADIUS) < EXOSPHERE))) return false;
+  if ((drag > MAX_PARACHUTE_DRAG) || ((mars_lander.get_velocity().abs() > MAX_PARACHUTE_SPEED) && ((mars_lander.get_position().abs() - MARS_RADIUS) < EXOSPHERE))) return false;
   else return true;
 }
 
@@ -1555,55 +1554,52 @@ void update_visualization(void)
   double a, b, c, mu;
 
   simulation_time += delta_t;
-  altitude = position.abs() - MARS_RADIUS;
 
-  relative_velocity = velocity - atmosphere_rotation();
   // Use average of current and previous positions when calculating climb and ground speeds
-  av_p = (position + last_position).norm();
-  climb_speed = relative_velocity*av_p;
-  ground_speed = (relative_velocity - climb_speed*av_p).abs();
+  av_p = (mars_lander.get_position() + last_position).norm();
+  climb_speed = mars_lander.get_relative_velocity()*av_p;
+  ground_speed = (mars_lander.get_relative_velocity() - climb_speed*av_p).abs();
 
                                                                     // Check to see whether the lander has landed
-  if (altitude < LANDER_SIZE / 2.0) {
+  if (mars_lander.get_altitude() < LANDER_SIZE / 2.0) {
     glutIdleFunc(NULL);
     // Estimate position and time of impact
-    d = position - last_position;
+    d = mars_lander.get_position() - last_position;
     a = d.abs2();
     b = 2.0*last_position*d;
     c = last_position.abs2() - (MARS_RADIUS + LANDER_SIZE / 2.0) * (MARS_RADIUS + LANDER_SIZE / 2.0);
     mu = (-b - sqrt(b*b - 4.0*a*c)) / (2.0*a);
-    position = last_position + mu*d;
+    mars_lander.set_position(last_position + mu*d);
     simulation_time -= (1.0 - mu)*delta_t;
-    altitude = LANDER_SIZE / 2.0;
+    //altitude = LANDER_SIZE / 2.0;
     landed = true;
     if ((fabs(climb_speed) > MAX_IMPACT_DESCENT_RATE) || (fabs(ground_speed) > MAX_IMPACT_GROUND_SPEED)) crashed = true;
-    velocity = vector3d(0.0, 0.0, 0.0);
+    mars_lander.set_velocity( vector3d(0.0, 0.0, 0.0));
   }
 
   // Update throttle and fuel (throttle might have been adjusted by the autopilot)
-  if (throttle < 0.0) throttle = 0.0;
+  /*if (throttle < 0.0) throttle = 0.0;
   if (throttle > 1.0) throttle = 1.0;
-  fuel -= delta_t * (FUEL_RATE_AT_MAX_THRUST*throttle) / FUEL_CAPACITY;
-  if (fuel <= 0.0) fuel = 0.0;
-  if (landed || (fuel == 0.0)) throttle = 0.0;
-  throttle_control = (short)(throttle*THROTTLE_GRANULARITY + 0.5);
+  fuel -= delta_t * (FUEL_RATE_AT_MAX_THRUST*throttle) / FUEL_CAPACITY;*/
+  if (mars_lander.landed || (mars_lander.fuel == 0.0)) mars_lander.throttle = 0.0;
+  throttle_control = (short)(mars_lander.throttle*THROTTLE_GRANULARITY + 0.5);
 
   // Check to see whether the parachute has vaporized or the tethers have snapped
-  if (parachute_status == DEPLOYED) {
+  if (mars_lander.parachute_status == DEPLOYED) {
     if (!safe_to_deploy_parachute() || parachute_lost) {
       parachute_lost = true; // to guard against the autopilot reinstating the parachute!
-      parachute_status = LOST;
+      mars_lander.parachute_status = LOST;
     }
   }
 
   // Update record of lander's previous positions, but only if the position or the velocity has 
   // changed significantly since the last update
-  if (!track.n || (position - last_track_position).norm() * velocity.norm() < TRACK_ANGLE_DELTA
-    || (position - last_track_position).abs() > TRACK_DISTANCE_DELTA) {
-    track.pos[track.p] = position;
+  if (!track.n || (mars_lander.get_position() - last_track_position).norm() * mars_lander.get_velocity().norm() < TRACK_ANGLE_DELTA
+    || (mars_lander.get_position() - last_track_position).abs() > TRACK_DISTANCE_DELTA) {
+    track.pos[track.p] = mars_lander.get_position();
     track.n++; if (track.n > N_TRACK) track.n = N_TRACK;
     track.p++; if (track.p == N_TRACK) track.p = 0;
-    last_track_position = position;
+    last_track_position = mars_lander.get_position();
   }
 
   // Redraw everything
@@ -1723,10 +1719,10 @@ void update_lander_state(void)
   update_closeup_coords();
 
   // Update historical record
-  last_position = position;
+  last_position = mars_lander.get_position();
 
   // Mechanical dynamics
-  numerical_dynamics();
+  mars_lander.numerical_dynamics();
 
   // Refresh the visualization
   update_visualization();
@@ -1740,8 +1736,8 @@ void reset_simulation(void)
 
   // Reset these three lander parameters here, so they can be overwritten in initialize_simulation() if so desired
   stabilized_attitude_angle = 0;
-  throttle = 0.0;
-  fuel = 1.0;
+  mars_lander.throttle = 0.0;
+  mars_lander.fuel = 1.0;
 
   // Restore initial lander state
   initialize_simulation();
@@ -1749,22 +1745,21 @@ void reset_simulation(void)
   // Check whether the lander is underground - if so, make sure it doesn't move anywhere
   landed = false;
   crashed = false;
-  altitude = position.abs() - MARS_RADIUS;
-  if (altitude < LANDER_SIZE / 2.0) {
+  if (mars_lander.get_altitude() < LANDER_SIZE / 2.0) {
     glutIdleFunc(NULL);
     landed = true;
-    velocity = vector3d(0.0, 0.0, 0.0);
+    mars_lander.set_velocity(vector3d(0.0, 0.0, 0.0));
   }
 
   // Visualisation routine's record of various speeds and velocities
-  last_position = position - delta_t*velocity;
-  p = position.norm();
-  climb_speed = velocity*p;
-  tv = velocity - climb_speed*p;
-  ground_speed = tv.abs() - planetary_rotation;
+  last_position = mars_lander.get_position() - delta_t*mars_lander.get_velocity();
+  p = mars_lander.get_position().norm();
+  climb_speed = mars_lander.get_velocity()*p;
+  tv = mars_lander.get_velocity() - climb_speed*p;
+  ground_speed = tv.abs() - mars_lander.get_planetary_rotation().abs();
 
   // Miscellaneous state variables
-  throttle_control = (short)(throttle*THROTTLE_GRANULARITY + 0.5);
+  throttle_control = (short)(mars_lander.throttle*THROTTLE_GRANULARITY + 0.5);
   simulation_time = 0.0;
   track.n = 0;
   parachute_lost = false;
@@ -1948,17 +1943,17 @@ void glut_special(int key, int x, int y)
 {
   switch (key) {
   case GLUT_KEY_UP: // throttle up
-    if (!autopilot_enabled && !landed && (fuel>0.0)) {
+    if (!mars_lander.autopilot_enabled && !landed && (mars_lander.fuel>0.0)) {
       throttle_control++;
       if (throttle_control>THROTTLE_GRANULARITY) throttle_control = THROTTLE_GRANULARITY;
-      throttle = (double)throttle_control / THROTTLE_GRANULARITY;
+      mars_lander.throttle = (double)throttle_control / THROTTLE_GRANULARITY;
     }
     break;
   case GLUT_KEY_DOWN: // throttle down
-    if (!autopilot_enabled && !landed) {
+    if (!mars_lander.autopilot_enabled && !landed) {
       throttle_control--;
       if (throttle_control<0) throttle_control = 0;
-      throttle = (double)throttle_control / THROTTLE_GRANULARITY;
+      mars_lander.throttle = (double)throttle_control / THROTTLE_GRANULARITY;
     }
     break;
   case GLUT_KEY_RIGHT: // faster simulation
@@ -2053,7 +2048,7 @@ void glut_key(unsigned char k, int x, int y)
 
   case 'a': case 'A':
     // a or A - autopilot
-    if (!landed) autopilot_enabled = !autopilot_enabled;
+    if (!landed) mars_lander.autopilot_enabled = !mars_lander.autopilot_enabled;
     if (paused) refresh_all_subwindows();
     break;
 
@@ -2090,13 +2085,13 @@ void glut_key(unsigned char k, int x, int y)
   case 'p': case 'P':
     // p or P - deploy parachute
     // add !autopilot_enabled && to stop parachute control on autopilot
-    if (!landed && (parachute_status == NOT_DEPLOYED)) parachute_status = DEPLOYED;
+    if (!landed && (mars_lander.parachute_status == NOT_DEPLOYED)) mars_lander.parachute_status = DEPLOYED;
     if (paused) refresh_all_subwindows();
     break;
 
   case 's': case 'S':
     // s or S - attitude stabilizer
-    if (!autopilot_enabled && !landed) stabilized_attitude = !stabilized_attitude;
+    if (!mars_lander.autopilot_enabled && !landed) stabilized_attitude = !stabilized_attitude;
     if (paused) refresh_all_subwindows();
     break;
 
@@ -2109,15 +2104,15 @@ void glut_key(unsigned char k, int x, int y)
     break;
 
   case 'o': case 'O':
-    autopilot_status = ORBIT_RE_ENTRY;
+    mars_lander.autopilot_status = ORBIT_RE_ENTRY;
     break;
 
   case 'd': case 'D':
-    autopilot_status = ORBIT_DESCENT;
+    mars_lander.autopilot_status = ORBIT_DESCENT;
     break;
 
   case 'r': case 'R':
-    parachute_status = LOST;
+    mars_lander.parachute_status = LOST;
     break;
 
   case 'w': case 'W':

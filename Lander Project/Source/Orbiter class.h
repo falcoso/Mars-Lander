@@ -15,6 +15,7 @@ public:
   vector3d get_position();
   vector3d get_velocity();
   vector3d get_planetary_rotation();
+  vector3d get_relative_velocity();
 
   void set_velocity(vector3d input_vel);
   void set_position(vector3d input_pos);
@@ -29,6 +30,7 @@ protected:
   vector3d acceleration;
   double altitude;
   vector3d planetary_rotation;
+  vector3d relative_velocity;
 };
 
 
@@ -41,7 +43,6 @@ public:
   bool landed;
   parachute_status_t parachute_status;
   autopilot_t autopilot_status;
-  vector3d orientation;
 
   lander(double input_radius);
   virtual void numerical_dynamics();
@@ -49,13 +50,15 @@ public:
   vector3d lander_drag();
   vector3d parachute_drag();
   vector3d thrust_wrt_world();
+  void set_orientation(vector3d input_orientation);
+  vector3d get_orientation();
 
 
 protected:
   virtual void update_members();
   void autopilot();
   double front_facing_area;
-
+  vector3d orientation;
 };
 #endif
 

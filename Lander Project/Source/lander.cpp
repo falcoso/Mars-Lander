@@ -226,21 +226,21 @@ void initialize_simulation(void)
 
   //reset common parameters
   delta_t = 0.1;
-  parachute_status = NOT_DEPLOYED;
+  mars_lander.parachute_status = NOT_DEPLOYED;
   stabilized_attitude_angle = 0;
-  autopilot_status = ORBIT_DESCENT;
+  mars_lander.autopilot_status = ORBIT_DESCENT;
   wind_enabled = FALSE;
 
   switch (scenario) {
 
   case 0:
     // a circular equatorial orbit
-    position = vector3d(1.2*MARS_RADIUS, 0.0, 0.0);
-    velocity = vector3d(0.0, -pow(GRAVITY*MARS_MASS / (1.2*MARS_RADIUS), 0.5), 0.0);
-    orientation = vector3d(0.0, 90.0, 0.0);
+    mars_lander.set_position (vector3d(1.2*MARS_RADIUS, 0.0, 0.0));
+    mars_lander.set_velocity (vector3d(0.0, -pow(GRAVITY*MARS_MASS / (1.2*MARS_RADIUS), 0.5), 0.0));
+    mars_lander.set_orientation(vector3d(0.0, 90.0, 0.0));
     stabilized_attitude = false;
-    autopilot_enabled = false;
-    autopilot_status = ORBIT_RE_ENTRY;
+    mars_lander.autopilot_enabled = false;
+    mars_lander.autopilot_status = ORBIT_RE_ENTRY;
     break;
 
   case 1:
