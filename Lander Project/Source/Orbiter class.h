@@ -3,21 +3,32 @@
 
 #include "lander.h"
 #include "Dynamics.h"
-#include "lander_graphics.h"
 
 class orbiter {
 public: 
-
-  double mass; 
-  void numerical_dynamics();
+  orbiter(vector3d input_pos, vector3d input_vel, double input_mass, double input_radius);
+  orbiter();
+  virtual void numerical_dynamics();
+  double get_altitude();
+  double get_mass();
+  double get_planetary_rotation();
   vector3d gravity();
+  vector3d get_position();
+  vector3d get_velocity();
+
+  void set_velocity(vector3d input_vel);
+  void set_position(vector3d input_pos);
 
 protected:
-  double planetary_rotation;
+  virtual void update_members();
   double radius;
+  double mass; 
   vector3d velocity;
   vector3d position;
+  
   vector3d acceleration;
+  double altitude;
+  double planetary_rotation;
 };
 
 
@@ -32,8 +43,8 @@ public:
   autopilot_t autopilot_status;
   vector3d orientation;
 
-  lander(double construction_radius);
-  void numerical_dynamics();
+  lander(double input_radius);
+  virtual void numerical_dynamics();
   void attitude_stabilization();
   vector3d lander_drag();
   vector3d parachute_drag();
@@ -41,6 +52,7 @@ public:
 
 
 protected:
+  virtual void update_members();
   void autopilot();
   double front_facing_area;
 

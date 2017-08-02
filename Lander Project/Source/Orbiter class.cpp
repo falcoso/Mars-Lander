@@ -1,15 +1,13 @@
 #include "lander.h"
 #include "Dynamics.h"
 #include "Orbiter class.h"
+#include "lander_graphics.h"
 
 void orbiter::numerical_dynamics()
 {
   static vector3d old_position; //do not assign here, as will not reset when new scenario selected
   vector3d new_position;
 
-  planetary_rotation = pow(pow(position.x, 2) + pow(position.y, 2), 0.5)*(2 * M_PI / MARS_DAY);
-
-  acceleration = gravity() / mass;
   if (simulation_time == 0.0) old_position = position - delta_t*velocity;
 
   switch (intergrator) //switch based on intergration method chosen
@@ -26,22 +24,58 @@ void orbiter::numerical_dynamics()
     velocity += delta_t*acceleration;
     break;
   }
+  update_members();
   return;
 }
 
-vector3d orbiter::gravity()
+vector3d orbiter::gravity()      { return -(GRAVITY*MARS_MASS*mass / position.abs2())*position.norm(); }
+vector3d orbiter::get_position() { return position; }
+vector3d orbiter::get_velocity() { return velocity; }
+double orbiter::get_altitude()   { return altitude; }
+double orbiter::get_mass()       { return mass; }
+double orbiter::get_planetary_rotation() { return planetary_rotation; }
+
+void orbiter::set_position(vector3d input_pos) { position = input_pos; }
+void orbiter::set_velocity(vector3d input_vel) { velocity = input_vel; }
+
+orbiter::orbiter(vector3d input_pos, vector3d input_vel, double input_mass, double input_radius)
 {
-  return -(GRAVITY*MARS_MASS*mass / position.abs2())*position.norm();
+  position = input_pos;
+  velocity = input_vel;
+  mass = input_mass;
+  radius = input_radius;
+  update_members();
 }
 
-lander::lander(double construction_radius)
+orbiter::orbiter()
+{
+  position = vector3d{ 0,0,0 };
+  velocity = vector3d{ 0,0,0 };
+  mass = 0;
+  radius = 0;
+  update_members();
+}
+
+void orbiter::update_members()
+{
+  altitude = position.abs() - MARS_RADIUS;
+  planetary_rotation = pow(pow(position.x, 2) + pow(position.y, 2), 0.5)*(2 * M_PI / MARS_DAY);
+  acceleration = gravity() / mass;
+}
+
+//===========================================================================================================
+
+lander::lander(double input_radius)
 {
   fuel = 1;
   throttle = 0;
   autopilot_status = ORBIT_DESCENT;
   parachute_status = NOT_DEPLOYED;
-  radius = construction_radius;
-  front_facing_area = M_PI*pow(radius, 2);
+  radius = input_radius;
+  front_facing_area = M_PI*LANDER_SIZE*LANDER_SIZE;
+
+  update_members();
+  fuel = 1; //as update members will decrement fuel again
   return;
 }
 
@@ -51,18 +85,6 @@ void lander::numerical_dynamics()
     static vector3d old_position; //do not assign here, as will not reset when new scenario selected
     vector3d new_position;
     static double kp_test;
-    //calculate the lander's mass and acceleration
-    planetary_rotation = pow(pow(position.x, 2) + pow(position.y, 2), 0.5)*(2 * M_PI / MARS_DAY); //update the rotation of the planet relative to the lander
-    mass = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY;
-    switch (parachute_status)
-    {
-    case(DEPLOYED):
-      acceleration = (gravity() + thrust_wrt_world() + lander_drag() + parachute_drag()) / mass;
-      break;
-    default:
-      acceleration = (gravity() + thrust_wrt_world() + lander_drag()) / mass;
-      break;
-    }
 
     //so that if the simulation is reset so does the old position
     if (simulation_time == 0.0) old_position = position - delta_t*velocity;
@@ -91,6 +113,8 @@ void lander::numerical_dynamics()
       //  stabilized_attitude_angle = -(acos(position.norm()*(velocity-atmosphere_rotation()).norm()) + M_PI);
       autopilot();
     }
+    update_members();
+    return;
 }
 
 
@@ -102,7 +126,6 @@ vector3d lander::parachute_drag(void)
 
 vector3d lander::lander_drag(void)
 {
-  constexpr double front_facing_area = M_PI*LANDER_SIZE*LANDER_SIZE;
   vector3d rotation = atmosphere_rotation() + wind()*atmosphere_rotation().norm();
   return -0.5*front_facing_area*atmospheric_density(position)*(DRAG_COEF_LANDER)*(velocity - rotation).abs()*(velocity - rotation);
 }
@@ -224,4 +247,22 @@ void lander::attitude_stabilization(void)
   m[12] = 0.0; m[13] = 0.0; m[14] = 0.0; m[15] = 1.0;
   // Decomponse into xyz Euler angles
   orientation = matrix_to_xyz_euler(m);
+}
+
+void lander::update_members()
+{
+  switch (parachute_status)
+  {
+  case(DEPLOYED):
+    acceleration = (gravity() + thrust_wrt_world() + lander_drag() + parachute_drag()) / mass;
+    break;
+  default:
+    acceleration = (gravity() + thrust_wrt_world() + lander_drag()) / mass;
+    break;
+  }
+
+  mass = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY;
+  altitude = position.abs() - MARS_RADIUS;
+  planetary_rotation = pow(pow(position.x, 2) + pow(position.y, 2), 0.5)*(2 * M_PI / MARS_DAY);
+  fuel -= delta_t * (FUEL_RATE_AT_MAX_THRUST*throttle) / FUEL_CAPACITY;
 }
