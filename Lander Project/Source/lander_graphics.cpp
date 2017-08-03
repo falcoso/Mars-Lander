@@ -1571,8 +1571,8 @@ void update_visualization(void)
     mu = (-b - sqrt(b*b - 4.0*a*c)) / (2.0*a);
     mars_lander.set_position(last_position + mu*d);
     simulation_time -= (1.0 - mu)*delta_t;
-    //altitude = LANDER_SIZE / 2.0;
-    landed = true;
+    mars_lander.set_altitude(LANDER_SIZE / 2.0);
+    mars_lander.landed = true;
     if ((fabs(climb_speed) > MAX_IMPACT_DESCENT_RATE) || (fabs(ground_speed) > MAX_IMPACT_GROUND_SPEED)) crashed = true;
     mars_lander.set_velocity( vector3d(0.0, 0.0, 0.0));
   }
@@ -1666,7 +1666,7 @@ vector3d thrust_wrt_world(void)
   if (simulation_time < last_time_lag_updated) lagged_throttle = 0.0; // simulation restarted
   if (throttle < 0.0) throttle = 0.0;
   if (throttle > 1.0) throttle = 1.0;
-  if (landed || (fuel == 0.0)) throttle = 0.0;
+  if (mars_lander.landed || (fuel == 0.0)) throttle = 0.0;
 
   if (simulation_time != last_time_lag_updated) {
 
@@ -1703,7 +1703,6 @@ void update_lander_state(void)
 // The GLUT idle function, called every time round the event loop
 {
   unsigned long delay;
-
   // User-controlled delay
   if ((simulation_speed > 0) && (simulation_speed < 5)) {
     delay = (5 - simulation_speed)*MAX_DELAY / 4;
@@ -1743,11 +1742,11 @@ void reset_simulation(void)
   initialize_simulation();
 
   // Check whether the lander is underground - if so, make sure it doesn't move anywhere
-  landed = false;
+  mars_lander.landed = false;
   crashed = false;
   if (mars_lander.get_altitude() < LANDER_SIZE / 2.0) {
     glutIdleFunc(NULL);
-    landed = true;
+    mars_lander.landed = true;
     mars_lander.set_velocity(vector3d(0.0, 0.0, 0.0));
   }
 
@@ -1774,12 +1773,12 @@ void reset_simulation(void)
   if (throttle_buffer_length > 0) {
     if (throttle_buffer != NULL) delete[] throttle_buffer;
     throttle_buffer = new double[throttle_buffer_length];
-    for (i = 0; i<throttle_buffer_length; i++) throttle_buffer[i] = throttle;
+    for (i = 0; i<throttle_buffer_length; i++) throttle_buffer[i] = mars_lander.throttle;
     throttle_buffer_pointer = 0;
   }
 
   // Reset GLUT state
-  if (paused || landed) refresh_all_subwindows();
+  if (paused || mars_lander.landed) refresh_all_subwindows();
   else glutIdleFunc(update_lander_state);
 }
 
@@ -1855,7 +1854,7 @@ void orbital_mouse_button(int button, int state, int x, int y)
     }
     save_orbital_zoom = -1.0;
     set_orbital_projection_matrix();
-    if (paused || landed) refresh_all_subwindows();
+    if (paused || mars_lander.landed) refresh_all_subwindows();
   }
   else if ((button == GLUT_WHEEL_DOWN) || ((button == GLUT_RIGHT_BUTTON) && (state == GLUT_DOWN))) {
     if (orbital_zoom > 0.001) {
@@ -1864,7 +1863,7 @@ void orbital_mouse_button(int button, int state, int x, int y)
     }
     save_orbital_zoom = -1.0;
     set_orbital_projection_matrix();
-    if (paused || landed) refresh_all_subwindows();
+    if (paused || mars_lander.landed) refresh_all_subwindows();
   }
   if (button == GLUT_LEFT_BUTTON) {
     if (state == GLUT_UP) {
@@ -1892,7 +1891,7 @@ void orbital_mouse_motion(int x, int y)
   orbital_quat = add_quats(spin_quat, orbital_quat);
   last_click_x = x;
   last_click_y = y;
-  if (paused || landed) refresh_all_subwindows();
+  if (paused || mars_lander.landed) refresh_all_subwindows();
 }
 
 void closeup_mouse_button(int button, int state, int x, int y)
@@ -1903,14 +1902,14 @@ void closeup_mouse_button(int button, int state, int x, int y)
       closeup_offset *= 0.9;
       if ((button == GLUT_MIDDLE_BUTTON) || glutGetModifiers()) closeup_offset *= 0.9; // to match wheel events
     }
-    if (paused || landed) refresh_all_subwindows();
+    if (paused || mars_lander.landed) refresh_all_subwindows();
   }
   else if ((button == GLUT_WHEEL_DOWN) || ((button == GLUT_RIGHT_BUTTON) && (state == GLUT_DOWN))) {
     if (closeup_offset < 200.0*LANDER_SIZE) {
       closeup_offset /= 0.9;
       if (button == GLUT_RIGHT_BUTTON) closeup_offset /= 0.9; // to match wheel events
     }
-    if (paused || landed) refresh_all_subwindows();
+    if (paused || mars_lander.landed) refresh_all_subwindows();
   }
   if (button == GLUT_LEFT_BUTTON) {
     if (state == GLUT_UP) {
@@ -1935,7 +1934,7 @@ void closeup_mouse_motion(int x, int y)
   if (closeup_xr > 90.0) closeup_xr = 90.0;
   last_click_y = y;
   last_click_x = x;
-  if (paused || landed) refresh_all_subwindows();
+  if (paused || mars_lander.landed) refresh_all_subwindows();
 }
 
 void glut_special(int key, int x, int y)
@@ -1943,14 +1942,14 @@ void glut_special(int key, int x, int y)
 {
   switch (key) {
   case GLUT_KEY_UP: // throttle up
-    if (!mars_lander.autopilot_enabled && !landed && (mars_lander.fuel>0.0)) {
+    if (!mars_lander.autopilot_enabled && !mars_lander.landed && (mars_lander.fuel>0.0)) {
       throttle_control++;
       if (throttle_control>THROTTLE_GRANULARITY) throttle_control = THROTTLE_GRANULARITY;
       mars_lander.throttle = (double)throttle_control / THROTTLE_GRANULARITY;
     }
     break;
   case GLUT_KEY_DOWN: // throttle down
-    if (!mars_lander.autopilot_enabled && !landed) {
+    if (!mars_lander.autopilot_enabled && !mars_lander.landed) {
       throttle_control--;
       if (throttle_control<0) throttle_control = 0;
       mars_lander.throttle = (double)throttle_control / THROTTLE_GRANULARITY;
@@ -1960,7 +1959,7 @@ void glut_special(int key, int x, int y)
     simulation_speed++;
     if (simulation_speed>10) simulation_speed = 10;
     if (paused) {
-      if (!landed) glutIdleFunc(update_lander_state);
+      if (!mars_lander.landed) glutIdleFunc(update_lander_state);
       paused = false;
     }
     break;
@@ -1973,7 +1972,7 @@ void glut_special(int key, int x, int y)
     }
     break;
   }
-  if (paused || landed) refresh_all_subwindows();
+  if (paused || mars_lander.landed) refresh_all_subwindows();
 }
 
 void glut_key(unsigned char k, int x, int y)
@@ -2048,7 +2047,7 @@ void glut_key(unsigned char k, int x, int y)
 
   case 'a': case 'A':
     // a or A - autopilot
-    if (!landed) mars_lander.autopilot_enabled = !mars_lander.autopilot_enabled;
+    if (!mars_lander.landed) mars_lander.autopilot_enabled = !mars_lander.autopilot_enabled;
     if (paused) refresh_all_subwindows();
     break;
 
@@ -2064,7 +2063,7 @@ void glut_key(unsigned char k, int x, int y)
       orbital_zoom = 0.4;
     }
     set_orbital_projection_matrix();
-    if (paused || landed) refresh_all_subwindows();
+    if (paused || mars_lander.landed) refresh_all_subwindows();
     break;
 
   case 'l': case 'L':
@@ -2072,26 +2071,26 @@ void glut_key(unsigned char k, int x, int y)
     static_lighting = !static_lighting;
     glutSetWindow(orbital_window); enable_lights();
     glutSetWindow(closeup_window); enable_lights();
-    if (paused || landed) refresh_all_subwindows();
+    if (paused || mars_lander.landed) refresh_all_subwindows();
     break;
 
   case 't': case 'T':
     // t or T - terrain texture
     do_texture = !do_texture;
     if (!texture_available) do_texture = false;
-    if (paused || landed) refresh_all_subwindows();
+    if (paused || mars_lander.landed) refresh_all_subwindows();
     break;
 
   case 'p': case 'P':
     // p or P - deploy parachute
     // add !autopilot_enabled && to stop parachute control on autopilot
-    if (!landed && (mars_lander.parachute_status == NOT_DEPLOYED)) mars_lander.parachute_status = DEPLOYED;
+    if (!mars_lander.landed && (mars_lander.parachute_status == NOT_DEPLOYED)) mars_lander.parachute_status = DEPLOYED;
     if (paused) refresh_all_subwindows();
     break;
 
   case 's': case 'S':
     // s or S - attitude stabilizer
-    if (!mars_lander.autopilot_enabled && !landed) stabilized_attitude = !stabilized_attitude;
+    if (!mars_lander.autopilot_enabled && !mars_lander.landed) stabilized_attitude = !stabilized_attitude;
     if (paused) refresh_all_subwindows();
     break;
 
@@ -2124,7 +2123,7 @@ void glut_key(unsigned char k, int x, int y)
     // space bar
     simulation_speed = 0;
     glutIdleFunc(NULL);
-    if (paused && !landed) update_lander_state();
+    if (paused && !mars_lander.landed) update_lander_state();
     else refresh_all_subwindows();
     paused = true;
     break;

@@ -246,38 +246,38 @@ void initialize_simulation(void)
   case 1:
     // a descent from rest at 10km altitude
     //fout.open("Power_scenerio_1.txt", ios::app);
-    position = vector3d(0.0, -(MARS_RADIUS + 10000.0), 0.0);
-    velocity = vector3d(0.0, 0.0, 0.0);
-    orientation = vector3d(0.0, 0.0, 90.0);
+    mars_lander.set_position(vector3d(0.0, -(MARS_RADIUS + 10000.0), 0.0));
+    mars_lander.set_velocity(vector3d(0.0, 0.0, 0.0));
+    mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     stabilized_attitude = true;
-    autopilot_enabled = false;
+    mars_lander.autopilot_enabled = false;
     break;
 
   case 2:
     // an elliptical polar orbit
-    position = vector3d(0.0, 0.0, 1.2*MARS_RADIUS);
-    velocity = vector3d(3500.0, 0.0, 0.0);
-    orientation = vector3d(0.0, 0.0, 90.0);
+    mars_lander.set_position(vector3d(0.0, 0.0, 1.2*MARS_RADIUS));
+    mars_lander.set_velocity(vector3d(3500.0, 0.0, 0.0));
+    mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     stabilized_attitude = false;
-    autopilot_enabled = false;
-    autopilot_status = ORBIT_RE_ENTRY;
+    mars_lander.autopilot_enabled = false;
+    mars_lander.autopilot_status = ORBIT_RE_ENTRY;
     break;
 
   case 3:
     // polar surface launch at escape velocity (but drag prevents escape)
-    position = vector3d(0.0, 0.0, MARS_RADIUS + LANDER_SIZE / 2.0);
-    velocity = vector3d(0.0, 0.0, 5027.0);
-    orientation = vector3d(0.0, 0.0, 0.0);
+    mars_lander.set_position(vector3d(0.0, 0.0, MARS_RADIUS + LANDER_SIZE / 2.0));
+    mars_lander.set_velocity(vector3d(0.0, 0.0, 5027.0));
+    mars_lander.set_orientation(vector3d(0.0, 0.0, 0.0));
     stabilized_attitude = false;
-    autopilot_enabled = false;
-    autopilot_status = ORBIT_INJECTION;
+    mars_lander.autopilot_enabled = false;
+    mars_lander.autopilot_status = ORBIT_INJECTION;
     break;
 
   case 4:
     // an elliptical orbit that clips the atmosphere each time round, losing energy
-    position = vector3d(0.0, 0.0, MARS_RADIUS + 100000.0);
-    velocity = vector3d(4000.0, 0.0, 0.0);
-    orientation = vector3d(0.0, 90.0, 0.0);
+    mars_lander.set_position(vector3d(0.0, 0.0, MARS_RADIUS + 100000.0));
+    mars_lander.set_velocity(vector3d(4000.0, 0.0, 0.0));
+    mars_lander.set_orientation(vector3d(0.0, 90.0, 0.0));
     stabilized_attitude = false;
     autopilot_enabled = false;
     break;
@@ -285,39 +285,37 @@ void initialize_simulation(void)
   case 5:
     // a descent from rest at the edge of the exosphere
     //fout.open("Power_scenerio_5.txt", ios::app);
-    position = vector3d(0.0, -(MARS_RADIUS + EXOSPHERE), 0.0);
-    velocity = vector3d(0.0, 0.0, 0.0);
-    orientation = vector3d(0.0, 0.0, 90.0);
+    mars_lander.set_position(vector3d(0.0, -(MARS_RADIUS + EXOSPHERE), 0.0));
+    mars_lander.set_velocity(vector3d(0.0, 0.0, 0.0));
+    mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     stabilized_attitude = true;
-    autopilot_enabled = false;
+    mars_lander.autopilot_enabled = false;
     break;
 
   case 6:
     //orbit above a fixed point on the martian equator
-    position = vector3d(aerostationary_radius, 0.0, 0.0);
-    velocity = vector3d(0.0, pow(GRAVITY*MARS_MASS / aerostationary_radius, 0.5), 0.0);
-    orientation = vector3d(0.0, 0.0, 90.0);
+    mars_lander.set_position(vector3d(aerostationary_radius, 0.0, 0.0));
+    mars_lander.set_velocity(vector3d(0.0, pow(GRAVITY*MARS_MASS / aerostationary_radius, 0.5), 0.0));
+    mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     stabilized_attitude = true;
-    autopilot_enabled = false;
-    autopilot_status = ORBIT_RE_ENTRY;
+    mars_lander.autopilot_enabled = false;
+    mars_lander.autopilot_status = ORBIT_RE_ENTRY;
     break;
 
   case 7:
-    position = vector3d(0.0, -(MARS_RADIUS + 10000.0), 0.0);
-    planetary_rotation_update();
-    velocity = vector3d(planetary_rotation, 0.0, 0.0);
-    orientation = vector3d(0.0, 0.0, 90.0);
+    mars_lander.set_position(vector3d(0.0, -(MARS_RADIUS + 10000.0), 0.0));
+    mars_lander.set_velocity(vector3d(mars_lander.get_planetary_rotation().abs(), 0.0, 0.0));
+    mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     stabilized_attitude = true;
-    autopilot_enabled = false;
+    mars_lander.autopilot_enabled = false;
     break;
 
   case 8:
-    position = vector3d(0.0, -(MARS_RADIUS + EXOSPHERE), 0.0);
-    planetary_rotation_update();
-    velocity = vector3d(planetary_rotation, 0.0, 0.0);
-    orientation = vector3d(0.0, 0.0, 90.0);
+    mars_lander.set_position(vector3d(0.0, -(MARS_RADIUS + EXOSPHERE), 0.0));
+    mars_lander.set_velocity(vector3d(mars_lander.get_planetary_rotation().abs(), 0.0, 0.0));
+    mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     stabilized_attitude = true;
-    autopilot_enabled = false;
+    mars_lander.autopilot_enabled = false;
     break;
 
   case 9:

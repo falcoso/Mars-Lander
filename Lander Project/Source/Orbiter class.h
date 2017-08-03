@@ -19,6 +19,7 @@ public:
 
   void set_velocity(vector3d input_vel);
   void set_position(vector3d input_pos);
+  void set_altitude(double input_alt);
 
 protected:
   virtual void update_members();
