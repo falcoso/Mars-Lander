@@ -1324,7 +1324,8 @@ void draw_closeup_window(void)
       glDisable(GL_BLEND);
     }
 
-    if (!crashed) { // draw a circular shadow below the lander
+    if (!crashed) 
+    { // draw a circular shadow below the lander
       glColor3f(0.32, 0.17, 0.11);
       glBegin(GL_TRIANGLES);
       for (i = 0; i<360; i += 10) {
@@ -1334,11 +1335,13 @@ void draw_closeup_window(void)
       }
       glEnd();
     }
-    else {
+    else 
+    {
       rtmp = 0;
       glColor3f(1.0, 1.0, 1.0);
       glBegin(GL_TRIANGLES); // draw some shards of metal
-      for (i = 0; i<60; i++) {
+      for (i = 0; i<60; i++) 
+      {
         for (j = 0; j<8; j++) { rand_tri[j] = randtab[rtmp]; rtmp = (rtmp + 1) % N_RAND; }
         cx = 40.0 * (rand_tri[0] - 0.5);
         cy = 40.0 * (rand_tri[1] - 0.5);
@@ -1348,10 +1351,12 @@ void draw_closeup_window(void)
         glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[6], -mars_lander.get_altitude(), cy + 2.0*LANDER_SIZE*rand_tri[7]);
       }
       glEnd();
-      if (mars_lander.parachute_status != LOST) {
+      if (mars_lander.parachute_status != LOST) 
+      {
         glColor3f(1.0, 1.0, 0.0);
         glBegin(GL_TRIANGLES);  // draw some shreds of yellow canvas
-        for (i = 0; i<30; i++) {
+        for (i = 0; i<30; i++) 
+        {
           for (j = 0; j<8; j++) { rand_tri[j] = randtab[rtmp]; rtmp = (rtmp + 1) % N_RAND; }
           cx = 40.0 * (rand_tri[0] - 0.5);
           cy = 40.0 * (rand_tri[1] - 0.5);
@@ -1366,39 +1371,37 @@ void draw_closeup_window(void)
     glEnable(GL_DEPTH_TEST);
 
   }
-  else {
-
+  else 
+  {
     // Draw spherical planet - can disable depth test (for speed)
     glDisable(GL_DEPTH_TEST);
     glPushMatrix();
 
-    if (mars_lander.get_altitude() > EXOSPHERE) {
-
+    if (mars_lander.get_altitude() > EXOSPHERE) 
+    {
       // Draw the planet reduced size at a reduced displacement, to avoid numerical OpenGL problems with huge viewing distances.
       glTranslated(0.0, -MARS_RADIUS, 0.0);
       glMultMatrixd(m2); // now in the planetary coordinate system
       glRotated(360.0*simulation_time / MARS_DAY, 0.0, 0.0, 1.0); // to make the planet spin
       glutMottledSphere(MARS_RADIUS * (MARS_RADIUS / (mars_lander.get_altitude() + MARS_RADIUS)), 160, 100);
-
     }
-    else {
-
+    else 
+    {
       // Draw the planet actual size at the correct displacement
       glTranslated(0.0, -(MARS_RADIUS + mars_lander.get_altitude()), 0.0);
       glMultMatrixd(m2); // now in the planetary coordinate system
       glRotated(360.0*simulation_time / MARS_DAY, 0.0, 0.0, 1.0); // to make the planet spin
       glutMottledSphere(MARS_RADIUS, 160, 100);
-
     }
 
     glPopMatrix(); // back to the view's world coordinate system
     glEnable(GL_DEPTH_TEST);
-
   }
 
   glDisable(GL_FOG); // fog only applies to the ground
   dark_side = (static_lighting && (mars_lander.get_position().y > 0.0) && (sqrt(mars_lander.get_position().x*mars_lander.get_position().x + mars_lander.get_position().z*mars_lander.get_position().z) < MARS_RADIUS));
-  if (dark_side) { // in the shadow of the planet, we need some diffuse lighting to highlight the lander
+  if (dark_side) 
+  { // in the shadow of the planet, we need some diffuse lighting to highlight the lander
     glDisable(GL_LIGHT2); glDisable(GL_LIGHT3);
     glEnable(GL_LIGHT4); glEnable(GL_LIGHT5);
   }
@@ -1406,16 +1409,19 @@ void draw_closeup_window(void)
   // Work out drag on lander - if it's high, we will surround the lander with an incandescent glow. Also
   // work out drag on parachute: if it's zero, we will not draw the parachute fully open behind the lander.
   // Assume high Reynolds number, quadratic drag = -0.5 * rho * v^2 * A * C_d
-  lander_drag_abs = lander_drag().abs();
-  chute_drag_abs  = parachute_drag().abs();
+  lander_drag_abs = mars_lander.lander_drag().abs();
+  chute_drag_abs  = mars_lander.parachute_drag().abs();
 
   // Draw the lander's parachute - behind the lander in the direction of travel
-  if ((mars_lander.parachute_status == DEPLOYED) && !crashed) {
-    if (mars_lander.get_velocity().abs() < SMALL_NUM) {
+  if ((mars_lander.parachute_status == DEPLOYED) && !crashed) 
+  {
+    if (mars_lander.get_velocity().abs() < SMALL_NUM) 
+    {
       // Lander is apparently stationary - so draw the parachute above and near to the lander
       gs = 0.0; cs = -1.0; tmp = 2.0;
     }
-    else {
+    else 
+    {
       gs = ground_speed; cs = climb_speed;
       if (chute_drag_abs) tmp = 5.0; // parachute fully open
       else tmp = 2.0; // parachute not fully open
@@ -1442,7 +1448,8 @@ void draw_closeup_window(void)
   glTranslated(0.0, 0.0, -LANDER_SIZE / 2);
 
   // Draw lander
-  if (!crashed) {
+  if (!crashed) 
+  {
     glColor3f(1.0, 1.0, 1.0);
     glutCone(LANDER_SIZE, LANDER_SIZE, 50, 50, true);
   }
@@ -1453,18 +1460,20 @@ void draw_closeup_window(void)
   }
 
   // Draw engine exhaust flare
-  if (thrust_wrt_world().abs() > 0.0) {
+  if (mars_lander.thrust_wrt_world().abs() > 0.0) 
+  {
     glColor3f(1.0, 0.5, 0.0);
     glRotated(180.0, 1.0, 0.0, 0.0);
     glDisable(GL_LIGHTING);
-    glutCone(LANDER_SIZE / 2, 2 * LANDER_SIZE*thrust_wrt_world().abs() / MAX_THRUST, 50, 50, false);
+    glutCone(LANDER_SIZE / 2, 2 * LANDER_SIZE*mars_lander.thrust_wrt_world().abs() / MAX_THRUST, 50, 50, false);
     glEnable(GL_LIGHTING);
   }
 
   glPopMatrix(); // back to the world coordinate system
 
                  // Draw incandescent glow surrounding lander
-  if (lander_drag_abs*mars_lander.get_velocity().abs() > HEAT_FLUX_GLOW_THRESHOLD) {
+  if (lander_drag_abs*mars_lander.get_velocity().abs() > HEAT_FLUX_GLOW_THRESHOLD) 
+  {
     // Calculate an heuristic "glow factor", in the range 0 to 1, for graphics effects
     glow_factor = (lander_drag_abs*mars_lander.get_velocity().abs() - HEAT_FLUX_GLOW_THRESHOLD) / (4.0*HEAT_FLUX_GLOW_THRESHOLD);
     if (glow_factor > 1.0) glow_factor = 1.0;

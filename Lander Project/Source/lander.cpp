@@ -15,6 +15,7 @@
 #include "lander.h"
 #include "Dynamics.h"
 #include "lander_graphics.h"
+#include "Orbiter class.h"
 
 extern lander mars_lander;
 fstream fout;
@@ -29,10 +30,7 @@ void autopilot(const double &lander_mass)
   static double timer;
   double Kh, ver, altitude, delta, error, Pout;
 
-  if (simulation_time == 0)
-  {
-    timer = 0.0;
-  }
+  if (simulation_time == 0) timer = 0.0;
 
   switch (autopilot_status)
   {

@@ -99,55 +99,53 @@ lander::lander(double input_radius)
 void lander::set_orientation(vector3d input_orientation) { orientation = input_orientation; }
 vector3d lander::get_orientation() { return orientation; }
   
-
 void lander::numerical_dynamics()
 {
-    //declare old and new potision variables for verlet intergrator
-    static vector3d old_position; //do not assign here, as will not reset when new scenario selected
-    vector3d new_position;
-    static double kp_test;
+  //declare old and new potision variables for verlet intergrator
+  static vector3d old_position; //do not assign here, as will not reset when new scenario selected
+  vector3d new_position;
+  static double kp_test;
 
-    //so that if the simulation is reset so does the old position
-    if (simulation_time == 0.0) old_position = position - delta_t*velocity;
+  //so that if the simulation is reset so does the old position
+  if (simulation_time == 0.0) old_position = position - delta_t*velocity;
 
-    switch (intergrator) //switch based on intergration method chosen
-    {
-    case VERLET:
-      new_position = 2 * position - old_position + delta_t*delta_t*acceleration;
-      velocity = (1 / delta_t)*(new_position - position);
-      //shift along positions
-      old_position = position;
-      position = new_position;
-      break;
-    case EULER:
-      position += delta_t*velocity;
-      velocity += delta_t*acceleration;
-      break;
-    }
-    // Here we can apply 3-axis stabilization to ensure the base is always pointing downwards
-    if (stabilized_attitude) attitude_stabilization();
+  switch (intergrator) //switch based on intergration method chosen
+  {
+  case VERLET:
+    new_position = 2 * position - old_position + delta_t*delta_t*acceleration;
+    velocity = (1 / delta_t)*(new_position - position);
+    //shift along positions
+    old_position = position;
+    position = new_position;
+    break;
+  case EULER:
+    position += delta_t*velocity;
+    velocity += delta_t*acceleration;
+    break;
+  }
+  // Here we can apply 3-axis stabilization to ensure the base is always pointing downwards
+  if (stabilized_attitude) attitude_stabilization();
 
-    // Here we can apply an autopilot to adjust the thrust, parachute and attitude
-    if (autopilot_enabled)
-    {
-      stabilized_attitude = 1;
-      //  stabilized_attitude_angle = -(acos(position.norm()*(velocity-atmosphere_rotation()).norm()) + M_PI);
-      autopilot();
-    }
-    update_members();
-    return;
+  // Here we can apply an autopilot to adjust the thrust, parachute and attitude
+  if (autopilot_enabled)
+  {
+    stabilized_attitude = 1;
+    //  stabilized_attitude_angle = -(acos(position.norm()*(velocity-atmosphere_rotation()).norm()) + M_PI);
+    autopilot();
+  }
+  update_members();
+  return;
 }
-
 
 vector3d lander::parachute_drag(void)
 {
-  vector3d rotation = atmosphere_rotation() + wind()*atmosphere_rotation().norm();
+  vector3d rotation = planetary_rotation + wind()*planetary_rotation.norm();
   return -0.5*atmospheric_density(position)*DRAG_COEF_CHUTE*5.0*2.0*LANDER_SIZE*2.0*LANDER_SIZE*(velocity - rotation).abs()*(velocity - rotation);
 }
 
 vector3d lander::lander_drag(void)
 {
-  vector3d rotation = atmosphere_rotation() + wind()*atmosphere_rotation().norm();
+  vector3d rotation = planetary_rotation + wind()*planetary_rotation.norm();
   return -0.5*front_facing_area*atmospheric_density(position)*(DRAG_COEF_LANDER)*(velocity - rotation).abs()*(velocity - rotation);
 }
 
@@ -172,7 +170,7 @@ void lander::autopilot()
   */
   ver   = velocity*position.norm();
   delta = gravity().abs() / MAX_THRUST;   
-  Kh    = 0.03;
+  Kh    = 0.018;
   error = -(ideal_ver + Kh*altitude + ver);
   Pout  = Kp*error;
 
@@ -180,6 +178,9 @@ void lander::autopilot()
   if (Pout <= -delta)          throttle = 0;
   else if (Pout >= 1 - delta)  throttle = 1;
   else                         throttle = delta + Pout;
+
+  if (velocity*closeup_coords.right < 0) stabilized_attitude_angle = M_PI + acos(position.norm()*(relative_velocity).norm());
+  else                                   stabilized_attitude_angle = M_PI - acos(position.norm()*(relative_velocity).norm());
 }
 
 vector3d lander::thrust_wrt_world(void)
@@ -204,17 +205,17 @@ vector3d lander::thrust_wrt_world(void)
 
     last_time_lag_updated = simulation_time;
   }
-
   if (stabilized_attitude && (abs(stabilized_attitude_angle) < 1E-7)) { // specific solution, avoids rounding errors in the more general calculation below
-    b = lagged_throttle*MAX_THRUST*position.norm();
+    b = throttle*MAX_THRUST*position.norm();
   }
   else {
-    a.x = 0.0; a.y = 0.0; a.z = lagged_throttle*MAX_THRUST;
+    a.x = 0.0; a.y = 0.0; a.z = throttle*MAX_THRUST;
     xyz_euler_to_matrix(orientation, m);
     b.x = m[0] * a.x + m[4] * a.y + m[8] * a.z;
     b.y = m[1] * a.x + m[5] * a.y + m[9] * a.z;
     b.z = m[2] * a.x + m[6] * a.y + m[10] * a.z;
   }
+  
   return b;
 }
 
@@ -226,7 +227,7 @@ void lander::attitude_stabilization(void)
   //define axis of rotation
   if (autopilot_status == ORBIT_DESCENT && autopilot_enabled)
   {
-    up = -(velocity - atmosphere_rotation()).norm();
+    up = -relative_velocity.norm();
   }
   else if (abs(stabilized_attitude_angle) < 1E-7) //skip expensive calulcations if aproximately 0
   {
