@@ -98,44 +98,6 @@ lander::lander(double input_radius)
 
 void lander::set_orientation(vector3d input_orientation) { orientation = input_orientation; }
 vector3d lander::get_orientation() { return orientation; }
-  
-void lander::numerical_dynamics()
-{
-  //declare old and new potision variables for verlet intergrator
-  static vector3d old_position; //do not assign here, as will not reset when new scenario selected
-  vector3d new_position;
-  static double kp_test;
-
-  //so that if the simulation is reset so does the old position
-  if (simulation_time == 0.0) old_position = position - delta_t*velocity;
-
-  switch (intergrator) //switch based on intergration method chosen
-  {
-  case VERLET:
-    new_position = 2 * position - old_position + delta_t*delta_t*acceleration;
-    velocity = (1 / delta_t)*(new_position - position);
-    //shift along positions
-    old_position = position;
-    position = new_position;
-    break;
-  case EULER:
-    position += delta_t*velocity;
-    velocity += delta_t*acceleration;
-    break;
-  }
-  // Here we can apply 3-axis stabilization to ensure the base is always pointing downwards
-  if (stabilized_attitude) attitude_stabilization();
-
-  // Here we can apply an autopilot to adjust the thrust, parachute and attitude
-  if (autopilot_enabled)
-  {
-    stabilized_attitude = 1;
-    //  stabilized_attitude_angle = -(acos(position.norm()*(velocity-atmosphere_rotation()).norm()) + M_PI);
-    autopilot();
-  }
-  update_members();
-  return;
-}
 
 vector3d lander::parachute_drag(void)
 {
@@ -147,40 +109,6 @@ vector3d lander::lander_drag(void)
 {
   vector3d rotation = planetary_rotation + wind()*planetary_rotation.norm();
   return -0.5*front_facing_area*atmospheric_density(position)*(DRAG_COEF_LANDER)*(velocity - rotation).abs()*(velocity - rotation);
-}
-
-void lander::autopilot()
-{
-  constexpr double ideal_ver = 0.5;
-  constexpr double Kp = 1;
-  double Kh, ver, delta, error, Pout;
-
-  /*If no parachute is available then Kh = 0.018 will land safely, if parachute is available
-  a more efficient configuration is Kh = 0.03 Kp = 1 ideal_ver = 0.5
-  ***MOST EFFICIENT Kh WITH PARACHUTE***        ***SOFEST LANDING Kh WITH PARACHUTE***
-  Scenario 1  Kh = 0.1525   Fuel Used = 7.9         Kh = 0.0104
-  Scenario 3  Kh = 0.04775  Fuel Used = 35          Kh = 0.0147
-  Scenario 4  Kh = 0.1525   Fuel Used = 7.9         Kh = 0.01095
-  Scenario 5  Kh = 0.05143  Fuel Used = 30.1        Kh = 0.0145
-
-  ***Most EFFICIENT Kh WITHOUT PARACHUTE***
-  Scenario 1  Kh = 0.04125  Fuel Used = 33.1        Kh = 0.0137
-  Scenario 3  Kh = 0.01812  Fuel Used = 59.1        Kh = 0.01625
-  Scenario 5  Kh = 0.01898  Fuel Used = 57.1        Kh = 0.01675
-  */
-  ver   = velocity*position.norm();
-  delta = gravity().abs() / MAX_THRUST;   
-  Kh    = 0.018;
-  error = -(ideal_ver + Kh*altitude + ver);
-  Pout  = Kp*error;
-
-  //Proportional gain control
-  if (Pout <= -delta)          throttle = 0;
-  else if (Pout >= 1 - delta)  throttle = 1;
-  else                         throttle = delta + Pout;
-
-  if (velocity*closeup_coords.right < 0) stabilized_attitude_angle = M_PI + acos(position.norm()*(relative_velocity).norm());
-  else                                   stabilized_attitude_angle = M_PI - acos(position.norm()*(relative_velocity).norm());
 }
 
 vector3d lander::thrust_wrt_world(void)

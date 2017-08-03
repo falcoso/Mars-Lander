@@ -4,6 +4,7 @@
 #include "lander_graphics.h"
 #include <random>
 
+extern lander mars_lander;
 void planetary_rotation_update(void)
 {
   planetary_rotation = pow(pow(position.x, 2) + pow(position.y, 2), 0.5)*(2 * M_PI / MARS_DAY);
@@ -83,9 +84,9 @@ vector3d gravity(const double &lander_mass, const vector3d &position)
 
 bool open_chute_query(void)
 {
-  vector3d virt_velocity   = velocity;
-  vector3d virt_position   = position;
-  double old_virt_velocity = velocity.abs();
+  vector3d virt_velocity   = mars_lander.get_velocity();
+  vector3d virt_position   = mars_lander.get_position();
+  double old_virt_velocity = mars_lander.get_velocity().abs();
   double virt_dt           = 0.1;
   double virt_time         = virt_dt;
   double virt_mass;
@@ -94,8 +95,8 @@ bool open_chute_query(void)
   while(TRUE)
   {
     virt_drag = lander_drag(virt_position, virt_velocity) + parachute_drag(virt_position, virt_velocity);
-    virt_mass = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY; //note this assumes effectively constant mass in virtual calulation
-    virt_acceleration = (gravity(virt_mass) + thrust_wrt_world() + virt_drag) / virt_mass;
+    virt_mass = mars_lander.get_mass(); //note this assumes effectively constant mass in virtual calulation
+    virt_acceleration = (mars_lander.gravity() + mars_lander.thrust_wrt_world() + virt_drag) / virt_mass;
     virt_position += virt_dt*virt_velocity;
     virt_velocity += virt_dt*virt_acceleration;
     if (virt_velocity.abs() >= MAX_PARACHUTE_SPEED || virt_position.abs() <= MARS_RADIUS)
@@ -111,6 +112,12 @@ bool open_chute_query(void)
       old_virt_velocity = virt_velocity.abs();
     }
     virt_time += virt_dt;
+
+    if (virt_time > 1000)
+    {
+      std::cout << "Parachute query timed out\n";
+      break;
+    }
   }
   return 0;
 }
