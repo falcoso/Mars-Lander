@@ -1544,13 +1544,10 @@ void refresh_all_subwindows(void)
 bool safe_to_deploy_parachute(void)
 // Checks whether the parachute is safe to deploy at the current position and velocity
 {
-  double drag;
-
   // Assume high Reynolds number, quadratic drag = -0.5 * rho * v^2 * A * C_d
-  drag = parachute_drag().abs();
   // Do not use the global variable "altitude" here, in case this function is called from within the
   // numerical_dynamics function, before altitude is updated in the update_visualization function
-  if ((drag > MAX_PARACHUTE_DRAG) || ((mars_lander.get_velocity().abs() > MAX_PARACHUTE_SPEED) && ((mars_lander.get_position().abs() - MARS_RADIUS) < EXOSPHERE))) return false;
+  if ((mars_lander.parachute_drag().abs() > MAX_PARACHUTE_DRAG) || ((mars_lander.get_velocity().abs() > MAX_PARACHUTE_SPEED) && ((mars_lander.get_position().abs() - MARS_RADIUS) < EXOSPHERE))) return false;
   else return true;
 }
 
@@ -1569,7 +1566,6 @@ void update_visualization(void)
   climb_speed = mars_lander.get_relative_velocity()*av_p;
   ground_speed = (mars_lander.get_relative_velocity() - climb_speed*av_p).abs();
 
-                                                                    // Check to see whether the lander has landed
   if (mars_lander.get_altitude() < LANDER_SIZE / 2.0) {
     glutIdleFunc(NULL);
     // Estimate position and time of impact
@@ -1586,20 +1582,12 @@ void update_visualization(void)
     mars_lander.set_velocity( vector3d(0.0, 0.0, 0.0));
   }
 
-  // Update throttle and fuel (throttle might have been adjusted by the autopilot)
-  /*if (throttle < 0.0) throttle = 0.0;
-  if (throttle > 1.0) throttle = 1.0;
-  fuel -= delta_t * (FUEL_RATE_AT_MAX_THRUST*throttle) / FUEL_CAPACITY;*/
   if (mars_lander.landed || (mars_lander.fuel == 0.0)) mars_lander.throttle = 0.0;
   throttle_control = (short)(mars_lander.throttle*THROTTLE_GRANULARITY + 0.5);
 
   // Check to see whether the parachute has vaporized or the tethers have snapped
   if (mars_lander.parachute_status == DEPLOYED) {
-    if (!safe_to_deploy_parachute() || parachute_lost) {
-      parachute_lost = true; // to guard against the autopilot reinstating the parachute!
-      mars_lander.parachute_status = LOST;
-    }
-  }
+    if (!safe_to_deploy_parachute()) { mars_lander.parachute_status = LOST; }}
 
   // Update record of lander's previous positions, but only if the position or the velocity has 
   // changed significantly since the last update
@@ -1613,99 +1601,6 @@ void update_visualization(void)
 
   // Redraw everything
   refresh_all_subwindows();
-}
-
-void attitude_stabilization(void)
-// Three-axis stabilization to ensure the lander's base is always pointing downwards 
-{
-  vector3d up, left, out, axis;
-  double m[16];
-  //define axis of rotation
-  if (autopilot_status == ORBIT_DESCENT && autopilot_enabled)
-  {
-    up = -(velocity - atmosphere_rotation()).norm();
-  }
-  else if (abs(stabilized_attitude_angle) < 1E-7) //skip expensive calulcations if aproximately 0
-  {
-    up = position.norm();
-  }
-  else
-  { //define the axis of rotation
-    axis = (position.norm() ^ closeup_coords.right).norm();
-    //convert to quaternion 
-    quat_t rotation_quat = axis_to_quat(axis, stabilized_attitude_angle);
-    //create rotation matrix from quaternion, recycling m[] as it is re-assigned later
-    quat_to_matrix(m, rotation_quat);
-    //multiply position vector by rotation matrix
-    up.x = position.norm().x*m[0] + position.norm().y*m[1] + position.norm().z*m[2]; // this is the direction we want the lander's nose to point in
-    up.y = position.norm().x*m[4] + position.norm().y*m[5] + position.norm().z*m[6];
-    up.z = position.norm().x*m[8] + position.norm().y*m[9] + position.norm().z*m[10];
-  }
-  // !!!!!!!!!!!!! HINT TO STUDENTS ATTEMPTING THE EXTENSION EXERCISES !!!!!!!!!!!!!!
-  // For any-angle attitude control, we just need to set "up" to something different,
-  // and leave the remainder of this function unchanged. For example, suppose we want
-  // the attitude to be stabilized at stabilized_attitude_angle to the vertical in the
-  // close-up view. So we need to rotate "up" by stabilized_attitude_angle degrees around
-  // an axis perpendicular to the plane of the close-up view. This axis is given by the
-  // vector product of "up"and "closeup_coords.right". To calculate the result of the
-  // rotation, search the internet for information on the axis-angle rotation formula.
-
-  // Set left to something perpendicular to up
-  left.x = -up.y; left.y = up.x; left.z = 0.0;
-  if (left.abs() < SMALL_NUM) { left.x = -up.z; left.y = 0.0; left.z = up.x; }
-  left = left.norm();
-  out = left^up;
-  // Construct modelling matrix (rotation only) from these three vectors
-  m[0] = out.x; m[1] = out.y; m[2] = out.z; m[3] = 0.0;
-  m[4] = left.x; m[5] = left.y; m[6] = left.z; m[7] = 0.0;
-  m[8] = up.x; m[9] = up.y; m[10] = up.z; m[11] = 0.0;
-  m[12] = 0.0; m[13] = 0.0; m[14] = 0.0; m[15] = 1.0;
-  // Decomponse into xyz Euler angles
-  orientation = matrix_to_xyz_euler(m);
-}
-
-vector3d thrust_wrt_world(void)
-// Works out thrust vector in the world reference frame, given the lander's orientation
-{
-  double m[16], k, delayed_throttle, lag = ENGINE_LAG;
-  vector3d a, b;
-  static double lagged_throttle = 0.0;
-  static double last_time_lag_updated = -1.0;
-
-  if (simulation_time < last_time_lag_updated) lagged_throttle = 0.0; // simulation restarted
-  if (throttle < 0.0) throttle = 0.0;
-  if (throttle > 1.0) throttle = 1.0;
-  if (mars_lander.landed || (fuel == 0.0)) throttle = 0.0;
-
-  if (simulation_time != last_time_lag_updated) {
-
-    // Delayed throttle value from the throttle history buffer
-    if (throttle_buffer_length > 0) {
-      delayed_throttle = throttle_buffer[throttle_buffer_pointer];
-      throttle_buffer[throttle_buffer_pointer] = throttle;
-      throttle_buffer_pointer = (throttle_buffer_pointer + 1) % throttle_buffer_length;
-    }
-    else delayed_throttle = throttle;
-
-    // Lag, with time constant ENGINE_LAG
-    if (lag <= 0.0) k = 0.0;
-    else k = pow(exp(-1.0), delta_t / lag);
-    lagged_throttle = k*lagged_throttle + (1.0 - k)*delayed_throttle;
-
-    last_time_lag_updated = simulation_time;
-  }
-
-  if (stabilized_attitude && (abs(stabilized_attitude_angle) < 1E-7)) { // specific solution, avoids rounding errors in the more general calculation below
-    b = lagged_throttle*MAX_THRUST*position.norm();
-  }
-  else {
-    a.x = 0.0; a.y = 0.0; a.z = lagged_throttle*MAX_THRUST;
-    xyz_euler_to_matrix(orientation, m);
-    b.x = m[0] * a.x + m[4] * a.y + m[8] * a.z;
-    b.y = m[1] * a.x + m[5] * a.y + m[9] * a.z;
-    b.z = m[2] * a.x + m[6] * a.y + m[10] * a.z;
-  }
-  return b;
 }
 
 void update_lander_state(void)
@@ -1770,7 +1665,7 @@ void reset_simulation(void)
   throttle_control = (short)(mars_lander.throttle*THROTTLE_GRANULARITY + 0.5);
   simulation_time = 0.0;
   track.n = 0;
-  parachute_lost = false;
+  //parachute_lost = false;
   closeup_coords.initialized = false;
   closeup_coords.backwards = false;
   closeup_coords.right = vector3d(1.0, 0.0, 0.0);

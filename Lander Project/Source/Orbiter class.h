@@ -9,9 +9,10 @@ public:
   orbiter(vector3d input_pos, vector3d input_vel, double input_mass, double input_radius);
   orbiter();
   virtual void numerical_dynamics();
+  vector3d gravity();
+
   double get_altitude();
   double get_mass();
-  vector3d gravity();
   vector3d get_position();
   vector3d get_velocity();
   vector3d get_planetary_rotation();
@@ -28,6 +29,7 @@ protected:
   vector3d velocity;
   vector3d position;
   
+  vector3d old_position;
   vector3d acceleration;
   double altitude;
   vector3d planetary_rotation;
@@ -51,6 +53,7 @@ public:
   vector3d lander_drag();
   vector3d parachute_drag();
   vector3d thrust_wrt_world();
+
   void set_orientation(vector3d input_orientation);
   vector3d get_orientation();
 
@@ -59,6 +62,8 @@ protected:
   virtual void update_members();
   void autopilot();
   double front_facing_area;
+  double ground_speed;
+  double climb_speed;
   vector3d orientation;
 };
 #endif

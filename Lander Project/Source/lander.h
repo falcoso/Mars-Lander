@@ -147,20 +147,15 @@ enum intergrator_t {VERLET = 0, EULER = 1};
 enum autopilot_t {ORBIT_RE_ENTRY, ORBIT_DESCENT, ORBIT_INJECTION, HOVER};
 
 
-extern bool stabilized_attitude, autopilot_enabled, wind_enabled;
-extern double delta_t, simulation_time, throttle, fuel, planetary_rotation;
+extern bool stabilized_attitude, wind_enabled;
+extern double delta_t, simulation_time;
 extern unsigned short scenario;
 extern string scenario_description[];
-extern vector3d position, orientation, velocity;
-extern parachute_status_t parachute_status;
 extern float stabilized_attitude_angle;
-extern autopilot_t autopilot_status;
 extern closeup_coords_t closeup_coords;
 extern constexpr intergrator_t intergrator = VERLET;
 
 
 // Function prototypes
-void autopilot (const double &lander_mass);
-void numerical_dynamics (void);
 void initialize_simulation (void);
 #endif

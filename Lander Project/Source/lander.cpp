@@ -136,7 +136,6 @@ void lander::numerical_dynamics()
 // lander's pose. The time step is delta_t (global variable).
 {
   //declare old and new potision variables for verlet intergrator
-  static vector3d old_position; //do not assign here, as will not reset when new scenario selected
   vector3d new_position;
 
   //so that if the simulation is reset so does the old position
@@ -156,6 +155,9 @@ void lander::numerical_dynamics()
     velocity += delta_t*acceleration;
     break;
   }
+
+  update_members();
+
   // Here we can apply 3-axis stabilization to ensure the base is always pointing downwards
   if (stabilized_attitude) attitude_stabilization();
 
@@ -165,7 +167,6 @@ void lander::numerical_dynamics()
     stabilized_attitude = 1;
     autopilot();
   }
-  update_members();
   return;
 }
 
@@ -247,7 +248,7 @@ void initialize_simulation(void)
     mars_lander.set_velocity(vector3d(4000.0, 0.0, 0.0));
     mars_lander.set_orientation(vector3d(0.0, 90.0, 0.0));
     stabilized_attitude = false;
-    autopilot_enabled = false;
+    mars_lander.autopilot_enabled = false;
     break;
 
   case 5:
@@ -263,7 +264,7 @@ void initialize_simulation(void)
   case 6:
     //orbit above a fixed point on the martian equator
     mars_lander.set_position(vector3d(aerostationary_radius, 0.0, 0.0));
-    mars_lander.set_velocity(vector3d(0.0, mars_lander.get_planetary_rotation().abs(), 0.0));
+    mars_lander.set_velocity(vector3d(0.0, pow(GRAVITY*MARS_MASS / aerostationary_radius, 0.5), 0.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     stabilized_attitude = true;
     mars_lander.autopilot_enabled = false;

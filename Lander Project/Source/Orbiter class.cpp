@@ -6,7 +6,6 @@
 void orbiter::numerical_dynamics()
 {
   std::cout << "ORBITER class dynamics being called?\n";
-  static vector3d old_position; //do not assign here, as will not reset when new scenario selected
   vector3d new_position;
 
   if (simulation_time == 0.0) old_position = position - delta_t*velocity;
@@ -32,18 +31,18 @@ void orbiter::numerical_dynamics()
 vector3d orbiter::gravity()      { return -(GRAVITY*MARS_MASS*mass / position.abs2())*position.norm(); }
 vector3d orbiter::get_position() { return position; }
 vector3d orbiter::get_velocity() { return velocity; }
-vector3d orbiter::get_planetary_rotation() 
-{ 
-  planetary_rotation = (pow(pow(position.x, 2) + pow(position.y, 2), 0.5))
-    *(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
-  return planetary_rotation; 
-}
+vector3d orbiter::get_planetary_rotation() { return planetary_rotation; }
 
 vector3d orbiter::get_relative_velocity()  { return relative_velocity; }
 double orbiter::get_altitude()   { return altitude; }
 double orbiter::get_mass()       { return mass; }
 
-void orbiter::set_position(vector3d input_pos) { position = input_pos; }
+void orbiter::set_position(vector3d input_pos) 
+{ 
+  position = input_pos; 
+  planetary_rotation = (pow(pow(position.x, 2) + pow(position.y, 2), 0.5))
+    *(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
+}
 void orbiter::set_velocity(vector3d input_vel) { velocity = input_vel; }
 void orbiter::set_altitude(double input_alt)   { altitude = input_alt; }
 
@@ -209,6 +208,8 @@ void lander::update_members()
     break;
   }
 
+  climb_speed = velocity*position.norm();
+  ground_speed = (velocity - climb_speed*position.norm()).abs() - planetary_rotation.abs();
   mass     = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY;
   altitude = position.abs() - MARS_RADIUS;
   fuel    -= delta_t * (FUEL_RATE_AT_MAX_THRUST*throttle) / FUEL_CAPACITY;

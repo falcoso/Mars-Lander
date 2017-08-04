@@ -33,12 +33,10 @@ unsigned long long time_program_started;
 
 // Lander state - the visualization routines use velocity_from_positions, so not sensitive to 
 // any errors in the velocity update in numerical_dynamics
-vector3d position, orientation, velocity, last_position;
-double climb_speed, ground_speed, altitude, throttle, fuel, planetary_rotation;
-bool stabilized_attitude, autopilot_enabled, parachute_lost, wind_enabled;
-parachute_status_t parachute_status;
+vector3d last_position;
+double climb_speed, ground_speed;
+bool stabilized_attitude, wind_enabled;
 float stabilized_attitude_angle;
-autopilot_t autopilot_status;
 lander mars_lander(LANDER_SIZE);
 
 // Orbital and closeup view parameters
