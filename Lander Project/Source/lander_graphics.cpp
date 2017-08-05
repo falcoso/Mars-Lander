@@ -693,14 +693,14 @@ void draw_instrument_window(void)
   draw_indicator_lamp(view_width + GAP - 400, INSTRUMENT_HEIGHT - 18, "Auto-pilot off", "Auto-pilot on", mars_lander.autopilot_enabled);
 
   // Draw climb rate meter
-  if (climb_speed >= 0.0) draw_dial(view_width + GAP - 150, INSTRUMENT_HEIGHT / 2, mars_lander.landed ? 0.0 : climb_speed, "Climb rate", "m/s");
-  else draw_dial(view_width + GAP - 150, INSTRUMENT_HEIGHT / 2, mars_lander.landed ? 0.0 : -climb_speed, "Descent rate", "m/s");
+  if (mars_lander.get_climb_speed() >= 0.0) draw_dial(view_width + GAP - 150, INSTRUMENT_HEIGHT / 2, mars_lander.landed ? 0.0 : mars_lander.get_climb_speed(), "Climb rate", "m/s");
+  else draw_dial(view_width + GAP - 150, INSTRUMENT_HEIGHT / 2, mars_lander.landed ? 0.0 : -mars_lander.get_climb_speed(), "Descent rate", "m/s");
 
   // Draw attitude stabilizer lamp
   draw_indicator_lamp(view_width + GAP - 150, INSTRUMENT_HEIGHT - 18, "Attitude stabilizer off", "Attitude stabilizer on", stabilized_attitude);
 
   // Draw ground speed meter
-  draw_dial(view_width + GAP + 100, INSTRUMENT_HEIGHT / 2, mars_lander.landed ? 0.0 : ground_speed, "Ground speed", "m/s");
+  draw_dial(view_width + GAP + 100, INSTRUMENT_HEIGHT / 2, mars_lander.landed ? 0.0 : mars_lander.get_ground_speed(), "Ground speed", "m/s");
 
   // Draw parachute lamp
   switch (mars_lander.parachute_status) {
@@ -763,9 +763,9 @@ void draw_instrument_window(void)
     else {
       s.str(""); s << "Fuel consumed " << fixed << FUEL_CAPACITY*(1.0 - mars_lander.fuel) << " litres";
       glut_print((GLfloat)(view_width + GAP - 427), (GLfloat)17, s.str());
-      s.str(""); s << "Descent rate at touchdown " << fixed << -climb_speed << " m/s";
+      s.str(""); s << "Descent rate at touchdown " << fixed << -mars_lander.get_climb_speed() << " m/s";
       glut_print((GLfloat)(view_width + GAP - 232), (GLfloat)17, s.str());
-      s.str(""); s << "Ground speed at touchdown " << fixed << ground_speed << " m/s";
+      s.str(""); s << "Ground speed at touchdown " << fixed << mars_lander.get_ground_speed() << " m/s";
       glut_print((GLfloat)(view_width + GAP + 16), (GLfloat)17, s.str());
     }
   }
@@ -811,7 +811,7 @@ void display_help_arrows(void)
   glPopMatrix();
 
   // Ground speed arrow
-  if ((ground_speed > MAX_IMPACT_GROUND_SPEED) && !mars_lander.landed) {
+  if ((mars_lander.get_ground_speed() > MAX_IMPACT_GROUND_SPEED) && !mars_lander.landed) {
     glBegin(GL_LINES);
     glVertex3d(-2.0*s, 0.0, 0.0);
     glVertex3d(-6.0*s, 0.0, 0.0);
@@ -1237,14 +1237,14 @@ void draw_closeup_window(void)
 
   // Update terrain texture/line offsets
   if (simulation_time != last_redraw_time) {
-    terrain_offset_x += cos(terrain_angle*M_PI / 180.0) * ground_speed * (simulation_time - last_redraw_time) / (2.0*ground_plane_size);
-    terrain_offset_y += sin(terrain_angle*M_PI / 180.0) * ground_speed * (simulation_time - last_redraw_time) / (2.0*ground_plane_size);
+    terrain_offset_x += cos(terrain_angle*M_PI / 180.0) * mars_lander.get_ground_speed() * (simulation_time - last_redraw_time) / (2.0*ground_plane_size);
+    terrain_offset_y += sin(terrain_angle*M_PI / 180.0) * mars_lander.get_ground_speed() * (simulation_time - last_redraw_time) / (2.0*ground_plane_size);
     while (terrain_offset_x < 0.0) terrain_offset_x += 1.0;
     while (terrain_offset_x >= 1.0) terrain_offset_x -= 1.0;
     while (terrain_offset_y < 0.0) terrain_offset_y += 1.0;
     while (terrain_offset_y >= 1.0) terrain_offset_y -= 1.0;
-    if (closeup_coords.backwards) ground_line_offset += ground_speed * (simulation_time - last_redraw_time);
-    else ground_line_offset -= ground_speed * (simulation_time - last_redraw_time);
+    if (closeup_coords.backwards) ground_line_offset += mars_lander.get_ground_speed() * (simulation_time - last_redraw_time);
+    else ground_line_offset -= mars_lander.get_ground_speed() * (simulation_time - last_redraw_time);
     ground_line_offset -= GROUND_LINE_SPACING*((int)ground_line_offset / (int)(GROUND_LINE_SPACING));
     last_redraw_time = simulation_time;
   }
@@ -1422,7 +1422,7 @@ void draw_closeup_window(void)
     }
     else 
     {
-      gs = ground_speed; cs = climb_speed;
+      gs = mars_lander.get_ground_speed(); cs = mars_lander.get_climb_speed();
       if (chute_drag_abs) tmp = 5.0; // parachute fully open
       else tmp = 2.0; // parachute not fully open
     }
@@ -1478,7 +1478,7 @@ void draw_closeup_window(void)
     glow_factor = (lander_drag_abs*mars_lander.get_velocity().abs() - HEAT_FLUX_GLOW_THRESHOLD) / (4.0*HEAT_FLUX_GLOW_THRESHOLD);
     if (glow_factor > 1.0) glow_factor = 1.0;
     glow_factor *= 0.7 + 0.3*randtab[rn]; rn = (rn + 1) % N_RAND; // a little random variation for added realism
-    glRotated((180.0 / M_PI)*atan2(climb_speed, ground_speed), 0.0, 0.0, 1.0);
+    glRotated((180.0 / M_PI)*atan2(mars_lander.get_climb_speed(), mars_lander.get_ground_speed()), 0.0, 0.0, 1.0);
     glRotated(-90.0, 0.0, 1.0, 0.0);
     glDisable(GL_LIGHTING);
     glEnable(GL_BLEND);
@@ -1561,11 +1561,6 @@ void update_visualization(void)
 
   simulation_time += delta_t;
 
-  // Use average of current and previous positions when calculating climb and ground speeds
-  av_p = (mars_lander.get_position() + last_position).norm();
-  climb_speed = mars_lander.get_relative_velocity()*av_p;
-  ground_speed = (mars_lander.get_relative_velocity() - climb_speed*av_p).abs();
-
   if (mars_lander.get_altitude() < LANDER_SIZE / 2.0) {
     glutIdleFunc(NULL);
     // Estimate position and time of impact
@@ -1578,7 +1573,7 @@ void update_visualization(void)
     simulation_time -= (1.0 - mu)*delta_t;
     mars_lander.set_altitude(LANDER_SIZE / 2.0);
     mars_lander.landed = true;
-    if ((fabs(climb_speed) > MAX_IMPACT_DESCENT_RATE) || (fabs(ground_speed) > MAX_IMPACT_GROUND_SPEED)) crashed = true;
+    if ((fabs(mars_lander.get_climb_speed()) > MAX_IMPACT_DESCENT_RATE) || (fabs(mars_lander.get_ground_speed()) > MAX_IMPACT_GROUND_SPEED)) crashed = true;
     mars_lander.set_velocity( vector3d(0.0, 0.0, 0.0));
   }
 
@@ -1656,10 +1651,6 @@ void reset_simulation(void)
 
   // Visualisation routine's record of various speeds and velocities
   last_position = mars_lander.get_position() - delta_t*mars_lander.get_velocity();
-  p = mars_lander.get_position().norm();
-  climb_speed = mars_lander.get_velocity()*p;
-  tv = mars_lander.get_velocity() - climb_speed*p;
-  ground_speed = tv.abs() - mars_lander.get_planetary_rotation().abs();
 
   // Miscellaneous state variables
   throttle_control = (short)(mars_lander.throttle*THROTTLE_GRANULARITY + 0.5);

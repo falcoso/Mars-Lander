@@ -34,7 +34,6 @@ unsigned long long time_program_started;
 // Lander state - the visualization routines use velocity_from_positions, so not sensitive to 
 // any errors in the velocity update in numerical_dynamics
 vector3d last_position;
-double climb_speed, ground_speed;
 bool stabilized_attitude, wind_enabled;
 float stabilized_attitude_angle;
 lander mars_lander;
@@ -87,8 +86,6 @@ void draw_main_window(void);
 void refresh_all_subwindows(void);
 bool safe_to_deploy_parachute(void);
 void update_visualization(void);
-void attitude_stabilization(void);
-vector3d thrust_wrt_world(void);
 void update_lander_state(void);
 void reset_simulation(void);
 void set_orbital_projection_matrix(void);

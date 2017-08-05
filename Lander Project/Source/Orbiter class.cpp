@@ -94,8 +94,8 @@ lander::lander()
 
 void lander::set_orientation(vector3d input_orientation) { orientation = input_orientation; }
 vector3d lander::get_orientation() { return orientation; }
-double lander::get_climb_speed()   { return ground_speed; }
-double lander::get_ground_speed()  { return climb_speed; }
+double lander::get_climb_speed()   { return climb_speed; }
+double lander::get_ground_speed()  { return ground_speed; }
 
 vector3d lander::parachute_drag(void)
 {
