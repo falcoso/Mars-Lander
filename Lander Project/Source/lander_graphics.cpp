@@ -697,7 +697,7 @@ void draw_instrument_window(void)
   else draw_dial(view_width + GAP - 150, INSTRUMENT_HEIGHT / 2, mars_lander.landed ? 0.0 : -mars_lander.get_climb_speed(), "Descent rate", "m/s");
 
   // Draw attitude stabilizer lamp
-  draw_indicator_lamp(view_width + GAP - 150, INSTRUMENT_HEIGHT - 18, "Attitude stabilizer off", "Attitude stabilizer on", stabilized_attitude);
+  draw_indicator_lamp(view_width + GAP - 150, INSTRUMENT_HEIGHT - 18, "Attitude stabilizer off", "Attitude stabilizer on", mars_lander.stabilized_attitude);
 
   // Draw ground speed meter
   draw_dial(view_width + GAP + 100, INSTRUMENT_HEIGHT / 2, mars_lander.landed ? 0.0 : mars_lander.get_ground_speed(), "Ground speed", "m/s");
@@ -1564,12 +1564,12 @@ void update_visualization(void)
   if (mars_lander.get_altitude() < LANDER_SIZE / 2.0) {
     glutIdleFunc(NULL);
     // Estimate position and time of impact
-    d = mars_lander.get_position() - last_position;
+    d = mars_lander.get_position() - mars_lander.get_old_position();
     a = d.abs2();
-    b = 2.0*last_position*d;
-    c = last_position.abs2() - (MARS_RADIUS + LANDER_SIZE / 2.0) * (MARS_RADIUS + LANDER_SIZE / 2.0);
+    b = 2.0*mars_lander.get_old_position()*d;
+    c = mars_lander.get_old_position().abs2() - (MARS_RADIUS + LANDER_SIZE / 2.0) * (MARS_RADIUS + LANDER_SIZE / 2.0);
     mu = (-b - sqrt(b*b - 4.0*a*c)) / (2.0*a);
-    mars_lander.set_position(last_position + mu*d);
+    mars_lander.set_position(mars_lander.get_old_position() + mu*d);
     simulation_time -= (1.0 - mu)*delta_t;
     mars_lander.set_altitude(LANDER_SIZE / 2.0);
     mars_lander.landed = true;
@@ -1616,9 +1616,6 @@ void update_lander_state(void)
   // since any-angle attitude stabilizers reference closeup_coords.right
   update_closeup_coords();
 
-  // Update historical record
-  last_position = mars_lander.get_position();
-
   // Mechanical dynamics
   mars_lander.numerical_dynamics();
 
@@ -1629,11 +1626,11 @@ void update_lander_state(void)
 void reset_simulation(void)
 // Resets the simulation to the initial state
 {
-  vector3d p, tv;
   unsigned long i;
+  std::system("CLS");
 
   // Reset these three lander parameters here, so they can be overwritten in initialize_simulation() if so desired
-  stabilized_attitude_angle = 0;
+  mars_lander.stabilized_attitude_angle = 0;
   mars_lander.throttle = 0.0;
   mars_lander.fuel = 1.0;
 
@@ -1648,9 +1645,6 @@ void reset_simulation(void)
     mars_lander.landed = true;
     mars_lander.set_velocity(vector3d(0.0, 0.0, 0.0));
   }
-
-  // Visualisation routine's record of various speeds and velocities
-  last_position = mars_lander.get_position() - delta_t*mars_lander.get_velocity();
 
   // Miscellaneous state variables
   throttle_control = (short)(mars_lander.throttle*THROTTLE_GRANULARITY + 0.5);
@@ -1985,16 +1979,16 @@ void glut_key(unsigned char k, int x, int y)
 
   case 's': case 'S':
     // s or S - attitude stabilizer
-    if (!mars_lander.autopilot_enabled && !mars_lander.landed) stabilized_attitude = !stabilized_attitude;
+    if (!mars_lander.autopilot_enabled && !mars_lander.landed) mars_lander.stabilized_attitude = !mars_lander.stabilized_attitude;
     if (paused) refresh_all_subwindows();
     break;
 
   case 'x': case 'X':
-      stabilized_attitude_angle -= 0.2f;
+      mars_lander.stabilized_attitude_angle -= 0.2f;
     break;
 
   case 'z': case 'Z':
-      stabilized_attitude_angle += 0.2f;
+      mars_lander.stabilized_attitude_angle += 0.2f;
     break;
 
   case 'o': case 'O':

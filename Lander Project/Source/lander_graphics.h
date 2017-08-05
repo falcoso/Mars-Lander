@@ -33,9 +33,7 @@ unsigned long long time_program_started;
 
 // Lander state - the visualization routines use velocity_from_positions, so not sensitive to 
 // any errors in the velocity update in numerical_dynamics
-vector3d last_position;
-bool stabilized_attitude, wind_enabled;
-float stabilized_attitude_angle;
+bool wind_enabled;
 lander mars_lander;
 
 // Orbital and closeup view parameters

@@ -17,6 +17,7 @@ public:
   double get_altitude();
   double get_mass();
   vector3d get_position();
+  vector3d get_old_position();
   vector3d get_velocity();
   vector3d get_planetary_rotation();
   vector3d get_relative_velocity();
@@ -45,7 +46,9 @@ class lander : public orbiter
 public:
   double throttle;
   double fuel;
+  float stabilized_attitude_angle;
   bool autopilot_enabled;
+  bool stabilized_attitude;
   bool landed;
   parachute_status_t parachute_status;
   autopilot_t autopilot_status;

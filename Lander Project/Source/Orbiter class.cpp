@@ -2,7 +2,7 @@
 #include "Dynamics.h"
 #include "Orbiter class.h"
 #include "lander_graphics.h"
-extern vector3d last_position;
+
 void orbiter::numerical_dynamics()
 {
   std::cout << "ORBITER class dynamics being called?\n";
@@ -30,6 +30,7 @@ void orbiter::numerical_dynamics()
 
 vector3d orbiter::gravity()      { return -(GRAVITY*MARS_MASS*mass / position.abs2())*position.norm(); }
 vector3d orbiter::get_position() { return position; }
+vector3d orbiter::get_old_position() { return old_position; }
 vector3d orbiter::get_velocity() { return velocity; }
 vector3d orbiter::get_planetary_rotation() { return planetary_rotation; }
 
@@ -214,7 +215,7 @@ void lander::update_members()
   planetary_rotation = (pow(pow(position.x, 2) + pow(position.y, 2), 0.5))*(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
   relative_velocity  = velocity - planetary_rotation;
 
-  vector3d av_p = (position + last_position).norm();
+  vector3d av_p = (position + old_position).norm();
   climb_speed   = velocity*av_p;
   ground_speed  = (relative_velocity - climb_speed*av_p).abs();
 
