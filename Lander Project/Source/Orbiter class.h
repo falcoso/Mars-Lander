@@ -50,6 +50,7 @@ public:
   bool autopilot_enabled;
   bool stabilized_attitude;
   bool landed;
+  bool safe_to_deploy_parachute;
   parachute_status_t parachute_status;
   autopilot_t autopilot_status;
 

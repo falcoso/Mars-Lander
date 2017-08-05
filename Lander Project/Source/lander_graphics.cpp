@@ -705,7 +705,7 @@ void draw_instrument_window(void)
   // Draw parachute lamp
   switch (mars_lander.parachute_status) {
   case NOT_DEPLOYED:
-    draw_indicator_lamp(view_width + GAP + 100, INSTRUMENT_HEIGHT - 18, "Parachute not deployed", "Do not deploy parachute", !safe_to_deploy_parachute());
+    draw_indicator_lamp(view_width + GAP + 100, INSTRUMENT_HEIGHT - 18, "Parachute not deployed", "Do not deploy parachute", !mars_lander.safe_to_deploy_parachute);
     break;
   case DEPLOYED:
     draw_indicator_lamp(view_width + GAP + 100, INSTRUMENT_HEIGHT - 18, "Parachute deployed", "", false);
@@ -1541,22 +1541,12 @@ void refresh_all_subwindows(void)
   glutPostWindowRedisplay(instrument_window);
 }
 
-bool safe_to_deploy_parachute(void)
-// Checks whether the parachute is safe to deploy at the current position and velocity
-{
-  // Assume high Reynolds number, quadratic drag = -0.5 * rho * v^2 * A * C_d
-  // Do not use the global variable "altitude" here, in case this function is called from within the
-  // numerical_dynamics function, before altitude is updated in the update_visualization function
-  if ((mars_lander.parachute_drag().abs() > MAX_PARACHUTE_DRAG) || ((mars_lander.get_velocity().abs() > MAX_PARACHUTE_SPEED) && ((mars_lander.get_position().abs() - MARS_RADIUS) < EXOSPHERE))) return false;
-  else return true;
-}
-
 void update_visualization(void)
 // The visualization part of the idle function. Re-estimates altitude, velocity, climb speed and ground
 // speed from current and previous positions. Updates throttle and fuel levels, then redraws all subwindows.
 {
-  static vector3d last_track_position, relative_velocity;
-  vector3d av_p, d;
+  static vector3d last_track_position;
+  vector3d d;
   double a, b, c, mu;
 
   simulation_time += delta_t;
@@ -1582,7 +1572,7 @@ void update_visualization(void)
 
   // Check to see whether the parachute has vaporized or the tethers have snapped
   if (mars_lander.parachute_status == DEPLOYED) {
-    if (!safe_to_deploy_parachute()) { mars_lander.parachute_status = LOST; }}
+    if (!mars_lander.safe_to_deploy_parachute) { mars_lander.parachute_status = LOST; }}
 
   // Update record of lander's previous positions, but only if the position or the velocity has 
   // changed significantly since the last update

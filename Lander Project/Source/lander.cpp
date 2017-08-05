@@ -24,11 +24,9 @@ void lander::autopilot()
   constexpr double ideal_ver = 0.5;
   constexpr double Kp = 1;
   double ground_speed = (relative_velocity - relative_velocity*position.norm()*position.norm()).abs();
-  double direction = position.norm()*relative_velocity.norm();
-  static double timer;
+  double direction    = position.norm()*relative_velocity.norm();
+  static double timer = 0.0;
   double Kh, ver, delta, error, Pout;
-
-  if (simulation_time == 0) timer = 0.0;
 
   switch (autopilot_status)
   {
@@ -37,7 +35,7 @@ void lander::autopilot()
     if ((abs(velocity*position.norm()) < 10 && velocity.abs() != 0) && timer <= 60)
     {
       throttle = 1;
-      timer += delta_t;
+      timer   += delta_t;
     }
     else
     {
@@ -48,6 +46,7 @@ void lander::autopilot()
       std::cout << "Fuel level: " << fuel * 100 / FUEL_CAPACITY << "%\n";
       std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
       std::cout << "COMMENCE ORBITAL DESCENT" << std::endl;
+      timer = 0.0; //reset timer here, as will not reset unless autopilot is called exactly at t = 0 otheriwise
     }
     break;
 
@@ -65,15 +64,14 @@ void lander::autopilot()
     Scenario 3  Kh = 0.01812  Fuel Used = 59.1        Kh = 0.01625
     Scenario 5  Kh = 0.01898  Fuel Used = 57.1        Kh = 0.01675
     */
-    ver = velocity*position.norm();
-    altitude = position.abs() - MARS_RADIUS;
+    ver   = velocity*position.norm();
     delta = gravity().abs() / MAX_THRUST; // - drag()*gravity(lander_mass).norm() considering drag as part of the thrus seems to make fuel efficiency worse
 
     if (parachute_status == LOST)  Kh = 0.018;
     else                           Kh = 0.03;
 
     error = -(ideal_ver + Kh*altitude + ver);
-    Pout = Kp*error;
+    Pout  = Kp*error;
 
     //Proportional gain control
     if (Pout <= -delta)          throttle = 0;
@@ -85,16 +83,14 @@ void lander::autopilot()
     else                                   stabilized_attitude_angle = (float)(M_PI - acos(direction));
 
     //Determine parachute release
-    if (parachute_status == NOT_DEPLOYED && altitude < 50000) //if lost or already deployed, save processing and skip next
+    if (parachute_status == NOT_DEPLOYED && altitude < 50000 && safe_to_deploy_parachute ) //if lost or already deployed, save processing and skip next
     {
-      if ((safe_to_deploy_parachute() && ver < 0) && open_chute_query())
-      {//must always be safe to deploy and falling towards mars, as well as either, cause correct deceleration 
-       //to not break or already have the throttle engaged, which will assist in braking
-        parachute_status = DEPLOYED;
-        std::cout << "PARACHUTE SUCCESSFULLY OPENED\n";
-        std::cout << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n";
-        std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
-      }
+      //must always be safe to deploy and falling towards mars, as well as either, cause correct deceleration 
+      //to not break or already have the throttle engaged, which will assist in braking
+      parachute_status = DEPLOYED;
+      std::cout << "PARACHUTE SUCCESSFULLY OPENED\n";
+      std::cout << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n";
+      std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
     }
     else if (parachute_status == DEPLOYED && altitude < 1000) //reduce drag at lower level
     {
@@ -111,16 +107,16 @@ void lander::autopilot()
     fuel = 1;
     if (position.abs() < 1.2*MARS_RADIUS)
     {
-      Kh = 0.3;
-      ver = 0;
+      Kh    = 0.3;
+      ver   = 0;
       error = -Kh*(1.2*MARS_RADIUS - position.abs()) + ver;
-      Pout = Kp*error;
+      Pout  = Kp*error;
     }
     else
     {
-      stabilized_attitude_angle = M_PI / 2.0f;
+      stabilized_attitude_angle = (float)(M_PI / 2);
       error = pow(GRAVITY*MARS_MASS / (position.abs()), 0.5) - velocity.abs()*cos(M_PI / 2);
-      Pout = Kp*error;
+      Pout  = Kp*error;
     }
 
     if (Pout < 0)      throttle = 0;
