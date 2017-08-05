@@ -5,6 +5,7 @@
 #include <random>
 #include "Orbiter class.h"
 
+extern lander mars_lander;
 double wind()
 {
   constexpr double average_speed = -5; //(m/s)
@@ -12,6 +13,12 @@ double wind()
   std::default_random_engine generator;
   return wind_enabled*distribution(generator);
 
+}
+
+void dynamics_wrapper()
+{
+  mars_lander.numerical_dynamics();
+  mars_lander.autopilot();
 }
 //vector3d fluid_rotation(void)
 //{
@@ -35,3 +42,30 @@ vector3d lander::lander_drag(void)
 
 //calculates gravity on the lander returning a Force vector
 vector3d orbiter::gravity() { return -(GRAVITY*MARS_MASS*mass / position.abs2())*position.norm(); }
+
+double kh_tuner(const lander &mars_lander)
+{
+  double timer = 0;
+  double Kh_upper = 0;
+  double Kh_lower = 1;
+  double Kh_mid;
+  lander virt_lander = mars_lander;
+  virt_lander.stabilized_attitude = true;
+  virt_lander.autopilot_enabled = false;
+  while(true)
+  {
+    Kh_mid = (Kh_lower + Kh_upper) / 2;
+    virt_lander.numerical_dynamics();
+    virt_lander.autopilot(Kh_mid);
+    timer += delta_t;
+    if (virt_lander.get_altitude() <= 0)
+    {
+      if (fabs(virt_lander.get_ground_speed()) > 1.0 || fabs(virt_lander.get_climb_speed()) > 1.0) Kh_lower = Kh_mid;
+      else                                                                                       Kh_upper = Kh_mid;
+    }
+
+    if (fabs(Kh_upper - Kh_lower) < 0.001) break;
+    if (timer > 1000) return 0.0; //add time out
+  }
+  return Kh_upper; //to ensure it does actually land
+}

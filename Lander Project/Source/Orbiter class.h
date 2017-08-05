@@ -46,6 +46,7 @@ class lander : public orbiter
 public:
   double throttle;
   double fuel;
+  double Kh;
   float stabilized_attitude_angle;
   bool autopilot_enabled;
   bool stabilized_attitude;
@@ -66,9 +67,10 @@ public:
   double get_climb_speed();
   double get_ground_speed();
   virtual void update_members();
+  void autopilot();
+  void autopilot(double kh);
 
 protected:
-  void autopilot();
   double front_facing_area;
   double ground_speed;
   double climb_speed;

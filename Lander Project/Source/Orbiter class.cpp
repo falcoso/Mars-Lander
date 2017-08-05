@@ -196,6 +196,28 @@ void lander::attitude_stabilization(void)
   return;
 }
 
+void lander::autopilot(double Kh)
+{
+  constexpr double ideal_ver = 0.5;
+  constexpr double Kp = 1;
+  if (parachute_status == LOST)
+  {
+    if (velocity.abs() > 0.01) stabilized_attitude_angle = acos(position.norm()*velocity.norm()) - M_PI;
+    else stabilized_attitude_angle = 0;
+  }
+
+  //Proportional gain control
+  double ver = velocity*position.norm();
+  double altitude = position.abs() - MARS_RADIUS;
+  double delta = gravity().abs() / MAX_THRUST; //considering drag as part of the thrus seems to make fuel efficiency worse
+  double error = -(ideal_ver + Kh*altitude + ver);
+  double Pout = Kp*error;
+
+  if (Pout <= -delta)         throttle = 0;
+  else if (Pout >= 1 - delta) throttle = 1;
+  else                        throttle = delta + Pout;
+}
+
 void lander::update_members()
 {
   fuel    -= delta_t * (FUEL_RATE_AT_MAX_THRUST*throttle) / FUEL_CAPACITY;
