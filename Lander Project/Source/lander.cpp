@@ -83,7 +83,7 @@ void lander::autopilot()
     else                                   stabilized_attitude_angle = (float)(M_PI - acos(direction));
 
     //Determine parachute release
-    if (parachute_status == NOT_DEPLOYED && altitude < 50000 && safe_to_deploy_parachute ) //if lost or already deployed, save processing and skip next
+    if (parachute_status == NOT_DEPLOYED && altitude < 50000 && safe_to_deploy_parachute) //if lost or already deployed, save processing and skip next
     {
       //must always be safe to deploy and falling towards mars, as well as either, cause correct deceleration 
       //to not break or already have the throttle engaged, which will assist in braking

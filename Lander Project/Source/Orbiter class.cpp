@@ -216,8 +216,8 @@ void lander::update_members()
   relative_velocity  = velocity - planetary_rotation;
 
   //note originally taken from safe_to_deploy function
-  if (parachute_drag().abs() > MAX_PARACHUTE_DRAG || (velocity.abs() > MAX_PARACHUTE_SPEED && (altitude < EXOSPHERE))) false;
-  else true;
+  if (parachute_drag().abs() > MAX_PARACHUTE_DRAG || (velocity.abs() > MAX_PARACHUTE_SPEED && (altitude < EXOSPHERE))) safe_to_deploy_parachute = false;
+  else safe_to_deploy_parachute = true;
 
   //originally average of current and old position used
   climb_speed   = velocity*position.norm();
