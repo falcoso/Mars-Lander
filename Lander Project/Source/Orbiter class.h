@@ -59,6 +59,8 @@ public:
 
   void set_orientation(vector3d input_orientation);
   vector3d get_orientation();
+  double get_climb_speed();
+  double get_ground_speed();
 
 
 protected:

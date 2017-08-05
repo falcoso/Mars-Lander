@@ -2,7 +2,7 @@
 #include "Dynamics.h"
 #include "Orbiter class.h"
 #include "lander_graphics.h"
-
+extern vector3d last_position;
 void orbiter::numerical_dynamics()
 {
   std::cout << "ORBITER class dynamics being called?\n";
@@ -94,6 +94,8 @@ lander::lander()
 
 void lander::set_orientation(vector3d input_orientation) { orientation = input_orientation; }
 vector3d lander::get_orientation() { return orientation; }
+double lander::get_climb_speed()   { return ground_speed; }
+double lander::get_ground_speed()  { return climb_speed; }
 
 vector3d lander::parachute_drag(void)
 {
@@ -205,15 +207,16 @@ void lander::attitude_stabilization(void)
 
 void lander::update_members()
 {
-  climb_speed = velocity*position.norm();
-  ground_speed = (velocity - climb_speed*position.norm()).abs() - planetary_rotation.abs();
   mass     = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY;
   altitude = position.abs() - MARS_RADIUS;
   fuel    -= delta_t * (FUEL_RATE_AT_MAX_THRUST*throttle) / FUEL_CAPACITY;
   if (fuel < 0) fuel = 0.0;
-  planetary_rotation = (pow(pow(position.x, 2) + pow(position.y, 2), 0.5))
-                       *(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
+  planetary_rotation = (pow(pow(position.x, 2) + pow(position.y, 2), 0.5))*(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
   relative_velocity  = velocity - planetary_rotation;
+
+  vector3d av_p = (position + last_position).norm();
+  climb_speed   = velocity*av_p;
+  ground_speed  = (relative_velocity - climb_speed*av_p).abs();
 
   if (landed || (fuel == 0.0)) throttle = 0.0;
 
