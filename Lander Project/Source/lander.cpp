@@ -138,6 +138,16 @@ void lander::numerical_dynamics()
   //declare old and new potision variables for verlet intergrator
   vector3d new_position;
 
+  switch (parachute_status)
+  {
+  case(DEPLOYED):
+    acceleration = (gravity() + thrust_wrt_world() + lander_drag() + parachute_drag()) / mass;
+    break;
+  default:
+    acceleration = (gravity() + thrust_wrt_world() + lander_drag()) / mass;
+    break;
+  }
+
   //so that if the simulation is reset so does the old position
   if (simulation_time == 0.0) old_position = position - delta_t*velocity;
 
@@ -289,6 +299,5 @@ void initialize_simulation(void)
 
   case 9:
     break;
-
   }
 }

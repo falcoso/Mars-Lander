@@ -75,21 +75,18 @@ void orbiter::update_members()
 
 //===========================================================================================================
 
-lander::lander(double input_radius)
+lander::lander()
 {
-  fuel = 1;
-  throttle = 0;
   autopilot_status = ORBIT_DESCENT;
   parachute_status = NOT_DEPLOYED;
-  radius = input_radius;
   front_facing_area = M_PI*LANDER_SIZE*LANDER_SIZE;
-  landed = FALSE;
+  radius   = LANDER_SIZE;
+  landed   = FALSE;
   position = vector3d{ MARS_RADIUS + 5 ,0,0 };
   velocity = vector3d{ 0,0,0 };
-  mass = 0;
-  radius = 0;
-  update_members();
-
+  fuel     = 1;
+  throttle = 0;
+  mass     = 0;
   update_members();
   fuel = 1; //as update members will decrement fuel again
   return;
@@ -125,10 +122,20 @@ vector3d lander::thrust_wrt_world(void)
 
   if (simulation_time != last_time_lag_updated) {
 
-    delayed_throttle = throttle;
+    // Delayed throttle value from the throttle history buffer
+    if (throttle_buffer_length > 0) {
+      delayed_throttle = throttle_buffer[throttle_buffer_pointer];
+      throttle_buffer[throttle_buffer_pointer] = throttle;
+      throttle_buffer_pointer = (throttle_buffer_pointer + 1) % throttle_buffer_length;
+    }
+    else delayed_throttle = throttle;
 
     // Lag, with time constant ENGINE_LAG
-    k = 0.0;
+    if (lag <= 0.0) k = 0.0;
+    else k = pow(exp(-1.0), delta_t / lag);
+    lagged_throttle = k*lagged_throttle + (1.0 - k)*delayed_throttle;
+
+    delayed_throttle = throttle;
 
     last_time_lag_updated = simulation_time;
   }
@@ -198,16 +205,6 @@ void lander::attitude_stabilization(void)
 
 void lander::update_members()
 {
-  switch (parachute_status)
-  {
-  case(DEPLOYED):
-    acceleration = (gravity() + thrust_wrt_world() + lander_drag() + parachute_drag()) / mass;
-    break;
-  default:
-    acceleration = (gravity() + thrust_wrt_world() + lander_drag()) / mass;
-    break;
-  }
-
   climb_speed = velocity*position.norm();
   ground_speed = (velocity - climb_speed*position.norm()).abs() - planetary_rotation.abs();
   mass     = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY;

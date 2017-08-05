@@ -4,6 +4,9 @@
 #include "lander.h"
 #include "Dynamics.h"
 
+extern unsigned long throttle_buffer_length, throttle_buffer_pointer;
+extern double *throttle_buffer;
+
 class orbiter {
 public: 
   orbiter(vector3d input_pos, vector3d input_vel, double input_mass, double input_radius);
@@ -47,7 +50,7 @@ public:
   parachute_status_t parachute_status;
   autopilot_t autopilot_status;
 
-  lander(double input_radius);
+  lander();
   virtual void numerical_dynamics();
   void attitude_stabilization();
   vector3d lander_drag();

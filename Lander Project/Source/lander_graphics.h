@@ -37,7 +37,7 @@ vector3d last_position;
 double climb_speed, ground_speed;
 bool stabilized_attitude, wind_enabled;
 float stabilized_attitude_angle;
-lander mars_lander(LANDER_SIZE);
+lander mars_lander;
 
 // Orbital and closeup view parameters
 double orbital_zoom, save_orbital_zoom, closeup_offset, closeup_xr, closeup_yr, terrain_angle;
