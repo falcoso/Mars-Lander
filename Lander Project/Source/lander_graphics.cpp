@@ -372,7 +372,7 @@ void glutMottledSphere(GLdouble radius, GLint slices, GLint stacks)
   // Top cap
   glBegin(GL_TRIANGLE_FAN);
   glNormal3d(0, 0, 1);
-  glColor3f(0.63, 0.33, 0.22);
+  glColor3f(0.63f, 0.33f, 0.22f);
   glVertex3d(0, 0, radius);
   new_r = rnd1;
   for (j = slices; j >= 0; j--) {
@@ -382,7 +382,7 @@ void glutMottledSphere(GLdouble radius, GLint slices, GLint stacks)
       rtmp = (rtmp + 1) % N_RAND;
     }
     else new_r[j] = new_r[slices];
-    glColor3f(new_r[j] * 0.63, new_r[j] * 0.33, new_r[j] * 0.22);
+    glColor3f((float)(new_r[j] * 0.63), (float)(new_r[j] * 0.33), (float)(new_r[j] * 0.22));
     glVertex3d(cost1[j] * r1*radius, sint1[j] * r1*radius, z1*radius);
   }
   glEnd();
@@ -400,11 +400,11 @@ void glutMottledSphere(GLdouble radius, GLint slices, GLint stacks)
         rtmp = (rtmp + 1) % N_RAND;
       }
       else new_r[j] = new_r[0];
-      glColor3f(new_r[j] * 0.63, new_r[j] * 0.33, new_r[j] * 0.22);
-      glVertex3d(cost1[j] * r1*radius, sint1[j] * r1*radius, z1*radius);
-      glNormal3d(cost1[j] * r0, sint1[j] * r0, z0);
-      glColor3f(old_r[j] * 0.63, old_r[j] * 0.33, old_r[j] * 0.22);
-      glVertex3d(cost1[j] * r0*radius, sint1[j] * r0*radius, z0*radius);
+      glColor3f((GLfloat)(new_r[j] * 0.63), (GLfloat)(new_r[j] * 0.33), (GLfloat)(new_r[j] * 0.22));
+      glVertex3d((GLfloat)(cost1[j] * r1*radius), (GLfloat)(sint1[j] * r1*radius), (GLfloat)(z1*radius));
+      glNormal3d((GLfloat)(cost1[j] * r0), (GLfloat)(sint1[j] * r0), (GLfloat)z0);
+      glColor3f((GLfloat)(old_r[j] * 0.63), (GLfloat)(old_r[j] * 0.33), (GLfloat)(old_r[j] * 0.22f));
+      glVertex3d((GLfloat)(cost1[j] * r0*radius), (GLfloat)(sint1[j] * r0*radius), (GLfloat)(z0*radius));
     }
     tmp = old_r; old_r = new_r; new_r = tmp;
     glEnd();
@@ -414,11 +414,11 @@ void glutMottledSphere(GLdouble radius, GLint slices, GLint stacks)
   z0 = z1; r0 = r1;
   glBegin(GL_TRIANGLE_FAN);
   glNormal3d(0, 0, -1);
-  glColor3f(0.63, 0.33, 0.22);
+  glColor3f(0.63f, 0.33f, 0.22f);
   glVertex3d(0, 0, -radius);
   for (j = 0; j <= slices; j++) {
     glNormal3d(cost1[j] * r0, sint1[j] * r0, z0);
-    glColor3f(old_r[j] * 0.63, old_r[j] * 0.33, old_r[j] * 0.22);
+    glColor3f((GLfloat)(old_r[j] * 0.63), (GLfloat)(old_r[j] * 0.33), (GLfloat)(old_r[j] * 0.22));
     glVertex3d(cost1[j] * r0*radius, sint1[j] * r0*radius, z0*radius);
   }
   glEnd();
@@ -496,7 +496,7 @@ void setup_lights(void)
 // Specifies attributes of all lights, enables a subset of lights according to the lighting model
 {
   GLfloat none[] = { 0.0, 0.0, 0.0, 1.0 };
-  GLfloat low[] = { 0.15, 0.15, 0.15, 1.0 };
+  GLfloat low[] = { 0.15f, 0.15f, 0.15f, 1.0f };
   GLfloat medium[] = { 0.5, 0.5, 0.5, 1.0 };
   GLfloat high[] = { 0.75, 0.75, 0.75, 1.0 };
 
@@ -590,46 +590,46 @@ void draw_dial(double cx, double cy, double val, string title, string units)
   s.precision(1);
   glColor3f(1.0, 1.0, 1.0);
   s.str(""); s << "x 10 ^ " << e << " " << units;
-  glut_print(cx + 10 - 3.2*s.str().length(), cy + 10, s.str());
-  glut_print(cx + 10 - 3.2*title.length(), cy - OUTER_DIAL_RADIUS - 15, title);
+  glut_print((GLfloat)(cx + 10 - 3.2*s.str().length()), (GLfloat)(cy + 10), s.str());
+  glut_print((GLfloat)(cx + 10 - 3.2f*title.length()), (GLfloat)(cy - OUTER_DIAL_RADIUS - 15), title);
   s.str(""); s << fixed << val << " " << units;
-  glut_print(cx + 10 - 3.2*s.str().length(), cy - OUTER_DIAL_RADIUS - 30, s.str());
+  glut_print((GLfloat)(cx + 10 - 3.2f*s.str().length()), (GLfloat)(cy - OUTER_DIAL_RADIUS - 30), s.str());
 
   // Draw tick labels
   for (i = 0; i <= 10; i++) {
     switch (i) {
     case 0:
-      glut_print(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180.0) - 8, cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180.0) - 9, "0");
+      glut_print((GLfloat)(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180) - 8), (GLfloat)(cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180) - 9), "0");
       break;
     case 1:
-      glut_print(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180.0) - 7, cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180.0) - 6, "1");
+      glut_print((GLfloat)(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180) - 7), (GLfloat)(cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180) - 6), "1");
       break;
     case 2:
-      glut_print(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180.0) - 9, cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180.0) - 4, "2");
+      glut_print((GLfloat)(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180) - 9), (GLfloat)(cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180) - 4), "2");
       break;
     case 3:
-      glut_print(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180.0) - 9, cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180.0) - 1, "3");
+      glut_print((GLfloat)(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180) - 9), (GLfloat)(cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180) - 1), "3");
       break;
     case 4:
-      glut_print(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180.0) - 8, cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180.0) + 3, "4");
+      glut_print((GLfloat)(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180) - 8), (GLfloat)(cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180) + 3), "4");
       break;
     case 5:
-      glut_print(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180.0) - 3, cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180.0) + 4, "5");
+      glut_print((GLfloat)(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180) - 3), (GLfloat)(cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180) + 4), "5");
       break;
     case 6:
-      glut_print(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180.0) + 2, cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180.0) + 3, "6");
+      glut_print((GLfloat)(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180) + 2), (GLfloat)(cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180) + 3), "6");
       break;
     case 7:
-      glut_print(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180.0) + 4, cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180.0), "7");
+      glut_print((GLfloat)(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180) + 4), (GLfloat)(cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180)), "7");
       break;
     case 8:
-      glut_print(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180.0) + 3, cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180.0) - 4, "8");
+      glut_print((GLfloat)(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180) + 3), (GLfloat)(cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180) - 4), "8");
       break;
     case 9:
-      glut_print(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180.0) + 3, cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180.0) - 6, "9");
+      glut_print((GLfloat)(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180) + 3), (GLfloat)(cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180.0) - 6), "9");
       break;
     case 10:
-      glut_print(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180.0) + 3, cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180.0) - 8, "10");
+      glut_print((GLfloat)(cx - OUTER_DIAL_RADIUS * sin((i * 30 + 30)*M_PI / 180) + 3), (GLfloat)(cy - OUTER_DIAL_RADIUS * cos((i * 30 + 30)*M_PI / 180) - 8), "10");
       break;
     }
   }
@@ -638,7 +638,7 @@ void draw_dial(double cx, double cy, double val, string title, string units)
 void draw_control_bar(double tlx, double tly, double val, double red, double green, double blue, string title)
 // Draws control bar, top left (tlx, tly), val (fraction, range 0-1), colour (red, green, blue), title
 {
-  glColor3f(red, green, blue);
+  glColor3f((GLfloat)(red), (GLfloat)(green), (GLfloat)(blue));
   glBegin(GL_QUADS);
   glVertex2d(tlx + 0.5, tly - 19.5);
   glVertex2d(tlx + 0.5 + 239.0*val, tly - 19.5);
@@ -652,7 +652,7 @@ void draw_control_bar(double tlx, double tly, double val, double red, double gre
   glVertex2d(tlx + 240.0, tly);
   glVertex2d(tlx, tly);
   glEnd();
-  glut_print(tlx, tly - 40, title);
+  glut_print((GLfloat)(tlx), (GLfloat)(tly - 40), title);
 }
 
 void draw_indicator_lamp(double tcx, double tcy, string off_text, string on_text, bool on)
@@ -673,8 +673,8 @@ void draw_indicator_lamp(double tcx, double tcy, string off_text, string on_text
   glVertex2d(tcx + 75.0, tcy);
   glVertex2d(tcx - 75.0, tcy);
   glEnd();
-  if (on) glut_print(tcx - 70.0, tcy - 14.0, on_text);
-  else glut_print(tcx - 70.0, tcy - 14.0, off_text);
+  if (on) glut_print((GLfloat)(tcx - 70.0), (GLfloat)(tcy - 14.0), on_text);
+  else glut_print((GLfloat)(tcx - 70.0), (GLfloat)(tcy - 14.0), off_text);
 }
 
 void draw_instrument_window(void)
@@ -721,26 +721,26 @@ void draw_instrument_window(void)
   // Draw digital clock
   glColor3f(1.0, 1.0, 1.0);
   s.str(""); s << "Time " << fixed << simulation_time << " s";
-  glut_print(view_width + GAP + 400, INSTRUMENT_HEIGHT - 58, s.str());
+  glut_print((GLfloat)(view_width + GAP + 400), (GLfloat)(INSTRUMENT_HEIGHT - 58), s.str());
   if (paused) {
     glColor3f(1.0, 0.0, 0.0);
-    glut_print(view_width + GAP + 338, INSTRUMENT_HEIGHT - 32, "PAUSED");
+    glut_print((GLfloat)(view_width + GAP + 338), (GLfloat)(INSTRUMENT_HEIGHT - 32), "PAUSED");
   }
 
   // Display coordinates
   glColor3f(1.0, 1.0, 1.0);
   s.str(""); s << "x position " << fixed << mars_lander.get_position().x << " m";
-  glut_print(view_width + GAP + 240, INSTRUMENT_HEIGHT - 97, s.str());
+  glut_print((GLfloat)(view_width + GAP + 240), INSTRUMENT_HEIGHT - 97, s.str());
   s.str(""); s << "velocity " << fixed << mars_lander.get_velocity().x << " m/s";
-  glut_print(view_width + GAP + 380, INSTRUMENT_HEIGHT - 97, s.str());
+  glut_print((GLfloat)(view_width + GAP + 380), INSTRUMENT_HEIGHT - 97, s.str());
   s.str(""); s << "y position " << fixed << mars_lander.get_position().y << " m";
-  glut_print(view_width + GAP + 240, INSTRUMENT_HEIGHT - 117, s.str());
+  glut_print((GLfloat)(view_width + GAP + 240), INSTRUMENT_HEIGHT - 117, s.str());
   s.str(""); s << "velocity " << fixed << mars_lander.get_velocity().y << " m/s";
-  glut_print(view_width + GAP + 380, INSTRUMENT_HEIGHT - 117, s.str());
+  glut_print((GLfloat)(view_width + GAP + 380), INSTRUMENT_HEIGHT - 117, s.str());
   s.str(""); s << "z position " << fixed << mars_lander.get_position().z << " m";
-  glut_print(view_width + GAP + 240, INSTRUMENT_HEIGHT - 137, s.str());
+  glut_print((GLfloat)(view_width + GAP + 240), INSTRUMENT_HEIGHT - 137, s.str());
   s.str(""); s << "velocity " << fixed << mars_lander.get_velocity().z << " m/s";
-  glut_print(view_width + GAP + 380, INSTRUMENT_HEIGHT - 137, s.str());
+  glut_print((GLfloat)(view_width + GAP + 380), INSTRUMENT_HEIGHT - 137, s.str());
 
   // Draw thrust bar
   s.str(""); s << "Thrust " << fixed << mars_lander.thrust_wrt_world().abs() << " N";
@@ -757,16 +757,16 @@ void draw_instrument_window(void)
   else glColor3f(1.0, 1.0, 1.0);
   s.str(""); s << "Scenario " << scenario;
   if (!mars_lander.landed) s << ": " << scenario_description[scenario];
-  glut_print(view_width + GAP - 488, 17, s.str());
+  glut_print((GLfloat)(view_width + GAP - 488), (GLfloat)17, s.str());
   if (mars_lander.landed) {
     if (mars_lander.get_altitude() < LANDER_SIZE / 2.0) glut_print(80, 17, "Lander is below the surface!");
     else {
       s.str(""); s << "Fuel consumed " << fixed << FUEL_CAPACITY*(1.0 - mars_lander.fuel) << " litres";
-      glut_print(view_width + GAP - 427, 17, s.str());
+      glut_print((GLfloat)(view_width + GAP - 427), (GLfloat)17, s.str());
       s.str(""); s << "Descent rate at touchdown " << fixed << -climb_speed << " m/s";
-      glut_print(view_width + GAP - 232, 17, s.str());
+      glut_print((GLfloat)(view_width + GAP - 232), (GLfloat)17, s.str());
       s.str(""); s << "Ground speed at touchdown " << fixed << ground_speed << " m/s";
-      glut_print(view_width + GAP + 16, 17, s.str());
+      glut_print((GLfloat)(view_width + GAP + 16), (GLfloat)17, s.str());
     }
   }
 
@@ -804,7 +804,7 @@ void display_help_arrows(void)
   glPushMatrix();
   glLoadIdentity();
   glOrtho(0, view_width, 0, view_height, 0.0, 1.0);
-  glRasterPos3f(x - 16, y - 15, -z);
+  glRasterPos3f((GLfloat)(x - 16), (GLfloat)(y - 15), (GLfloat)-z);
   for (i = 0; i < ss.length(); i++) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, ss[i]);
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
@@ -821,7 +821,7 @@ void display_help_arrows(void)
     glRotated(90.0, 0.0, 1.0, 0.0);
     glutCone(-0.2*s, -0.5*s, 5, 5, true);
     glRotated(-90.0, 0.0, 1.0, 0.0);
-    glut_print(0.0, 1.25*s, "ground speed");
+    glut_print(0.0f, (GLfloat)(1.25*s), "ground speed");
     glPopMatrix();
   }
 
@@ -846,37 +846,37 @@ void display_help_text(void)
   glDisable(GL_LIGHTING);
   glDisable(GL_DEPTH_TEST);
 
-  glut_print(20, view_height - 20, "Left arrow - decrease simulation speed");
-  glut_print(20, view_height - 35, "Right arrow - increase simulation speed");
-  glut_print(20, view_height - 50, "Space - single step through simulation");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 20), "Left arrow - decrease simulation speed");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 35), "Right arrow - increase simulation speed");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 50), "Space - single step through simulation");
 
-  glut_print(20, view_height - 70, "Up arrow - more thrust");
-  glut_print(20, view_height - 85, "Down arrow - less thrust");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 70), "Up arrow - more thrust");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 85), "Down arrow - less thrust");
 
-  glut_print(20, view_height - 105, "Keys 0-9 - restart simulation in scenario n");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 105), "Keys 0-9 - restart simulation in scenario n");
 
-  glut_print(20, view_height - 125, "Left mouse - rotate 3D views");
-  glut_print(20, view_height - 140, "Middle/shift mouse or up wheel - zoom in 3D views");
-  glut_print(20, view_height - 155, "Right mouse or down wheel - zoom out 3D views");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 125), "Left mouse - rotate 3D views");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 140), "Middle/shift mouse or up wheel - zoom in 3D views");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 155), "Right mouse or down wheel - zoom out 3D views");
 
-  glut_print(20, view_height - 175, "s - toggle attitude stabilizer");
-  glut_print(20, view_height - 190, "p - deploy parachute");
-  glut_print(20, view_height - 205, "a - toggle autopilot");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 175), "s - toggle attitude stabilizer");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 190), "p - deploy parachute");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 205), "a - toggle autopilot");
 
-  glut_print(20, view_height - 225, "l - toggle lighting model");
-  glut_print(20, view_height - 240, "t - toggle terrain texture");
-  glut_print(20, view_height - 255, "h - toggle help");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 225), "l - toggle lighting model");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 240), "t - toggle terrain texture");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 255), "h - toggle help");
 
-  glut_print(20, view_height - 270, "z/x - rotate attitude clockwise/anti-clockwise (attitude stabilization must be enabled)");
-  glut_print(20, view_height - 285, "r - remove parachute for auto-pilot use");
-  glut_print(20, view_height - 300, "Esc/q - quit");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 270), "z/x - rotate attitude clockwise/anti-clockwise (attitude stabilization must be enabled)");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 285), "r - remove parachute for auto-pilot use");
+  glut_print((GLfloat)20, (GLfloat)(view_height - 300), "Esc/q - quit");
 
   j = 0;
   for (i = 0; i<7; i++) {
     s.str("");
     s << "Scenario " << i << ": " << scenario_description[i];
-    if (view_height > 448) glut_print(20, (448 - view_height) + view_height - 300 - 15 * j, s.str());
-    else glut_print(20, view_height - 315 - 15 * j, s.str());
+    if (view_height > 448) glut_print((GLfloat)20, (GLfloat)(148 - 15 * j), s.str());//(448 - view_height) + view_height - 300 - 15 * j, s.str());
+    else glut_print((GLfloat)20, (GLfloat)(view_height - 315 - 15 * j), s.str());
     j++;
   }
 
@@ -897,7 +897,7 @@ void display_help_prompt(void)
   float c;
 
   microsecond_time(t);
-  c = 1.0 - (t - time_program_started) / 3000000.0;
+  c = (float)(1.0 - (t - time_program_started) / 3000000.0);
   if (c < 0.0) return;
   glColor4f(1.0, 1.0, 1.0, c);
 
@@ -912,7 +912,7 @@ void display_help_prompt(void)
   glDisable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
 
-  glRasterPos2f(view_width / 2 - 87, view_height - 130);
+  glRasterPos2f((GLfloat)(view_width / 2 - 87), (GLfloat)(view_height - 130));
   for (i = 0; i < ss.length(); i++) glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, ss[i]);
 
   glEnable(GL_LIGHTING);
@@ -951,7 +951,7 @@ void draw_orbital_window(void)
   }
 
   // Draw planet
-  glColor3f(0.63, 0.33, 0.22);
+  glColor3f((GLfloat)0.63, (GLfloat)0.33, (GLfloat)0.22);
   glLineWidth(1.0);
   glPushMatrix();
   glRotated(360.0*simulation_time / MARS_DAY, 0.0, 0.0, 1.0); // to make the planet spin
@@ -964,7 +964,7 @@ void draw_orbital_window(void)
   }
   gluQuadricDrawStyle(quadObj, GLU_FILL);
   gluSphere(quadObj, (1.0 - 0.01 / orbital_zoom)*MARS_RADIUS, slices, stacks);
-  glColor3f(0.31, 0.16, 0.11);
+  glColor3f((GLfloat)0.31, (GLfloat)0.16, (GLfloat)0.11);
   gluQuadricDrawStyle(quadObj, GLU_LINE);
   gluSphere(quadObj, MARS_RADIUS, slices, stacks);
   glPopMatrix();
@@ -990,7 +990,7 @@ void draw_orbital_window(void)
   glVertex3d(mars_lander.get_position().x, mars_lander.get_position().y, mars_lander.get_position().z);
   j = (track.p + N_TRACK - 1) % N_TRACK;
   for (i = 0; i<track.n; i++) {
-    glColor4f(0.0, 0.75*(N_TRACK - i) / N_TRACK, 0.75*(N_TRACK - i) / N_TRACK, 1.0*(N_TRACK - i) / N_TRACK);
+    glColor4f(0.0f, (GLfloat)(0.75*(N_TRACK - i) / N_TRACK), (GLfloat)(0.75*(N_TRACK - i) / N_TRACK), (GLfloat)(1.0*(N_TRACK - i) / N_TRACK));
     glVertex3d(track.pos[j].x, track.pos[j].y, track.pos[j].z);
     j = (j + N_TRACK - 1) % N_TRACK;
   }
@@ -1169,8 +1169,8 @@ void draw_closeup_window(void)
   // the scene on the way down.
   tmp = pow(atmospheric_density(mars_lander.get_position()) / atmospheric_density(vector3d(MARS_RADIUS, 0.0, 0.0)), 0.5);
   if (static_lighting) tmp *= 0.5 * (1.0 + mars_lander.get_position().norm()*vector3d(0.0, -1.0, 0.0)); // set sky colour
-  fogcolour[0] = tmp*0.98; fogcolour[1] = tmp*0.67; fogcolour[2] = tmp*0.52; fogcolour[3] = 0.0;
-  glClearColor(tmp*0.98, tmp*0.67, tmp*0.52, 0.0);
+  fogcolour[0] = (GLfloat)(tmp*0.98); fogcolour[1] = (GLfloat)(tmp*0.67); fogcolour[2] = (GLfloat)(tmp*0.52); fogcolour[3] = (GLfloat)(0.0);
+  glClearColor((GLclampf)(tmp*0.98), (GLclampf)(tmp*0.67), (GLclampf)(tmp*0.52), 0.0f);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   if (mars_lander.get_altitude() < 0.0) { // just blank the screen if the lander is below the surface
@@ -1204,7 +1204,7 @@ void draw_closeup_window(void)
       else view_depth = closeup_offset + transition_altitude;
     }
     gluPerspective(CLOSEUP_VIEW_ANGLE, aspect_ratio, 1.0, view_depth);
-    glFogf(GL_FOG_DENSITY, fog_density);
+    glFogf(GL_FOG_DENSITY, (GLfloat)(fog_density));
     glFogfv(GL_FOG_COLOR, fogcolour);
     if (do_texture) glHint(GL_FOG_HINT, GL_NICEST);
     else glHint(GL_FOG_HINT, GL_FASTEST);
@@ -1266,7 +1266,7 @@ void draw_closeup_window(void)
   }
 
   // Surface colour
-  glColor3f(0.63, 0.33, 0.22);
+  glColor3f(0.63f, 0.33f, 0.22f);
 
   if (mars_lander.get_altitude() < transition_altitude) {
 
@@ -1278,22 +1278,22 @@ void draw_closeup_window(void)
     glPushMatrix();
     glRotated(terrain_angle, 0.0, 1.0, 0.0);
     glBegin(GL_QUADS);
-    glTexCoord2f(1.0 + terrain_offset_x, 1.0 + terrain_offset_y); glVertex3d(ground_plane_size, -mars_lander.get_altitude(), ground_plane_size);
-    glTexCoord2f(1.0 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(ground_plane_size, -mars_lander.get_altitude(), 0.0);
-    glTexCoord2f(0.5 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
-    glTexCoord2f(0.5 + terrain_offset_x, 1.0 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), ground_plane_size);
-    glTexCoord2f(0.5 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
-    glTexCoord2f(1.0 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(ground_plane_size, -mars_lander.get_altitude(), 0.0);
-    glTexCoord2f(1.0 + terrain_offset_x, 0.0 + terrain_offset_y); glVertex3d(ground_plane_size, -mars_lander.get_altitude(), -ground_plane_size);
-    glTexCoord2f(0.5 + terrain_offset_x, 0.0 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), -ground_plane_size);
-    glTexCoord2f(0.5 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
-    glTexCoord2f(0.5 + terrain_offset_x, 0.0 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), -ground_plane_size);
-    glTexCoord2f(0.0 + terrain_offset_x, 0.0 + terrain_offset_y); glVertex3d(-ground_plane_size, -mars_lander.get_altitude(), -ground_plane_size);
-    glTexCoord2f(0.0 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(-ground_plane_size, -mars_lander.get_altitude(), 0.0);
-    glTexCoord2f(0.5 + terrain_offset_x, 1.0 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), ground_plane_size);
-    glTexCoord2f(0.5 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
-    glTexCoord2f(0.0 + terrain_offset_x, 0.5 + terrain_offset_y); glVertex3d(-ground_plane_size, -mars_lander.get_altitude(), 0.0);
-    glTexCoord2f(0.0 + terrain_offset_x, 1.0 + terrain_offset_y); glVertex3d(-ground_plane_size, -mars_lander.get_altitude(), ground_plane_size);
+    glTexCoord2f((GLfloat)(1.0 + terrain_offset_x), (GLfloat)(1.0 + terrain_offset_y)); glVertex3d(ground_plane_size, -mars_lander.get_altitude(), ground_plane_size);
+    glTexCoord2f((GLfloat)(1.0 + terrain_offset_x), (GLfloat)(0.5 + terrain_offset_y)); glVertex3d(ground_plane_size, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f((GLfloat)(0.5 + terrain_offset_x), (GLfloat)(0.5 + terrain_offset_y)); glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f((GLfloat)(0.5 + terrain_offset_x), (GLfloat)(1.0 + terrain_offset_y)); glVertex3d(0.0, -mars_lander.get_altitude(), ground_plane_size);
+    glTexCoord2f((GLfloat)(0.5 + terrain_offset_x), (GLfloat)(0.5 + terrain_offset_y)); glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f((GLfloat)(1.0 + terrain_offset_x), (GLfloat)(0.5 + terrain_offset_y)); glVertex3d(ground_plane_size, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f((GLfloat)(1.0 + terrain_offset_x), (GLfloat)(0.0 + terrain_offset_y)); glVertex3d(ground_plane_size, -mars_lander.get_altitude(), -ground_plane_size);
+    glTexCoord2f((GLfloat)(0.5 + terrain_offset_x), (GLfloat)(0.0 + terrain_offset_y)); glVertex3d(0.0, -mars_lander.get_altitude(), -ground_plane_size);
+    glTexCoord2f((GLfloat)(0.5 + terrain_offset_x), (GLfloat)(0.5 + terrain_offset_y)); glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f((GLfloat)(0.5 + terrain_offset_x), (GLfloat)(0.0 + terrain_offset_y)); glVertex3d(0.0, -mars_lander.get_altitude(), -ground_plane_size);
+    glTexCoord2f((GLfloat)(0.0 + terrain_offset_x), (GLfloat)(0.0 + terrain_offset_y)); glVertex3d(-ground_plane_size, -mars_lander.get_altitude(), -ground_plane_size);
+    glTexCoord2f((GLfloat)(0.0 + terrain_offset_x), (GLfloat)(0.5 + terrain_offset_y)); glVertex3d(-ground_plane_size, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f((GLfloat)(0.5 + terrain_offset_x), (GLfloat)(1.0 + terrain_offset_y)); glVertex3d(0.0, -mars_lander.get_altitude(), ground_plane_size);
+    glTexCoord2f((GLfloat)(0.5 + terrain_offset_x), (GLfloat)(0.5 + terrain_offset_y)); glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f((GLfloat)(0.0 + terrain_offset_x), (GLfloat)(0.5 + terrain_offset_y)); glVertex3d(-ground_plane_size, -mars_lander.get_altitude(), 0.0);
+    glTexCoord2f((GLfloat)(0.0 + terrain_offset_x), (GLfloat)(1.0 + terrain_offset_y)); glVertex3d(-ground_plane_size, -mars_lander.get_altitude(), ground_plane_size);
     glEnd();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -1312,11 +1312,11 @@ void draw_closeup_window(void)
         // To make the lines fade more strongly when landed, decrease the second number.
         // To make the lines less apparent at high altitude, decrease the first number. 
         f = exp(-fabs(pow((transition_altitude - mars_lander.get_altitude()) / transition_altitude, 10.0) * tmp / (10.0*GROUND_LINE_SPACING)));
-        glColor4f(0.32, 0.17, 0.11, f);
-        glVertex3d(tmp, -mars_lander.get_altitude(), -transition_altitude);
-        glVertex3d(tmp, -mars_lander.get_altitude(), 0.0);
-        glVertex3d(tmp, -mars_lander.get_altitude(), 0.0);
-        glVertex3d(tmp, -mars_lander.get_altitude(), transition_altitude);
+        glColor4f(0.32f, 0.17f, 0.11f, (GLfloat)f);
+        glVertex3d((GLfloat)(tmp), (GLfloat)(-mars_lander.get_altitude()), (GLfloat)(-transition_altitude));
+        glVertex3d((GLfloat)(tmp), (GLfloat)(-mars_lander.get_altitude()), 0.0f);
+        glVertex3d((GLfloat)(tmp), (GLfloat)(-mars_lander.get_altitude()), 0.0f);
+        glVertex3d((GLfloat)(tmp), (GLfloat)(-mars_lander.get_altitude()), (GLfloat)(transition_altitude));
         if (closeup_coords.backwards) tmp += GROUND_LINE_SPACING;
         else tmp -= GROUND_LINE_SPACING;
       }
@@ -1326,7 +1326,7 @@ void draw_closeup_window(void)
 
     if (!crashed) 
     { // draw a circular shadow below the lander
-      glColor3f(0.32, 0.17, 0.11);
+      glColor3f(0.32f, 0.17f, 0.11f);
       glBegin(GL_TRIANGLES);
       for (i = 0; i<360; i += 10) {
         glVertex3d(0.0, -mars_lander.get_altitude(), 0.0);
@@ -1482,7 +1482,7 @@ void draw_closeup_window(void)
     glRotated(-90.0, 0.0, 1.0, 0.0);
     glDisable(GL_LIGHTING);
     glEnable(GL_BLEND);
-    glColor4f(1.0, glow_factor, 0.0, 0.8*glow_factor);
+    glColor4f(1.0f, (GLfloat)(glow_factor), 0.0f, (GLfloat)(0.8*glow_factor));
     glutCone(1.25*LANDER_SIZE, (2.0 + 10.0*glow_factor)*LANDER_SIZE, 50, 50 + (int)(250 * glow_factor), false);
     glutOpenHemisphere(1.25*LANDER_SIZE, 50, 50);
     glDisable(GL_BLEND);
@@ -1999,11 +1999,11 @@ void glut_key(unsigned char k, int x, int y)
     break;
 
   case 'x': case 'X':
-      stabilized_attitude_angle -= 0.2;
+      stabilized_attitude_angle -= 0.2f;
     break;
 
   case 'z': case 'Z':
-      stabilized_attitude_angle += 0.2;
+      stabilized_attitude_angle += 0.2f;
     break;
 
   case 'o': case 'O':

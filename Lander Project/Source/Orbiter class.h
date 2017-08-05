@@ -24,9 +24,9 @@ public:
   void set_velocity(vector3d input_vel);
   void set_position(vector3d input_pos);
   void set_altitude(double input_alt);
+  virtual void update_members();
 
 protected:
-  virtual void update_members();
   double radius;
   double mass; 
   vector3d velocity;
@@ -61,10 +61,9 @@ public:
   vector3d get_orientation();
   double get_climb_speed();
   double get_ground_speed();
-
+  virtual void update_members();
 
 protected:
-  virtual void update_members();
   void autopilot();
   double front_facing_area;
   double ground_speed;
