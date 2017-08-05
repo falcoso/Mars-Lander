@@ -1607,8 +1607,8 @@ void update_lander_state(void)
   update_closeup_coords();
 
   // Mechanical dynamics
-  //dynamics_wrapper();
-  mars_lander.numerical_dynamics();
+  dynamics_wrapper();
+  //mars_lander.numerical_dynamics();
 
   // Refresh the visualization
   update_visualization();

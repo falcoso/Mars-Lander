@@ -26,7 +26,7 @@ void lander::autopilot()
   double ground_speed = (relative_velocity - relative_velocity*position.norm()*position.norm()).abs();
   double direction    = position.norm()*relative_velocity.norm();
   static double timer = 0.0;
-  double Kh, ver, delta, error, Pout;
+  double ver, delta, error, Pout;
 
   switch (autopilot_status)
   {
@@ -67,8 +67,8 @@ void lander::autopilot()
     ver   = velocity*position.norm();
     delta = gravity().abs() / MAX_THRUST; // - drag()*gravity(lander_mass).norm() considering drag as part of the thrus seems to make fuel efficiency worse
 
-    if (parachute_status == LOST)  Kh = 0.018;
-    else                           Kh = 0.03;
+    //if (parachute_status == LOST)  Kh = 0.018;
+    //else                           Kh = 0.03;
 
     error = -(ideal_ver + Kh*altitude + ver);
     Pout  = Kp*error;
@@ -163,16 +163,6 @@ void lander::numerical_dynamics()
   }
 
   update_members();
-
-  // Here we can apply 3-axis stabilization to ensure the base is always pointing downwards
-  if (stabilized_attitude) attitude_stabilization();
-
-  // Here we can apply an autopilot to adjust the thrust, parachute and attitude
-  if (autopilot_enabled)
-  {
-    stabilized_attitude = 1;
-    autopilot();
-  }
   return;
 }
 

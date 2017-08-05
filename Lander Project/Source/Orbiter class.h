@@ -2,7 +2,6 @@
 #define ORBITER
 
 #include "lander.h"
-#include "Dynamics.h"
 
 extern unsigned long throttle_buffer_length, throttle_buffer_pointer;
 extern double *throttle_buffer;
