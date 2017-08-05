@@ -28,7 +28,7 @@ void orbiter::numerical_dynamics()
   return;
 }
 
-vector3d orbiter::gravity()      { return -(GRAVITY*MARS_MASS*mass / position.abs2())*position.norm(); }
+
 vector3d orbiter::get_position() { return position; }
 vector3d orbiter::get_old_position() { return old_position; }
 vector3d orbiter::get_velocity() { return velocity; }
@@ -98,17 +98,7 @@ vector3d lander::get_orientation() { return orientation; }
 double lander::get_climb_speed()   { return climb_speed; }
 double lander::get_ground_speed()  { return ground_speed; }
 
-vector3d lander::parachute_drag(void)
-{
-  vector3d rotation = planetary_rotation + wind()*planetary_rotation.norm();
-  return -0.5*atmospheric_density(position)*DRAG_COEF_CHUTE*5.0*2.0*LANDER_SIZE*2.0*LANDER_SIZE*(velocity - rotation).abs()*(velocity - rotation);
-}
 
-vector3d lander::lander_drag(void)
-{
-  vector3d rotation = planetary_rotation + wind()*planetary_rotation.norm();
-  return -0.5*front_facing_area*atmospheric_density(position)*(DRAG_COEF_LANDER)*(velocity - rotation).abs()*(velocity - rotation);
-}
 
 vector3d lander::thrust_wrt_world(void)
 // Works out thrust vector in the world reference frame, given the lander's orientation
