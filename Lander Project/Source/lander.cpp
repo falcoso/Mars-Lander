@@ -296,4 +296,5 @@ void initialize_simulation(void)
   case 9:
     break;
   }
+  mars_lander.update_members();
 }
