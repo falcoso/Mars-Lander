@@ -147,7 +147,7 @@ enum intergrator_t {VERLET = 0, EULER = 1};
 enum autopilot_t {ORBIT_RE_ENTRY, ORBIT_DESCENT, ORBIT_INJECTION, HOVER};
 
 
-extern bool wind_enabled;
+extern bool wind_enabled, tuning_mode;
 extern double delta_t, simulation_time;
 extern unsigned short scenario;
 extern string scenario_description[];

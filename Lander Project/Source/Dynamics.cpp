@@ -16,22 +16,6 @@ double wind()
 
 }
 
-void dynamics_wrapper()
-{
-  static bool calculated_kh;
-  if (simulation_time == 0) calculated_kh = false;
-  mars_lander.numerical_dynamics();
-  // Here we can apply 3-axis stabilization to ensure the base is always pointing downwards
-  if (mars_lander.stabilized_attitude) mars_lander.attitude_stabilization();
-
-  // Here we can apply an autopilot to adjust the thrust, parachute and attitude
-  if (mars_lander.autopilot_enabled)
-  {
-    if (mars_lander.Kh == 0) mars_lander.Kh = 0.018;
-    mars_lander.stabilized_attitude = 1;
-    mars_lander.autopilot();
-  }
-}
 //vector3d fluid_rotation(void)
 //{
 //  double fluid_motion = ((MARS_RADIUS * 2 * M_PI) / MARS_DAY) - ((MARS_RADIUS * 2 * M_PI) / (EXOSPHERE*MARS_DAY))*(position.abs() - MARS_RADIUS);
@@ -55,15 +39,15 @@ vector3d lander::lander_drag(void)
 //calculates gravity on the lander returning a Force vector
 vector3d orbiter::gravity() { return -(GRAVITY*MARS_MASS*mass / position.abs2())*position.norm(); }
 
-double kh_tuner(const lander mars_lander, const bool mode)
+double kh_tuner(const lander *mars_lander, const bool mode)
 {
   double timer = 0;
-  lander virt_lander = mars_lander;
+  lander virt_lander = *mars_lander;
   double Kh_upper;
   double Kh_lower;
   if (mode)
   {
-    Kh_upper = 0.045;
+    Kh_upper = 0.2;
     Kh_lower = 0.015;
   }
   else
@@ -94,11 +78,11 @@ double kh_tuner(const lander mars_lander, const bool mode)
       if (fabs((Kh_upper - Kh_lower) / Kh_upper) < 0.0001) break;
       //reset loop
       timer = 0;
-      virt_lander = mars_lander;
+      virt_lander = *mars_lander;
       Kh_mid = (Kh_upper + Kh_lower) / 2;
     }
 
-    if (timer > 1000)
+    if (timer > 2140)
     {
       std::cout << "Tuner timed out\n";
       return 0.0; //add time out

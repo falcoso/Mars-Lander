@@ -34,6 +34,7 @@ unsigned long long time_program_started;
 // Lander state - the visualization routines use velocity_from_positions, so not sensitive to 
 // any errors in the velocity update in numerical_dynamics
 bool wind_enabled;
+bool tuning_mode = true;
 lander mars_lander;
 
 // Orbital and closeup view parameters

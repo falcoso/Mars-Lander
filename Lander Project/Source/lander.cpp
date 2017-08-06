@@ -23,10 +23,9 @@ void lander::autopilot()
 {
   constexpr double ideal_ver = 0.5;
   constexpr double Kp = 1;
-  double ground_speed = (relative_velocity - relative_velocity*position.norm()*position.norm()).abs();
   double direction    = position.norm()*relative_velocity.norm();
   static double timer = 0.0;
-  double ver, delta, error, Pout;
+  double delta, error, Pout;
 
   switch (autopilot_status)
   {
@@ -40,6 +39,7 @@ void lander::autopilot()
     else
     {
       autopilot_status = ORBIT_DESCENT;
+      Kh = kh_tuner(this, tuning_mode);
       throttle = 0;
       stabilized_attitude_angle = 0;
       std::cout << "ORBITAL RE-ENTRY COMPLETE\n";
@@ -64,13 +64,12 @@ void lander::autopilot()
     Scenario 3  Kh = 0.01812  Fuel Used = 59.1        Kh = 0.01625
     Scenario 5  Kh = 0.01898  Fuel Used = 57.1        Kh = 0.01675
     */
-    ver   = velocity*position.norm();
     delta = gravity().abs() / MAX_THRUST; // - drag()*gravity(lander_mass).norm() considering drag as part of the thrus seems to make fuel efficiency worse
 
     //if (parachute_status == LOST)  Kh = 0.018;
     //else                           Kh = 0.03;
 
-    error = -(ideal_ver + Kh*altitude + ver);
+    error = -(ideal_ver + Kh*altitude + climb_speed);
     Pout  = Kp*error;
 
     //Proportional gain control
@@ -108,8 +107,8 @@ void lander::autopilot()
     if (position.abs() < 1.2*MARS_RADIUS)
     {
       Kh    = 0.3;
-      ver   = 0;
-      error = -Kh*(1.2*MARS_RADIUS - position.abs()) + ver;
+      //ideal_ver   = 0;
+      error = -Kh*(1.2*MARS_RADIUS - position.abs()) + climb_speed;
       Pout  = Kp*error;
     }
     else
@@ -163,6 +162,17 @@ void lander::numerical_dynamics()
   }
 
   update_members();
+
+  // Here we can apply 3-axis stabilization to ensure the base is always pointing downwards
+  if (stabilized_attitude) attitude_stabilization();
+
+  // Here we can apply an autopilot to adjust the thrust, parachute and attitude
+  if (autopilot_enabled)
+  {
+    if (Kh == 0) Kh = 0.018;
+    stabilized_attitude = 1;
+    autopilot();
+  }
   return;
 }
 

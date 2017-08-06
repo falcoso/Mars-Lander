@@ -1607,7 +1607,7 @@ void update_lander_state(void)
   update_closeup_coords();
 
   // Mechanical dynamics
-  dynamics_wrapper();
+  mars_lander.numerical_dynamics();
   //mars_lander.numerical_dynamics();
 
   // Refresh the visualization
@@ -1928,7 +1928,7 @@ void glut_key(unsigned char k, int x, int y)
   case 'a': case 'A':
     // a or A - autopilot
     if (!mars_lander.landed) mars_lander.autopilot_enabled = !mars_lander.autopilot_enabled;
-    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, true);
+    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(&mars_lander, tuning_mode);
     if (paused) refresh_all_subwindows();
     break;
 
@@ -1976,28 +1976,40 @@ void glut_key(unsigned char k, int x, int y)
     break;
 
   case 'x': case 'X':
-      mars_lander.stabilized_attitude_angle -= 0.2f;
+    //attitude angle
+    mars_lander.stabilized_attitude_angle -= 0.2f;
     break;
 
   case 'z': case 'Z':
-      mars_lander.stabilized_attitude_angle += 0.2f;
+    //attitude angle
+    mars_lander.stabilized_attitude_angle += 0.2f;
     break;
 
   case 'o': case 'O':
+    //set autopilot mode
     mars_lander.autopilot_status = ORBIT_RE_ENTRY;
     break;
 
   case 'd': case 'D':
+    //set autopilot mode
     mars_lander.autopilot_status = ORBIT_DESCENT;
     break;
 
   case 'r': case 'R':
+    //remove parachute from autopilot
     mars_lander.parachute_status = LOST;
+    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(&mars_lander, tuning_mode);
     break;
 
   case 'w': case 'W':
-    if (wind_enabled == TRUE) wind_enabled = FALSE;
-    else                      wind_enabled = TRUE;
+    //toggle wind
+    wind_enabled = !wind_enabled;
+    break;
+
+  case 'm': case 'M':
+    //toggle tuning mode true is fuel efficiency, false is soft landing
+    tuning_mode = !tuning_mode;
+    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(&mars_lander, tuning_mode);
     break;
 
   case 32:
