@@ -61,6 +61,7 @@ public:
   vector3d parachute_drag();
   vector3d thrust_wrt_world();
 
+  void set_virt_obj(bool input);
   void set_orientation(vector3d input_orientation);
   vector3d get_orientation();
   double get_climb_speed();
@@ -70,6 +71,7 @@ public:
   void autopilot(double kh);
 
 protected:
+  bool virt_obj;
   double front_facing_area;
   double ground_speed;
   double climb_speed;

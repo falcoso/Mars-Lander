@@ -85,14 +85,15 @@ lander::lander()
   landed   = FALSE;
   position = vector3d{ MARS_RADIUS + 5 ,0,0 };
   velocity = vector3d{ 0,0,0 };
+  virt_obj = false;
   fuel     = 1;
   throttle = 0;
   mass     = 0;
   update_members();
-  fuel = 1; //as update members will decrement fuel again
   return;
 }
 
+void lander::set_virt_obj(bool input) { virt_obj = input; }
 void lander::set_orientation(vector3d input_orientation) { orientation = input_orientation; }
 vector3d lander::get_orientation() { return orientation; }
 double lander::get_climb_speed()   { return climb_speed; }
@@ -184,41 +185,6 @@ void lander::attitude_stabilization(void)
   // Decomponse into xyz Euler angles
   orientation = matrix_to_xyz_euler(m);
   return;
-}
-
-void lander::autopilot(double Kh)
-{
-  constexpr double ideal_ver = 0.5;
-  constexpr double Kp = 1;
-  double direction = position.norm()*relative_velocity.norm();
-  double ver = velocity*position.norm();
-  double delta = gravity().abs() / MAX_THRUST; // - drag()*gravity(lander_mass).norm() considering drag as part of the thrus seems to make fuel efficiency worse
-  double error = -(ideal_ver + Kh*altitude + ver);
-  double Pout = Kp*error;
-
-  //Proportional gain control
-  if (Pout <= -delta)          throttle = 0;
-  else if (Pout >= 1 - delta)  throttle = 1;
-  else                         throttle = delta + Pout;
-
-  //in attitude_stabilization() up is set to velocity direction, though this is still required for it to stay stable???
-  if (velocity*closeup_coords.right < 0) stabilized_attitude_angle = (float)(M_PI + acos(direction));
-  else                                   stabilized_attitude_angle = (float)(M_PI - acos(direction));
-
-  //Determine parachute release
-  if (parachute_status == NOT_DEPLOYED && altitude < 50000 && safe_to_deploy_parachute) //if lost or already deployed, save processing and skip next
-  {
-    //must always be safe to deploy and falling towards mars, as well as either, cause correct deceleration 
-    //to not break or already have the throttle engaged, which will assist in braking
-    parachute_status = DEPLOYED;
-  }
-  else if (parachute_status == DEPLOYED && altitude < 1000) //reduce drag at lower level
-  {
-    if (ground_speed < abs(1.1*wind()) && wind() > 20)
-    {
-      parachute_status = LOST;
-    }
-  }
 }
 
 void lander::update_members()

@@ -43,6 +43,7 @@ double kh_tuner(const lander *mars_lander, const bool mode)
 {
   double timer = 0;
   lander virt_lander = *mars_lander;
+  virt_lander.set_virt_obj(true);
   double Kh_upper;
   double Kh_lower;
   if (mode)
@@ -55,31 +56,32 @@ double kh_tuner(const lander *mars_lander, const bool mode)
     Kh_upper = 0.02;
     Kh_lower = 0.012;
   }
-  double Kh_mid = (Kh_upper + Kh_lower) / 2;
+  virt_lander.Kh = (Kh_upper + Kh_lower) / 2;
   while(true)
   {
     virt_lander.numerical_dynamics();
     virt_lander.attitude_stabilization();
-    virt_lander.autopilot(Kh_mid);
+    virt_lander.autopilot();
     timer += delta_t;
     if (virt_lander.get_altitude() <= 0.5)
     {
       if (mode)
       {
-        if (fabs(virt_lander.get_climb_speed()) > 1.0 || fabs(virt_lander.get_ground_speed())>1.0) Kh_upper = Kh_mid;
-        else Kh_lower = Kh_mid;
+        if (fabs(virt_lander.get_climb_speed()) > 1.0 || fabs(virt_lander.get_ground_speed())>1.0) Kh_upper = virt_lander.Kh;
+        else Kh_lower = virt_lander.Kh;
       }
       else
       {
-        if ((fabs(virt_lander.get_climb_speed()) > 1.0 || fabs(virt_lander.get_ground_speed() > 1.0)) && virt_lander.fuel <= 0.0008) Kh_lower = Kh_mid;
-        else Kh_upper = Kh_mid;
+        if ((fabs(virt_lander.get_climb_speed()) > 1.0 || fabs(virt_lander.get_ground_speed() > 1.0)) && virt_lander.fuel <= 0.0008) Kh_lower = virt_lander.Kh;
+        else Kh_upper = virt_lander.Kh;
       }
       
       if (fabs((Kh_upper - Kh_lower) / Kh_upper) < 0.0001) break;
       //reset loop
       timer = 0;
       virt_lander = *mars_lander;
-      Kh_mid = (Kh_upper + Kh_lower) / 2;
+      virt_lander.set_virt_obj(true);
+      virt_lander.Kh = (Kh_upper + Kh_lower) / 2;
     }
 
     if (timer > 2140)

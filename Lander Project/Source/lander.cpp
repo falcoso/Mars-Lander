@@ -87,18 +87,24 @@ void lander::autopilot()
       //must always be safe to deploy and falling towards mars, as well as either, cause correct deceleration 
       //to not break or already have the throttle engaged, which will assist in braking
       parachute_status = DEPLOYED;
-      std::cout << "PARACHUTE SUCCESSFULLY OPENED\n";
-      std::cout << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n";
-      std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
+      if (!virt_obj)
+      {
+        std::cout << "PARACHUTE SUCCESSFULLY OPENED\n";
+        std::cout << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n";
+        std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
+      }
     }
     else if (parachute_status == DEPLOYED && altitude < 1000) //reduce drag at lower level
     {
       if (ground_speed < abs(1.1*wind()) && wind() > 20)
       {
         parachute_status = LOST;
-        std::cout << "PARACHUTE EJECTED TO REDUCE GROUND SPEED\n";
-        std::cout << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n";
-        std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
+        if (!virt_obj)
+        {
+          std::cout << "PARACHUTE EJECTED TO REDUCE GROUND SPEED\n";
+          std::cout << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n";
+          std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
+        }
       }
     }
     break;
