@@ -55,25 +55,43 @@ vector3d lander::lander_drag(void)
 //calculates gravity on the lander returning a Force vector
 vector3d orbiter::gravity() { return -(GRAVITY*MARS_MASS*mass / position.abs2())*position.norm(); }
 
-double kh_tuner(const lander mars_lander)
+double kh_tuner(const lander mars_lander, const bool mode)
 {
   double timer = 0;
-  double Kh_upper = 0.02;
-  double Kh_lower = 0.012;
-  double Kh_mid = (Kh_upper + Kh_lower) / 2;
   lander virt_lander = mars_lander;
+  double Kh_upper;
+  double Kh_lower;
+  if (mode)
+  {
+    Kh_upper = 0.045;
+    Kh_lower = 0.015;
+  }
+  else
+  {
+    Kh_upper = 0.02;
+    Kh_lower = 0.012;
+  }
+  double Kh_mid = (Kh_upper + Kh_lower) / 2;
   while(true)
   {
     virt_lander.numerical_dynamics();
     virt_lander.attitude_stabilization();
     virt_lander.autopilot(Kh_mid);
     timer += delta_t;
-    if (virt_lander.get_altitude() <= 0)
+    if (virt_lander.get_altitude() <= 0.5)
     {
-      if ((fabs(virt_lander.get_climb_speed()) > 1.0 || fabs(virt_lander.get_ground_speed()>1.0)) && virt_lander.fuel <= 0.0008) Kh_lower = Kh_mid;
-      else Kh_upper = Kh_mid;
-      if (fabs((Kh_upper - Kh_lower)/Kh_upper) < 0.0015) break;
-
+      if (mode)
+      {
+        if (fabs(virt_lander.get_climb_speed()) > 1.0 || fabs(virt_lander.get_ground_speed())>1.0) Kh_upper = Kh_mid;
+        else Kh_lower = Kh_mid;
+      }
+      else
+      {
+        if ((fabs(virt_lander.get_climb_speed()) > 1.0 || fabs(virt_lander.get_ground_speed() > 1.0)) && virt_lander.fuel <= 0.0008) Kh_lower = Kh_mid;
+        else Kh_upper = Kh_mid;
+      }
+      
+      if (fabs((Kh_upper - Kh_lower) / Kh_upper) < 0.0001) break;
       //reset loop
       timer = 0;
       virt_lander = mars_lander;
@@ -87,5 +105,6 @@ double kh_tuner(const lander mars_lander)
     }
   }
   std::cout << "Tuned Kh value: " << Kh_upper << "\n";
-  return Kh_upper; //to ensure it does actually land
+  if (mode) return Kh_lower;
+  else      return Kh_upper; //to ensure it does actually land
 }
