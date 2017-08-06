@@ -98,8 +98,6 @@ vector3d lander::get_orientation() { return orientation; }
 double lander::get_climb_speed()   { return climb_speed; }
 double lander::get_ground_speed()  { return ground_speed; }
 
-
-
 vector3d lander::thrust_wrt_world(void)
 // Works out thrust vector in the world reference frame, given the lander's orientation
 {
@@ -108,30 +106,30 @@ vector3d lander::thrust_wrt_world(void)
   static double lagged_throttle = 0.0;
   static double last_time_lag_updated = -1.0;
 
-  if (simulation_time < last_time_lag_updated) lagged_throttle = 0.0; // simulation restarted
+  //if (simulation_time < last_time_lag_updated) lagged_throttle = 0.0; // simulation restarted
   if (throttle < 0.0) throttle = 0.0;
   if (throttle > 1.0) throttle = 1.0;
   if (landed || (fuel == 0.0)) throttle = 0.0;
 
-  if (simulation_time != last_time_lag_updated) {
+  //if (simulation_time != last_time_lag_updated) 
+  //{
+  //  // Delayed throttle value from the throttle history buffer
+  //  if (throttle_buffer_length > 0) {
+  //    delayed_throttle = throttle_buffer[throttle_buffer_pointer];
+  //    throttle_buffer[throttle_buffer_pointer] = throttle;
+  //    throttle_buffer_pointer = (throttle_buffer_pointer + 1) % throttle_buffer_length;
+  //  }
+  //  else delayed_throttle = throttle;
 
-    // Delayed throttle value from the throttle history buffer
-    if (throttle_buffer_length > 0) {
-      delayed_throttle = throttle_buffer[throttle_buffer_pointer];
-      throttle_buffer[throttle_buffer_pointer] = throttle;
-      throttle_buffer_pointer = (throttle_buffer_pointer + 1) % throttle_buffer_length;
-    }
-    else delayed_throttle = throttle;
+  //  // Lag, with time constant ENGINE_LAG
+  //  if (lag <= 0.0) k = 0.0;
+  //  else k = pow(exp(-1.0), delta_t / lag);
+  //  lagged_throttle = k*lagged_throttle + (1.0 - k)*delayed_throttle;
 
-    // Lag, with time constant ENGINE_LAG
-    if (lag <= 0.0) k = 0.0;
-    else k = pow(exp(-1.0), delta_t / lag);
-    lagged_throttle = k*lagged_throttle + (1.0 - k)*delayed_throttle;
 
+  //  last_time_lag_updated = simulation_time;
+  //}
     delayed_throttle = throttle;
-
-    last_time_lag_updated = simulation_time;
-  }
   if (stabilized_attitude && (abs(stabilized_attitude_angle) < 1E-7)) { // specific solution, avoids rounding errors in the more general calculation below
     b = throttle*MAX_THRUST*position.norm();
   }
@@ -172,14 +170,6 @@ void lander::attitude_stabilization(void)
     up.y = position.norm().x*m[4] + position.norm().y*m[5] + position.norm().z*m[6];
     up.z = position.norm().x*m[8] + position.norm().y*m[9] + position.norm().z*m[10];
   }
-  // !!!!!!!!!!!!! HINT TO STUDENTS ATTEMPTING THE EXTENSION EXERCISES !!!!!!!!!!!!!!
-  // For any-angle attitude control, we just need to set "up" to something different,
-  // and leave the remainder of this function unchanged. For example, suppose we want
-  // the attitude to be stabilized at stabilized_attitude_angle to the vertical in the
-  // close-up view. So we need to rotate "up" by stabilized_attitude_angle degrees around
-  // an axis perpendicular to the plane of the close-up view. This axis is given by the
-  // vector product of "up"and "closeup_coords.right". To calculate the result of the
-  // rotation, search the internet for information on the axis-angle rotation formula.
 
   // Set left to something perpendicular to up
   left.x = -up.y; left.y = up.x; left.z = 0.0;
@@ -200,11 +190,11 @@ void lander::autopilot(double Kh)
 {
   constexpr double ideal_ver = 0.5;
   constexpr double Kp = 1;
-  if (parachute_status == LOST)
-  {
+  //if (parachute_status == LOST)
+  //{
     if (velocity.abs() > 0.01) stabilized_attitude_angle = acos(position.norm()*velocity.norm()) - M_PI;
     else stabilized_attitude_angle = 0;
-  }
+  //}
 
   //Proportional gain control
   double ver = velocity*position.norm();

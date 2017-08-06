@@ -1928,6 +1928,7 @@ void glut_key(unsigned char k, int x, int y)
   case 'a': case 'A':
     // a or A - autopilot
     if (!mars_lander.landed) mars_lander.autopilot_enabled = !mars_lander.autopilot_enabled;
+    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander);
     if (paused) refresh_all_subwindows();
     break;
 
