@@ -49,12 +49,12 @@ double kh_tuner(const lander *mars_lander, const bool mode)
   if (mode)
   {
     Kh_upper = 0.2;
-    Kh_lower = 0.015;
+    Kh_lower = 0.010;
   }
   else
   {
-    Kh_upper = 0.02;
-    Kh_lower = 0.012;
+    Kh_upper = 0.05;
+    Kh_lower = 0.008;
   }
   virt_lander.Kh = (Kh_upper + Kh_lower) / 2;
   while(true)
@@ -76,7 +76,7 @@ double kh_tuner(const lander *mars_lander, const bool mode)
         else Kh_upper = virt_lander.Kh;
       }
       
-      if (fabs((Kh_upper - Kh_lower) / Kh_upper) < 0.0001) break;
+      if (fabs((Kh_upper - Kh_lower) / Kh_upper) < 0.01) break;
       //reset loop
       timer = 0;
       virt_lander = *mars_lander;
@@ -84,13 +84,21 @@ double kh_tuner(const lander *mars_lander, const bool mode)
       virt_lander.Kh = (Kh_upper + Kh_lower) / 2;
     }
 
-    if (timer > 2140)
+    if (timer > 1500)
     {
       std::cout << "Tuner timed out\n";
       return 0.0; //add time out
     }
   }
-  std::cout << "Tuned Kh value: " << Kh_upper << "\n";
-  if (mode) return Kh_lower;
-  else      return Kh_upper; //to ensure it does actually land
+  //to ensure it does actually land return the value within the safe bounds
+  if (mode)
+  {
+    std::cout << "Tuned Kh Value: " << Kh_lower << "\n";
+    return Kh_lower;
+  }
+  else
+  {
+    std::cout << "Tuned Kh Value: " << Kh_upper << "\n";
+    return Kh_upper; //to ensure it does actually land
+  }
 }

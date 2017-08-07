@@ -25,28 +25,38 @@ void lander::autopilot()
   constexpr double Kp = 1;
   double direction    = position.norm()*relative_velocity.norm();
   static double timer = 0.0;
-  double delta, error, Pout;
+  double delta, error, Pout, radius_ratio, descent_velocity;
+  static bool burst_complete = false;
+
+  if (simulation_time == 0) burst_complete = false;
 
   switch (autopilot_status)
   {
   case ORBIT_RE_ENTRY:
+    radius_ratio = (MARS_RADIUS + EXOSPHERE) / position.abs();
+    descent_velocity = 3500 * radius_ratio;
     stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
-    if ((abs(velocity*position.norm()) < 10 && velocity.abs() != 0) && timer <= 60)
+    if (velocity.abs() > descent_velocity && !burst_complete)
     {
       throttle = 1;
       timer   += delta_t;
     }
     else
     {
-      autopilot_status = ORBIT_DESCENT;
-      Kh = kh_tuner(this, tuning_mode);
+      burst_complete = true;
       throttle = 0;
-      stabilized_attitude_angle = 0;
-      std::cout << "ORBITAL RE-ENTRY COMPLETE\n";
-      std::cout << "Fuel level: " << fuel * 100 / FUEL_CAPACITY << "%\n";
-      std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
-      std::cout << "COMMENCE ORBITAL DESCENT" << std::endl;
-      timer = 0.0; //reset timer here, as will not reset unless autopilot is called exactly at t = 0 otheriwise
+      if (altitude < EXOSPHERE)
+      {
+        autopilot_status = ORBIT_DESCENT;
+        Kh = kh_tuner(this, tuning_mode);
+        stabilized_attitude_angle = 0;
+        std::cout << "ORBITAL RE-ENTRY COMPLETE\n";
+        std::cout << "Fuel level: " << fuel * 100 << "%\n";
+        std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
+        std::cout << "COMMENCE ORBITAL DESCENT" << std::endl;
+        timer = 0.0; //reset timer here, as will not reset unless autopilot is called exactly at t = 0 otheriwise
+        burst_complete = false;
+      }
     }
     break;
 
