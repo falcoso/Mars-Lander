@@ -529,7 +529,7 @@ void setup_lights(void)
   enable_lights();
 }
 
-void glut_print(float x, float y, string s)
+void glut_print(float x, float y, std::string s)
 // Prints string at location (x,y) in a bitmap font
 {
   unsigned short i;
@@ -549,12 +549,12 @@ double atmospheric_density(vector3d pos)
   else return (0.017 * exp(-alt / 11000.0));
 }
 
-void draw_dial(double cx, double cy, double val, string title, string units)
+void draw_dial(double cx, double cy, double val, std::string title, std::string units)
 // Draws a single instrument dial, position (cx, cy), value val, title
 {
   int i, e;
   double a;
-  ostringstream s;
+  std::ostringstream s;
 
   // Work out value mantissa and exponent
   if (val <= 0.0) {
@@ -592,7 +592,7 @@ void draw_dial(double cx, double cy, double val, string title, string units)
   s.str(""); s << "x 10 ^ " << e << " " << units;
   glut_print((GLfloat)(cx + 10 - 3.2*s.str().length()), (GLfloat)(cy + 10), s.str());
   glut_print((GLfloat)(cx + 10 - 3.2f*title.length()), (GLfloat)(cy - OUTER_DIAL_RADIUS - 15), title);
-  s.str(""); s << fixed << val << " " << units;
+  s.str(""); s << std::fixed << val << " " << units;
   glut_print((GLfloat)(cx + 10 - 3.2f*s.str().length()), (GLfloat)(cy - OUTER_DIAL_RADIUS - 30), s.str());
 
   // Draw tick labels
@@ -635,7 +635,7 @@ void draw_dial(double cx, double cy, double val, string title, string units)
   }
 }
 
-void draw_control_bar(double tlx, double tly, double val, double red, double green, double blue, string title)
+void draw_control_bar(double tlx, double tly, double val, double red, double green, double blue, std::string title)
 // Draws control bar, top left (tlx, tly), val (fraction, range 0-1), colour (red, green, blue), title
 {
   glColor3f((GLfloat)(red), (GLfloat)(green), (GLfloat)(blue));
@@ -655,7 +655,7 @@ void draw_control_bar(double tlx, double tly, double val, double red, double gre
   glut_print((GLfloat)(tlx), (GLfloat)(tly - 40), title);
 }
 
-void draw_indicator_lamp(double tcx, double tcy, string off_text, string on_text, bool on)
+void draw_indicator_lamp(double tcx, double tcy, std::string off_text, std::string on_text, bool on)
 // Draws indicator lamp, top centre (tcx, tcy), appropriate text and background colour depending on on/off
 {
   if (on) glColor3f(0.5, 0.0, 0.0);
@@ -680,7 +680,7 @@ void draw_indicator_lamp(double tcx, double tcy, string off_text, string on_text
 void draw_instrument_window(void)
 // Draws the instruments
 {
-  ostringstream s;
+  std::ostringstream s;
 
   s.precision(1);
   glutSetWindow(instrument_window);
@@ -720,7 +720,7 @@ void draw_instrument_window(void)
 
   // Draw digital clock
   glColor3f(1.0, 1.0, 1.0);
-  s.str(""); s << "Time " << fixed << simulation_time << " s";
+  s.str(""); s << "Time " << std::fixed << simulation_time << " s";
   glut_print((GLfloat)(view_width + GAP + 400), (GLfloat)(INSTRUMENT_HEIGHT - 58), s.str());
   if (paused) {
     glColor3f(1.0, 0.0, 0.0);
@@ -729,25 +729,25 @@ void draw_instrument_window(void)
 
   // Display coordinates
   glColor3f(1.0, 1.0, 1.0);
-  s.str(""); s << "x position " << fixed << mars_lander.get_position().x << " m";
+  s.str(""); s << "x position " << std::fixed << mars_lander.get_position().x << " m";
   glut_print((GLfloat)(view_width + GAP + 240), INSTRUMENT_HEIGHT - 97, s.str());
-  s.str(""); s << "velocity " << fixed << mars_lander.get_velocity().x << " m/s";
+  s.str(""); s << "velocity " << std::fixed << mars_lander.get_velocity().x << " m/s";
   glut_print((GLfloat)(view_width + GAP + 380), INSTRUMENT_HEIGHT - 97, s.str());
-  s.str(""); s << "y position " << fixed << mars_lander.get_position().y << " m";
+  s.str(""); s << "y position " << std::fixed << mars_lander.get_position().y << " m";
   glut_print((GLfloat)(view_width + GAP + 240), INSTRUMENT_HEIGHT - 117, s.str());
-  s.str(""); s << "velocity " << fixed << mars_lander.get_velocity().y << " m/s";
+  s.str(""); s << "velocity " << std::fixed << mars_lander.get_velocity().y << " m/s";
   glut_print((GLfloat)(view_width + GAP + 380), INSTRUMENT_HEIGHT - 117, s.str());
-  s.str(""); s << "z position " << fixed << mars_lander.get_position().z << " m";
+  s.str(""); s << "z position " << std::fixed << mars_lander.get_position().z << " m";
   glut_print((GLfloat)(view_width + GAP + 240), INSTRUMENT_HEIGHT - 137, s.str());
-  s.str(""); s << "velocity " << fixed << mars_lander.get_velocity().z << " m/s";
+  s.str(""); s << "velocity " << std::fixed << mars_lander.get_velocity().z << " m/s";
   glut_print((GLfloat)(view_width + GAP + 380), INSTRUMENT_HEIGHT - 137, s.str());
 
   // Draw thrust bar
-  s.str(""); s << "Thrust " << fixed << mars_lander.thrust_wrt_world().abs() << " N";
+  s.str(""); s << "Thrust " << std::fixed << mars_lander.thrust_wrt_world().abs() << " N";
   draw_control_bar(view_width + GAP + 240, INSTRUMENT_HEIGHT - 170, mars_lander.throttle, 1.0, 0.0, 0.0, s.str());
 
   // Draw fuel bar
-  s.str(""); s << "Fuel " << fixed << mars_lander.fuel*FUEL_CAPACITY << " litres";
+  s.str(""); s << "Fuel " << std::fixed << mars_lander.fuel*FUEL_CAPACITY << " litres";
   if (mars_lander.fuel > 0.5) draw_control_bar(view_width + GAP + 240, INSTRUMENT_HEIGHT - 242, mars_lander.fuel, 0.0, 1.0, 0.0, s.str());
   else if (mars_lander.fuel > 0.2) draw_control_bar(view_width + GAP + 240, INSTRUMENT_HEIGHT - 242, mars_lander.fuel, 1.0, 0.5, 0.0, s.str());
   else draw_control_bar(view_width + GAP + 240, INSTRUMENT_HEIGHT - 242, mars_lander.fuel, 1.0, 0.0, 0.0, s.str());
@@ -761,11 +761,11 @@ void draw_instrument_window(void)
   if (mars_lander.landed) {
     if (mars_lander.get_altitude() < LANDER_SIZE / 2.0) glut_print(80, 17, "Lander is below the surface!");
     else {
-      s.str(""); s << "Fuel consumed " << fixed << FUEL_CAPACITY*(1.0 - mars_lander.fuel) << " litres";
+      s.str(""); s << "Fuel consumed " << std::fixed << FUEL_CAPACITY*(1.0 - mars_lander.fuel) << " litres";
       glut_print((GLfloat)(view_width + GAP - 427), (GLfloat)17, s.str());
-      s.str(""); s << "Descent rate at touchdown " << fixed << -mars_lander.get_climb_speed() << " m/s";
+      s.str(""); s << "Descent rate at touchdown " << std::fixed << -mars_lander.get_climb_speed() << " m/s";
       glut_print((GLfloat)(view_width + GAP - 232), (GLfloat)17, s.str());
-      s.str(""); s << "Ground speed at touchdown " << fixed << mars_lander.get_ground_speed() << " m/s";
+      s.str(""); s << "Ground speed at touchdown " << std::fixed << mars_lander.get_ground_speed() << " m/s";
       glut_print((GLfloat)(view_width + GAP + 16), (GLfloat)17, s.str());
     }
   }
@@ -779,7 +779,7 @@ void display_help_arrows(void)
   double m[16], p[16], x, y, z, s = -closeup_offset / 50.0;
   GLint v[4];
   unsigned short i;
-  string ss = "surface";
+  std::string ss = "surface";
 
   glDisable(GL_LIGHTING);
   glColor3f(1.0, 1.0, 1.0);
@@ -831,7 +831,7 @@ void display_help_arrows(void)
 void display_help_text(void)
 // Displays help information in orbital view window
 {
-  ostringstream s;
+  std::ostringstream s;
   unsigned short i, j;
 
   glColor3f(1.0, 1.0, 1.0);
@@ -891,7 +891,7 @@ void display_help_text(void)
 void display_help_prompt(void)
 // Displays help prompt in the close-up view window
 {
-  string ss = "press 'h' for help";
+  std::string ss = "press 'h' for help";
   unsigned short i;
   unsigned long long t;
   float c;

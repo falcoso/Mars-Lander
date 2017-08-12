@@ -92,8 +92,6 @@
 #define MAX_IMPACT_GROUND_SPEED 1.0 // (m/s)
 #define MAX_IMPACT_DESCENT_RATE 1.0 // (m/s)
 
-using namespace std;
-
 class vector3d {
   // Utility class for three-dimensional vector operations
 public:
@@ -116,7 +114,7 @@ public:
   double abs2() const { return (x*x + y*y + z*z); }
   double abs() const { return sqrt(this->abs2()); }
   vector3d norm() const { double s(this->abs()); if (s==0) return *this; else return vector3d(x/s, y/s, z/s); }
-  friend ostream& operator << (ostream &out, const vector3d &v) { out << v.x << ' ' << v.y << ' ' << v.z; return out; }
+  friend std::ostream& operator << (std::ostream &out, const vector3d &v) { out << v.x << ' ' << v.y << ' ' << v.z; return out; }
   double x, y, z;
 private:
 };
@@ -150,7 +148,7 @@ enum autopilot_t {ORBIT_RE_ENTRY, ORBIT_DESCENT, ORBIT_INJECTION, HOVER};
 extern bool wind_enabled, tuning_mode;
 extern double delta_t, simulation_time;
 extern unsigned short scenario;
-extern string scenario_description[];
+extern std::string scenario_description[];
 extern closeup_coords_t closeup_coords;
 extern constexpr intergrator_t intergrator = VERLET;
 

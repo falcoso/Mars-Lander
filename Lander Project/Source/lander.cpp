@@ -18,7 +18,6 @@
 #include "Orbiter class.h"
 
 extern lander mars_lander;
-fstream fout;
 void lander::autopilot()
 {
   constexpr double ideal_ver = 0.5;
@@ -50,10 +49,10 @@ void lander::autopilot()
         autopilot_status = ORBIT_DESCENT;
         Kh = kh_tuner(this, tuning_mode);
         stabilized_attitude_angle = 0;
-        std::cout << "ORBITAL RE-ENTRY COMPLETE\n";
-        std::cout << "Fuel level: " << fuel * 100 << "%\n";
-        std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
-        std::cout << "COMMENCE ORBITAL DESCENT" << std::endl;
+        std::cout << "ORBITAL RE-ENTRY COMPLETE\n"
+          << "Fuel level: " << fuel * 100 << "%\n"
+          << "Descent Speed: " << velocity*position.norm() << "m/s\n"
+          << "COMMENCE ORBITAL DESCENT" << std::endl;
         timer = 0.0; //reset timer here, as will not reset unless autopilot is called exactly at t = 0 otheriwise
         burst_complete = false;
       }
@@ -99,9 +98,9 @@ void lander::autopilot()
       parachute_status = DEPLOYED;
       if (!virt_obj)
       {
-        std::cout << "PARACHUTE SUCCESSFULLY OPENED\n";
-        std::cout << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n";
-        std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
+        std::cout << "PARACHUTE SUCCESSFULLY OPENED\n"
+          << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n"
+          << "Descent Speed: " << velocity*position.norm() << "m/s" << std::endl;
       }
     }
     else if (parachute_status == DEPLOYED && altitude < 1000) //reduce drag at lower level
@@ -111,9 +110,9 @@ void lander::autopilot()
         parachute_status = LOST;
         if (!virt_obj)
         {
-          std::cout << "PARACHUTE EJECTED TO REDUCE GROUND SPEED\n";
-          std::cout << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n";
-          std::cout << "Descent Speed: " << velocity*position.norm() << "m/s\n";
+          std::cout << "PARACHUTE EJECTED TO REDUCE GROUND SPEED\n"
+            << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n"
+            << "Descent Speed: " << velocity*position.norm() << "m/s" << std::endl;
         }
       }
     }
@@ -125,6 +124,7 @@ void lander::autopilot()
       Kh    = 0.3;
       //ideal_ver   = 0;
       error = -Kh*(1.2*MARS_RADIUS - position.abs()) + climb_speed;
+      delta = gravity().abs() / MAX_THRUST;
       Pout  = Kp*error;
     }
     else
@@ -134,9 +134,9 @@ void lander::autopilot()
       Pout  = Kp*error;
     }
 
-    if (Pout < 0)      throttle = 0;
-    else if (Pout > 1) throttle = 1;
-    else               throttle = Pout;
+    if (Pout <= -delta)          throttle = 0;
+    else if (Pout >= 1 - delta)  throttle = 1;
+    else                         throttle = delta + Pout;
 
     break;
   }
