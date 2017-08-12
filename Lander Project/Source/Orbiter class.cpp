@@ -112,24 +112,24 @@ vector3d lander::thrust_wrt_world(void)
   if (throttle > 1.0) throttle = 1.0;
   if (landed || (fuel == 0.0)) throttle = 0.0;
 
-  //if (simulation_time != last_time_lag_updated) 
-  //{
-  //  // Delayed throttle value from the throttle history buffer
-  //  if (throttle_buffer_length > 0) {
-  //    delayed_throttle = throttle_buffer[throttle_buffer_pointer];
-  //    throttle_buffer[throttle_buffer_pointer] = throttle;
-  //    throttle_buffer_pointer = (throttle_buffer_pointer + 1) % throttle_buffer_length;
-  //  }
-  //  else delayed_throttle = throttle;
+  if (simulation_time != last_time_lag_updated) 
+  {
+    // Delayed throttle value from the throttle history buffer
+    if (throttle_buffer_length > 0) {
+      delayed_throttle = throttle_buffer[throttle_buffer_pointer];
+      throttle_buffer[throttle_buffer_pointer] = throttle;
+      throttle_buffer_pointer = (throttle_buffer_pointer + 1) % throttle_buffer_length;
+    }
+    else delayed_throttle = throttle;
 
-  //  // Lag, with time constant ENGINE_LAG
-  //  if (lag <= 0.0) k = 0.0;
-  //  else k = pow(exp(-1.0), delta_t / lag);
-  //  lagged_throttle = k*lagged_throttle + (1.0 - k)*delayed_throttle;
+    // Lag, with time constant ENGINE_LAG
+    if (lag <= 0.0) k = 0.0;
+    else k = pow(exp(-1.0), delta_t / lag);
+    lagged_throttle = k*lagged_throttle + (1.0 - k)*delayed_throttle;
 
 
-  //  last_time_lag_updated = simulation_time;
-  //}
+    last_time_lag_updated = simulation_time;
+  }
     delayed_throttle = throttle;
   if (stabilized_attitude && (abs(stabilized_attitude_angle) < 1E-7)) { // specific solution, avoids rounding errors in the more general calculation below
     b = throttle*MAX_THRUST*position.norm();
