@@ -49,7 +49,7 @@ double kh_tuner(const lander *mars_lander, const bool mode)
   if (mode)
   {
     Kh_upper = 0.2;
-    Kh_lower = 0.001;
+    Kh_lower = 0.01;
   }
   else
   {
@@ -67,18 +67,20 @@ double kh_tuner(const lander *mars_lander, const bool mode)
     {
       if (mode)
       {
-        if (fabs(virt_lander.get_climb_speed()) > 1.0 || fabs(virt_lander.get_ground_speed())>1.0) Kh_upper = virt_lander.Kh;
+        if (fabs(virt_lander.get_climb_speed()) > 1.0 || fabs(virt_lander.get_ground_speed()) > 1.0)
+        {
+          if(virt_lander.fuel <= 0) Kh_lower = virt_lander.Kh; //check that incase the mid value has skipped the 'landable range'
+          else                      Kh_upper = virt_lander.Kh;
+        }
         else Kh_lower = virt_lander.Kh;
-        std::cout << virt_lander.Kh << "\n";
       }
       else
       {
         if ((fabs(virt_lander.get_climb_speed()) > 1.0 || fabs(virt_lander.get_ground_speed() > 1.0)) && virt_lander.fuel <= 0.0008) Kh_lower = virt_lander.Kh;
         else Kh_upper = virt_lander.Kh;
-        std::cout << virt_lander.Kh << "\n";
       }
       
-      if (fabs((Kh_upper - Kh_lower) / Kh_upper) < 0.01) break;
+      if ((Kh_upper - Kh_lower) / Kh_upper < 0.01) break;
       //reset loop
       timer = 0;
       virt_lander = *mars_lander;
