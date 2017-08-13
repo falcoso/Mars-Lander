@@ -24,29 +24,27 @@ void lander::autopilot()
   constexpr double Kp = 1;
   double direction    = position.norm()*relative_velocity.norm();
   static double timer = 0.0;
-  double delta, error, Pout, radius_ratio, descent_velocity;
+  double delta, error, Pout;
   static bool burst_complete = false;
 
   //constants for TRANSFER_ORBIT
-  constexpr double apogee_radius = 5*MARS_RADIUS;
+  constexpr double apogee_radius = EXOSPHERE/3 +MARS_RADIUS;
   double unit_impulse = delta_t*MAX_THRUST;
-  double perigee_velocity, transfer_impulse_time;
+  double transfer_impulse_time;
   static double initial_velocity = velocity.abs();
   static double initial_radius = position.abs();
+  double perigee_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*apogee_radius) / (initial_radius*(apogee_radius + initial_radius)));
 
-  if (fuel == 0) burst_complete = false; initial_velocity = velocity.abs(); initial_radius = position.abs();
+  if (fuel == 0 || simulation_time ==0) burst_complete = false; initial_velocity = velocity.abs(); initial_radius = position.abs();
 
   switch (autopilot_status)
   {
   case TRANSFER_ORBIT:
-    
-    perigee_velocity = pow((2 * GRAVITY*MARS_RADIUS*apogee_radius) / (initial_radius*(apogee_radius + initial_radius)), 0.5);
-    transfer_impulse_time = mass*(initial_velocity - perigee_velocity)/MAX_THRUST;
+    fuel = 1;
     stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
-    if (timer < transfer_impulse_time && !burst_complete)
+    if (velocity.abs() > perigee_velocity && !burst_complete)
     {
       throttle = 1;
-      timer += delta_t;
     }
     else
     {
@@ -56,13 +54,10 @@ void lander::autopilot()
     break;
 
   case ORBIT_RE_ENTRY:
-    radius_ratio = (MARS_RADIUS + EXOSPHERE) / position.abs();
-    descent_velocity = 3500 * radius_ratio;
     stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
-    if (velocity.abs() > descent_velocity && !burst_complete)
+    if (velocity.abs() > perigee_velocity && !burst_complete)
     {
       throttle = 1;
-      timer   += delta_t;
     }
     else
     {
@@ -314,7 +309,7 @@ void initialize_simulation(void)
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     mars_lander.stabilized_attitude = true;
     mars_lander.autopilot_enabled = false;
-    mars_lander.autopilot_status = TRANSFER_ORBIT;
+    mars_lander.autopilot_status = ORBIT_RE_ENTRY;
     break;
 
   case 7:
