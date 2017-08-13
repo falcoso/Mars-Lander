@@ -142,7 +142,7 @@ struct closeup_coords_t {
 // Enumerated data type for parachute status
 enum parachute_status_t { NOT_DEPLOYED = 0, DEPLOYED = 1, LOST = 2 };
 enum intergrator_t {VERLET = 0, EULER = 1};
-enum autopilot_t {ORBIT_RE_ENTRY, ORBIT_DESCENT, ORBIT_INJECTION, HOVER};
+enum autopilot_t {ORBIT_RE_ENTRY, ORBIT_DESCENT, ORBIT_INJECTION, HOVER, TRANSFER_ORBIT};
 
 
 extern bool wind_enabled, tuning_mode;

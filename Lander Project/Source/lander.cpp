@@ -27,10 +27,34 @@ void lander::autopilot()
   double delta, error, Pout, radius_ratio, descent_velocity;
   static bool burst_complete = false;
 
-  if (simulation_time == 0) burst_complete = false;
+  //constants for TRANSFER_ORBIT
+  constexpr double apogee_radius = 5*MARS_RADIUS;
+  double unit_impulse = delta_t*MAX_THRUST;
+  double perigee_velocity, transfer_impulse_time;
+  static double initial_velocity = velocity.abs();
+  static double initial_radius = position.abs();
+
+  if (fuel == 0) burst_complete = false; initial_velocity = velocity.abs(); initial_radius = position.abs();
 
   switch (autopilot_status)
   {
+  case TRANSFER_ORBIT:
+    
+    perigee_velocity = pow((2 * GRAVITY*MARS_RADIUS*apogee_radius) / (initial_radius*(apogee_radius + initial_radius)), 0.5);
+    transfer_impulse_time = mass*(initial_velocity - perigee_velocity)/MAX_THRUST;
+    stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
+    if (timer < transfer_impulse_time && !burst_complete)
+    {
+      throttle = 1;
+      timer += delta_t;
+    }
+    else
+    {
+      burst_complete = true;
+      throttle = 0;
+    }
+    break;
+
   case ORBIT_RE_ENTRY:
     radius_ratio = (MARS_RADIUS + EXOSPHERE) / position.abs();
     descent_velocity = 3500 * radius_ratio;
@@ -49,10 +73,10 @@ void lander::autopilot()
         autopilot_status = ORBIT_DESCENT;
         Kh = kh_tuner(this, tuning_mode);
         stabilized_attitude_angle = 0;
-        std::cout << "ORBITAL RE-ENTRY COMPLETE\n"
-          << "Fuel level: " << fuel * 100 << "%\n"
-          << "Descent Speed: " << velocity*position.norm() << "m/s\n"
-          << "COMMENCE ORBITAL DESCENT" << std::endl;
+        std::cout << "***ORBITAL RE-ENTRY COMPLETE***\n"
+          << "Fuel level:\t" << fuel * 100 << "%\n"
+          << "Descent Speed:\t" << fabs(velocity*position.norm()) << " m/s\n"
+          << "***COMMENCE ORBITAL DESCENT***" << std::endl;
         timer = 0.0; //reset timer here, as will not reset unless autopilot is called exactly at t = 0 otheriwise
         burst_complete = false;
       }
@@ -98,9 +122,9 @@ void lander::autopilot()
       parachute_status = DEPLOYED;
       if (!virt_obj)
       {
-        std::cout << "PARACHUTE SUCCESSFULLY OPENED\n"
-          << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n"
-          << "Descent Speed: " << velocity*position.norm() << "m/s" << std::endl;
+        std::cout << "***PARACHUTE SUCCESSFULLY OPENED***\n"
+          << "Altitude:\t" << altitude << " m\n"
+          << "Descent Speed:\t" << fabs(velocity*position.norm()) << " m/s" << std::endl;
       }
     }
     else if (parachute_status == DEPLOYED && altitude < 1000) //reduce drag at lower level
@@ -110,9 +134,9 @@ void lander::autopilot()
         parachute_status = LOST;
         if (!virt_obj)
         {
-          std::cout << "PARACHUTE EJECTED TO REDUCE GROUND SPEED\n"
-            << "Current Altitude: " << position.abs() - MARS_RADIUS << "m\n"
-            << "Descent Speed: " << velocity*position.norm() << "m/s" << std::endl;
+          std::cout << "***PARACHUTE EJECTED TO REDUCE GROUND SPEED***\n"
+            << "Altitude:\t" << altitude << "m\n"
+            << "Descent Speed:\t" << velocity*position.norm() << "m/s" << std::endl;
         }
       }
     }
@@ -166,7 +190,7 @@ void lander::numerical_dynamics()
   {
   case VERLET:
     new_position = 2 * position - old_position + delta_t*delta_t*acceleration;
-    velocity = (1 / delta_t)*(new_position - position);
+    velocity = (new_position - position)/delta_t;
     //shift along positions
     old_position = position;
     position = new_position;
@@ -290,7 +314,7 @@ void initialize_simulation(void)
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     mars_lander.stabilized_attitude = true;
     mars_lander.autopilot_enabled = false;
-    mars_lander.autopilot_status = ORBIT_RE_ENTRY;
+    mars_lander.autopilot_status = TRANSFER_ORBIT;
     break;
 
   case 7:

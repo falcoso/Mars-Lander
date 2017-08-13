@@ -5,7 +5,6 @@
 
 void orbiter::numerical_dynamics()
 {
-  std::cout << "ORBITER class dynamics being called?\n";
   vector3d new_position;
 
   if (simulation_time == 0.0) old_position = position - delta_t*velocity;
@@ -14,7 +13,7 @@ void orbiter::numerical_dynamics()
   {
   case VERLET:
     new_position = 2 * position - old_position + delta_t*delta_t*acceleration;
-    velocity = (1 / delta_t)*(new_position - position);
+    velocity = (new_position - position)/delta_t;
     //shift along positions
     old_position = position;
     position = new_position;
@@ -155,7 +154,7 @@ void lander::attitude_stabilization(void)
   {
     up = -relative_velocity.norm();
   }
-  else if (abs(stabilized_attitude_angle) < 1E-7) //skip expensive calulcations if aproximately 0
+  else if (abs(stabilized_attitude_angle) < 1E-7) //skip expensive calculations if aproximately 0
   {
     up = position.norm();
   }
@@ -201,8 +200,9 @@ void lander::update_members()
   else safe_to_deploy_parachute = true;
 
   //originally average of current and old position used
-  climb_speed   = velocity*position.norm();
-  ground_speed  = (relative_velocity - climb_speed*position.norm()).abs();
+  vector3d av_p = (old_position + position) / 2;
+  climb_speed   = velocity*av_p.norm();
+  ground_speed  = (relative_velocity - climb_speed*av_p.norm()).abs();
 
   if (landed || (fuel == 0.0)) throttle = 0.0;
 

@@ -1,5 +1,6 @@
 /* Functions to calculate the Dynamics on an object*/
-
+#ifndef DYNAMICS
+#define DYNAMICS
 #include "lander.h"
 #include "lander_graphics.h"
 #include <random>
@@ -106,3 +107,4 @@ double kh_tuner(const lander *mars_lander, const bool mode)
     return Kh_upper; //to ensure it does actually land
   }
 }
+#endif
