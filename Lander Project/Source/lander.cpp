@@ -261,7 +261,7 @@ void initialize_simulation(void)
     mars_lander.set_orientation(vector3d(0.0, 0.0, 0.0));
     mars_lander.stabilized_attitude = false;
     mars_lander.autopilot_enabled = false;
-    mars_lander.autopilot_status = ORBIT_INJECTION;
+    mars_lander.autopilot_status = ORBIT_DESCENT;
     break;
 
   case 4:

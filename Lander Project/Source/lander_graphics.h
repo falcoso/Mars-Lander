@@ -83,7 +83,6 @@ void update_closeup_coords(void);
 void draw_closeup_window(void);
 void draw_main_window(void);
 void refresh_all_subwindows(void);
-bool safe_to_deploy_parachute(void);
 void update_visualization(void);
 void update_lander_state(void);
 void reset_simulation(void);
