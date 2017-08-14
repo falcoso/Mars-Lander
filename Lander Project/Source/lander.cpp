@@ -18,50 +18,62 @@
 #include "Orbiter class.h"
 
 extern lander mars_lander;
-void lander::autopilot()
+void lander::autopilot(bool reset)
 {
   constexpr double ideal_ver = 0.5;
   constexpr double Kp = 1;
   double direction    = position.norm()*relative_velocity.norm();
-  static double timer = 0.0;
+  static double *timer = new double (0.0);
   double delta, error, Pout;
-  static bool burst_complete = false;
+  static bool *burst_complete = new bool(false);
 
   //constants for TRANSFER_ORBIT
   constexpr double apogee_radius = EXOSPHERE/3 +MARS_RADIUS;
   double unit_impulse = delta_t*MAX_THRUST;
   double transfer_impulse_time;
-  static double initial_velocity = velocity.abs();
-  static double initial_radius = position.abs();
-  double perigee_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*apogee_radius) / (initial_radius*(apogee_radius + initial_radius)));
+  static double *initial_radius = new double(position.abs());
+  double perigee_velocity;
 
-  if (fuel == 0 || simulation_time ==0) burst_complete = false; initial_velocity = velocity.abs(); initial_radius = position.abs();
+  if (burst_complete == nullptr) burst_complete = new bool(false);
+  if (initial_radius == nullptr) initial_radius = new double(position.abs());
+
+  if (reset)
+  {
+    delete burst_complete;
+    burst_complete = nullptr;
+    delete initial_radius;
+    initial_radius = nullptr;
+    delete timer;
+    timer = nullptr;
+    return;
+  }
 
   switch (autopilot_status)
   {
   case TRANSFER_ORBIT:
     fuel = 1;
     stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
-    if (velocity.abs() > perigee_velocity && !burst_complete)
+    if (velocity.abs() > perigee_velocity && !*burst_complete)
     {
       throttle = 1;
     }
     else
     {
-      burst_complete = true;
+      *burst_complete = true;
       throttle = 0;
     }
     break;
 
   case ORBIT_RE_ENTRY:
+    perigee_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*apogee_radius) / ((*initial_radius)*(apogee_radius + (*initial_radius))));
     stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
-    if (velocity.abs() > perigee_velocity && !burst_complete)
+    if (velocity.abs() > perigee_velocity && !*burst_complete)
     {
       throttle = 1;
     }
     else
     {
-      burst_complete = true;
+      *burst_complete = true;
       throttle = 0;
       if (altitude < EXOSPHERE)
       {
@@ -72,8 +84,8 @@ void lander::autopilot()
           << "Fuel level:\t" << fuel * 100 << "%\n"
           << "Descent Speed:\t" << fabs(velocity*position.norm()) << " m/s\n"
           << "***COMMENCE ORBITAL DESCENT***" << std::endl;
-        timer = 0.0; //reset timer here, as will not reset unless autopilot is called exactly at t = 0 otheriwise
-        burst_complete = false;
+        delete timer; //reset timer here, as will not reset unless autopilot is called exactly at t = 0 otheriwise
+        delete burst_complete;
       }
     }
     break;
@@ -214,6 +226,7 @@ void lander::numerical_dynamics()
 void initialize_simulation(void)
 // Lander pose initialization - selects one of 10 possible scenarios
 {
+  mars_lander.autopilot(true);
   static double aerostationary_radius = (double)pow((GRAVITY*MARS_MASS*MARS_DAY*MARS_DAY) / (4 * M_PI*M_PI), 0.333333333);
   // The parameters to set are:
   // position - in Cartesian planetary coordinate system (m)

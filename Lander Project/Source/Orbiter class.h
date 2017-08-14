@@ -67,8 +67,7 @@ public:
   double get_climb_speed();
   double get_ground_speed();
   virtual void update_members();
-  void autopilot();
-  void autopilot(double kh);
+  void autopilot(bool reset = false);
 
 protected:
   bool virt_obj;
