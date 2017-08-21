@@ -23,7 +23,6 @@ void lander::autopilot(bool reset)
   constexpr double ideal_ver = 0.5;
   constexpr double Kp = 1;
   double direction    = position.norm()*relative_velocity.norm();
-  static double *timer = new double (0.0);
   double delta, error, Pout;
   static bool *burst_complete = new bool(false);
 
@@ -42,8 +41,6 @@ void lander::autopilot(bool reset)
     burst_complete = nullptr;
     delete initial_radius;
     initial_radius = nullptr;
-    delete timer;
-    timer = nullptr;
     delete transfer_radius;
     transfer_radius = nullptr;
     return;
@@ -53,27 +50,42 @@ void lander::autopilot(bool reset)
   {
 
   case ORBIT_RE_ENTRY:
+    //check values have not been reset
     if (burst_complete == nullptr) burst_complete = new bool(false);
     if (initial_radius == nullptr) initial_radius = new double(position.abs());
     if (transfer_radius == nullptr)
     {
       transfer_radius = new double;
       std::cout << "Input transfer radius as multiple of Mars' radius (edge of the exosphere is 1.059):" << std::endl;
-      std::cin >> *transfer_radius;
+      std::cin  >> *transfer_radius;
       *transfer_radius *= MARS_RADIUS;
     }
-
-    target_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*(*transfer_radius)) / ((*initial_radius)*((*transfer_radius) + (*initial_radius))));
-    stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
-    if (velocity.abs() > target_velocity && !*burst_complete)
+    //check to see if lander is at perigee or apogee of new orbit
+    if (*transfer_radius < *initial_radius && !*burst_complete) //at apogee
     {
-      throttle = 1;
+      stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
+      target_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*(*transfer_radius)) / ((*initial_radius)*((*transfer_radius) + (*initial_radius))));
+      if (velocity.abs() > target_velocity && !*burst_complete) throttle = 1;
+      else
+      {
+        *burst_complete = true;
+        throttle = 0;
+      }
     }
-    else
+    else if (*transfer_radius > *initial_radius && !*burst_complete) //at perigee
     {
-      *burst_complete = true;
-      throttle = 0;
-      if (altitude < EXOSPHERE)
+      stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()));
+      target_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*(*initial_radius)) / ((*transfer_radius)*((*transfer_radius) + (*initial_radius))));
+      if (velocity.abs() < target_velocity && !*burst_complete)  throttle = 1;
+      else
+      {
+        *burst_complete = true;
+        throttle = 0;
+      }
+    }
+    else //burst completed
+    {
+      if (altitude < EXOSPHERE) //if within atmosphere, lander will crash so autopilot must prepare
       {
         autopilot_status = ORBIT_DESCENT;
         Kh = kh_tuner(this, tuning_mode);
@@ -82,13 +94,12 @@ void lander::autopilot(bool reset)
           << "Fuel level:\t" << fuel * 100 << "%\n"
           << "Descent Speed:\t" << fabs(velocity*position.norm()) << " m/s\n"
           << "***COMMENCE ORBITAL DESCENT***" << std::endl;
-        delete timer; //reset timer here, as will not reset unless autopilot is called exactly at t = 0 otheriwise
         delete burst_complete;
       }
+      //arrived at destination radius
       else if (fabs(climb_speed) < 5 && (position.abs() > 0.95*(*transfer_radius) && position.abs() < 1.05*(*transfer_radius)))
       {
         autopilot_status = TRANSFER_ORBIT;
-        delete timer;
         *burst_complete = false;
         std::cout << "***OBRITAL TRANSFER PHASE 1 COMPLETE***\n"
           << "Fuel level:\t" << fuel * 100 << "%\n"
@@ -99,18 +110,22 @@ void lander::autopilot(bool reset)
 
   case TRANSFER_ORBIT:
     fuel = 1;
-    stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm())+M_PI);
-    target_velocity = std::sqrt(GRAVITY*MARS_MASS/ position.abs());
-    
-    if (velocity.abs() > target_velocity && !*burst_complete)
+
+    target_velocity = std::sqrt(GRAVITY*MARS_MASS / *transfer_radius);
+    if (*transfer_radius < *initial_radius && !*burst_complete)
     {
-      throttle = 1;
+      stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
+      if (velocity.abs() > target_velocity) throttle = 1;
+      else { *burst_complete = true;        throttle = 0; }
     }
-    else
+    else if (*transfer_radius > *initial_radius && !*burst_complete)
     {
-      *burst_complete = true;
-      throttle = 0;
+      stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()));
+      if (velocity.abs() < target_velocity) throttle = 1;
+      else { *burst_complete = true;        throttle = 0; }
     }
+
+    else throttle = 0;
     break;
 
   case ORBIT_DESCENT:
@@ -184,7 +199,7 @@ void lander::autopilot(bool reset)
     else
     {
       stabilized_attitude_angle = (float)(M_PI / 2);
-      error = pow(GRAVITY*MARS_MASS / (position.abs()), 0.5) - velocity.abs()*cos(M_PI / 2);
+      error = std::sqrt(GRAVITY*MARS_MASS / (position.abs())) - velocity.abs()*cos(M_PI / 2);
       Pout  = Kp*error;
     }
 
