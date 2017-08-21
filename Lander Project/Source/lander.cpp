@@ -33,9 +33,8 @@ void lander::autopilot(bool reset)
   double transfer_impulse_time;
   static double *initial_radius = new double(position.abs());
   double perigee_velocity;
+  static double *transfer_radius = nullptr;
 
-  if (burst_complete == nullptr) burst_complete = new bool(false);
-  if (initial_radius == nullptr) initial_radius = new double(position.abs());
 
   if (reset)
   {
@@ -45,6 +44,8 @@ void lander::autopilot(bool reset)
     initial_radius = nullptr;
     delete timer;
     timer = nullptr;
+    delete transfer_radius;
+    transfer_radius = nullptr;
     return;
   }
 
@@ -65,7 +66,17 @@ void lander::autopilot(bool reset)
     break;
 
   case ORBIT_RE_ENTRY:
-    perigee_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*apogee_radius) / ((*initial_radius)*(apogee_radius + (*initial_radius))));
+    if (burst_complete == nullptr) burst_complete = new bool(false);
+    if (initial_radius == nullptr) initial_radius = new double(position.abs());
+    if (transfer_radius == nullptr)
+    {
+      transfer_radius = new double;
+      std::cout << "Input transfer radius:" << std::endl;
+      std::cin >> *transfer_radius;
+      *transfer_radius *= MARS_RADIUS;
+    }
+
+    perigee_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*(*transfer_radius)) / ((*initial_radius)*((*transfer_radius) + (*initial_radius))));
     stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
     if (velocity.abs() > perigee_velocity && !*burst_complete)
     {
@@ -87,6 +98,14 @@ void lander::autopilot(bool reset)
         delete timer; //reset timer here, as will not reset unless autopilot is called exactly at t = 0 otheriwise
         delete burst_complete;
       }
+      //else if (fabs(climb_speed) < 5)
+      //{
+      //  delete timer;
+      //  delete burst_complete;
+      //  std::cout << "***OBRITAL TRANSFER PHASE 1 COMPLETE***\n"
+      //    << "Fuel level:\t" << fuel * 100 << "%\n"
+      //    << "***COMMENCE ORBITAL TRANSFER PHASE 2***" << std::endl;
+      //}
     }
     break;
 
