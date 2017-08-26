@@ -27,12 +27,18 @@ void lander::autopilot(bool reset)
   static bool *burst_complete = new bool(false);
 
   //constants for TRANSFER_ORBIT
-  constexpr double apogee_radius = EXOSPHERE/3 +MARS_RADIUS;
-  double unit_impulse = delta_t*MAX_THRUST;
   double transfer_impulse_time;
   static double *initial_radius = new double(position.abs());
   double target_velocity;
   static double *transfer_radius = nullptr;
+
+  //PID controller for orbital injection
+  double Ki_pid;
+  double Kp_pid;
+  double Kd_pid;
+  static double *error_sum = new double(0);
+  static double *old_error = new double(0);
+  double error_d;
 
 
   if (reset)
@@ -43,6 +49,10 @@ void lander::autopilot(bool reset)
     initial_radius = nullptr;
     delete transfer_radius;
     transfer_radius = nullptr;
+    delete error_sum;
+    error_sum = nullptr;
+    delete old_error;
+    old_error = nullptr;
     return;
   }
 
@@ -65,7 +75,7 @@ void lander::autopilot(bool reset)
     {
       stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
       target_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*(*transfer_radius)) / ((*initial_radius)*((*transfer_radius) + (*initial_radius))));
-      if (velocity.abs() > target_velocity && !*burst_complete) throttle = 1;
+      if ((velocity - (velocity*position.norm())*position.norm()).abs() > target_velocity && !*burst_complete) throttle = 1;
       else
       {
         *burst_complete = true;
@@ -76,8 +86,7 @@ void lander::autopilot(bool reset)
     {
       stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()));
       target_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*(*transfer_radius)) / ((*initial_radius)*((*transfer_radius) + (*initial_radius))));
-      //std::cout << "Target velocity:\t" << target_velocity << "\tActual Velocity:\t" << velocity.abs() << "\n";
-      if (velocity.abs() < target_velocity && !*burst_complete)  throttle = 1;
+      if ((velocity - (velocity*position.norm())*position.norm()).abs() < target_velocity && !*burst_complete)  throttle = 1;
       else
       {
         *burst_complete = true;
@@ -116,13 +125,13 @@ void lander::autopilot(bool reset)
     if (*transfer_radius < *initial_radius && !*burst_complete)
     {
       stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
-      if (velocity.abs() > target_velocity) throttle = 1;
+      if ((velocity - (velocity*position.norm())*position.norm()).abs() > target_velocity) throttle = 1;
       else { *burst_complete = true;        throttle = 0; }
     }
     else if (*transfer_radius > *initial_radius && !*burst_complete)
     {
       stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()));
-      if (velocity.abs() < target_velocity) throttle = 1;
+      if ((velocity - (velocity*position.norm())*position.norm()).abs() < target_velocity) throttle = 1;
       else { *burst_complete = true;        throttle = 0; }
     }
 
@@ -155,9 +164,6 @@ void lander::autopilot(bool reset)
     Scenario 5  Kh = 0.01898  Fuel Used = 57.1        Kh = 0.01675
     */
     delta = gravity().abs() / MAX_THRUST; // - drag()*gravity(lander_mass).norm() considering drag as part of the thrus seems to make fuel efficiency worse
-
-    //if (parachute_status == LOST)  Kh = 0.018;
-    //else                           Kh = 0.03;
 
     error = -(ideal_ver + Kh*altitude + climb_speed);
     Pout  = Kp*error;
@@ -200,24 +206,43 @@ void lander::autopilot(bool reset)
     break;
   case ORBIT_INJECTION:
     fuel = 1;
-    if (position.abs() < 1.2*MARS_RADIUS)
-    {
-      Kh    = 0.3;
-      //ideal_ver   = 0;
-      error = -Kh*(1.2*MARS_RADIUS - position.abs()) + climb_speed;
-      delta = gravity().abs() / MAX_THRUST;
-      Pout  = Kp*error;
-    }
-    else
-    {
-      stabilized_attitude_angle = (float)(M_PI / 2);
-      error = std::sqrt(GRAVITY*MARS_MASS / (position.abs())) - velocity.abs()*cos(M_PI / 2);
-      Pout  = Kp*error;
-    }
+    if (transfer_radius == nullptr)  transfer_radius = new double(1.2*MARS_RADIUS);
+    else *transfer_radius = 1.2*MARS_RADIUS;
+    if (error_sum == nullptr) error_sum = new double(0);
+    if (old_error == nullptr) old_error = new double(0);
+    target_velocity = std::sqrt(GRAVITY*MARS_MASS / (*transfer_radius));
+    Kp_pid = 0.001;
+    Ki_pid = 0.00000001;
+    Kd_pid = 0.1;
+   
+    error = *transfer_radius - position.abs();
+    *error_sum += error*delta_t;
+    error_d = (error - *old_error) / delta_t;
+    Pout = -Kp_pid*error - Ki_pid*(*error_sum) - Kd_pid*error_d;
+    *old_error = error;
 
-    if (Pout <= -delta)          throttle = 0;
-    else if (Pout >= 1 - delta)  throttle = 1;
-    else                         throttle = delta + Pout;
+    //if (altitude > 180000)
+    //{
+    //  delta = gravity().abs() / MAX_THRUST;
+    //  if (Pout <= -delta)          throttle = 0;
+    //  else if (Pout >= 1 - delta)  throttle = 1;
+    //  else                         throttle = delta + Pout;
+    //}
+    if (altitude > 180000)
+    {
+      if ((velocity - (velocity*position.norm())*position.norm()).abs() < target_velocity)
+      {
+        if (Pout <= -M_PI_2) stabilized_attitude_angle = 0;
+        else if (Pout >= M_PI_2) stabilized_attitude_angle = M_PI;
+        else stabilized_attitude_angle = Pout + M_PI_2;
+        throttle = 1;
+      }
+      else
+      {
+        throttle = 0;
+        //autopilot_enabled = false;
+      }
+    }
 
     break;
   }
@@ -227,7 +252,7 @@ void lander::numerical_dynamics()
 // This is the function that performs the numerical integration to update the
 // lander's pose. The time step is delta_t (global variable).
 {
-  //declare old and new potision variables for verlet intergrator
+  //new position variables for verlet intergrator
   vector3d new_position;
 
   switch (parachute_status)
@@ -343,7 +368,7 @@ void initialize_simulation(void)
     mars_lander.set_orientation(vector3d(0.0, 0.0, 0.0));
     mars_lander.stabilized_attitude = false;
     mars_lander.autopilot_enabled = false;
-    mars_lander.autopilot_status = ORBIT_DESCENT;
+    mars_lander.autopilot_status = ORBIT_INJECTION;
     break;
 
   case 4:
