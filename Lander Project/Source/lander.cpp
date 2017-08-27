@@ -16,7 +16,10 @@
 #include "Dynamics.h"
 #include "lander_graphics.h"
 #include "Orbiter class.h"
+#include <fstream>
+#include <iostream>
 
+std::ofstream fout;
 extern lander mars_lander;
 void lander::autopilot(bool reset)
 {
@@ -33,9 +36,10 @@ void lander::autopilot(bool reset)
   static double *transfer_radius = nullptr;
 
   //PID controller for orbital injection
-  double Ki_pid;
-  double Kp_pid;
-  double Kd_pid;
+  constexpr double Kp_pid = 0.8*0.0003;
+  constexpr double Tu_pid = 2000;
+  constexpr double Ti_pid = Tu_pid/1.2;
+  constexpr double Td_pid = Tu_pid/8;
   static double *error_sum = new double(0);
   static double *old_error = new double(0);
   double error_d;
@@ -43,15 +47,18 @@ void lander::autopilot(bool reset)
 
   if (reset)
   {
-    delete burst_complete;
-    burst_complete = nullptr;
+    if (burst_complete != nullptr)
+    {
+      delete burst_complete;
+      burst_complete = nullptr;
+    }
     delete initial_radius;
-    initial_radius = nullptr;
     delete transfer_radius;
-    transfer_radius = nullptr;
     delete error_sum;
-    error_sum = nullptr;
     delete old_error;
+    initial_radius  = nullptr;
+    transfer_radius = nullptr;
+    error_sum = nullptr;
     old_error = nullptr;
     return;
   }
@@ -211,38 +218,41 @@ void lander::autopilot(bool reset)
     if (error_sum == nullptr) error_sum = new double(0);
     if (old_error == nullptr) old_error = new double(0);
     target_velocity = std::sqrt(GRAVITY*MARS_MASS / (*transfer_radius));
-    Kp_pid = 0.001;
-    Ki_pid = 0.00000001;
-    Kd_pid = 0.1;
    
     error = *transfer_radius - position.abs();
     *error_sum += error*delta_t;
     error_d = (error - *old_error) / delta_t;
-    Pout = -Kp_pid*error - Ki_pid*(*error_sum) - Kd_pid*error_d;
+    Pout = -Kp_pid*(error + (*error_sum)/Ti_pid + Td_pid*error_d);
     *old_error = error;
 
-    //if (altitude > 180000)
-    //{
-    //  delta = gravity().abs() / MAX_THRUST;
-    //  if (Pout <= -delta)          throttle = 0;
-    //  else if (Pout >= 1 - delta)  throttle = 1;
-    //  else                         throttle = delta + Pout;
-    //}
-    if (altitude > 180000)
+    if (((velocity - (velocity*position.norm())*position.norm()).abs() < target_velocity) || (position.abs()< *transfer_radius))
     {
-      if ((velocity - (velocity*position.norm())*position.norm()).abs() < target_velocity)
+      if (Pout <= -M_PI_2) stabilized_attitude_angle = 0;
+      else if (Pout >= M_PI_2) stabilized_attitude_angle = M_PI;
+      else stabilized_attitude_angle = Pout + M_PI_2;
+      if (altitude > 180000)  throttle = 1;
+    }
+    else
+    {
+      throttle = 0;
+      if (position.abs() > *transfer_radius)
       {
-        if (Pout <= -M_PI_2) stabilized_attitude_angle = 0;
-        else if (Pout >= M_PI_2) stabilized_attitude_angle = M_PI;
-        else stabilized_attitude_angle = Pout + M_PI_2;
-        throttle = 1;
-      }
-      else
-      {
-        throttle = 0;
+        //autopilot_status = ORBIT_RE_ENTRY;
         //autopilot_enabled = false;
+        delete transfer_radius;
+        delete old_error;
+        delete error_sum;
+        transfer_radius = nullptr;
+        old_error = nullptr;
+        error_sum = nullptr;
       }
     }
+    
+    //if (fout)
+    //{
+    //  fout << simulation_time << " " << altitude << " " << (velocity - (velocity*position.norm())*position.norm()).abs() << "\n";
+    //}
+    //else std::cout << "Could not open file for writing\n";
 
     break;
   }
@@ -363,6 +373,7 @@ void initialize_simulation(void)
 
   case 3:
     // polar surface launch at escape velocity (but drag prevents escape)
+    fout.open("../Data/PID_tuning.txt", std::ios::app);
     mars_lander.set_position(vector3d(0.0, 0.0, MARS_RADIUS + LANDER_SIZE / 2.0));
     mars_lander.set_velocity(vector3d(0.0, 0.0, 5027.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 0.0));
@@ -382,7 +393,6 @@ void initialize_simulation(void)
 
   case 5:
     // a descent from rest at the edge of the exosphere
-    //fout.open("Power_scenerio_5.txt", ios::app);
     mars_lander.set_position(vector3d(0.0, -(MARS_RADIUS + EXOSPHERE), 0.0));
     mars_lander.set_velocity(vector3d(0.0, 0.0, 0.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
