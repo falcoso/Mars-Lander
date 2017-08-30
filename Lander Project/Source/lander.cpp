@@ -265,15 +265,8 @@ void lander::numerical_dynamics()
   //new position variables for verlet intergrator
   vector3d new_position;
 
-  switch (parachute_status)
-  {
-  case(DEPLOYED):
-    acceleration = (gravity() + thrust_wrt_world() + lander_drag() + parachute_drag()) / mass;
-    break;
-  default:
-    acceleration = (gravity() + thrust_wrt_world() + lander_drag()) / mass;
-    break;
-  }
+  if(parachute_status == DEPLOYED)  acceleration = (gravity() + thrust_wrt_world() + lander_drag() + parachute_drag()) / mass;
+  else                              acceleration = (gravity() + thrust_wrt_world() + lander_drag()) / mass;
 
   //so that if the simulation is reset so does the old position
   if (simulation_time == 0.0) old_position = position - delta_t*velocity;
@@ -311,7 +304,6 @@ void lander::numerical_dynamics()
 void initialize_simulation(void)
 // Lander pose initialization - selects one of 10 possible scenarios
 {
-  mars_lander.autopilot(true);
   static double aerostationary_radius = (double)pow((GRAVITY*MARS_MASS*MARS_DAY*MARS_DAY) / (4 * M_PI*M_PI), 0.333333333);
   // The parameters to set are:
   // position - in Cartesian planetary coordinate system (m)
@@ -334,6 +326,8 @@ void initialize_simulation(void)
 
   //reset common parameters
   delta_t = 0.1;
+  mars_lander.autopilot(true);
+  mars_lander.autopilot_enabled = false;
   mars_lander.parachute_status = NOT_DEPLOYED;
   mars_lander.stabilized_attitude_angle = 0;
   mars_lander.autopilot_status = ORBIT_DESCENT;
@@ -344,10 +338,9 @@ void initialize_simulation(void)
   case 0:
     // a circular equatorial orbit
     mars_lander.set_position (vector3d(1.2*MARS_RADIUS, 0.0, 0.0));
-    mars_lander.set_velocity (vector3d(0.0, -pow(GRAVITY*MARS_MASS / (1.2*MARS_RADIUS), 0.5), 0.0));
+    mars_lander.set_velocity (vector3d(0.0, -std::sqrt(GRAVITY*MARS_MASS / (1.2*MARS_RADIUS)), 0.0));
     mars_lander.set_orientation(vector3d(0.0, 90.0, 0.0));
     mars_lander.stabilized_attitude = false;
-    mars_lander.autopilot_enabled = false;
     mars_lander.autopilot_status = ORBIT_RE_ENTRY;
     break;
 
@@ -358,7 +351,6 @@ void initialize_simulation(void)
     mars_lander.set_velocity(vector3d(0.0, 0.0, 0.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     mars_lander.stabilized_attitude = true;
-    mars_lander.autopilot_enabled = false;
     break;
 
   case 2:
@@ -367,7 +359,6 @@ void initialize_simulation(void)
     mars_lander.set_velocity(vector3d(3500.0, 0.0, 0.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     mars_lander.stabilized_attitude = false;
-    mars_lander.autopilot_enabled = false;
     mars_lander.autopilot_status = ORBIT_RE_ENTRY;
     break;
 
@@ -378,7 +369,6 @@ void initialize_simulation(void)
     mars_lander.set_velocity(vector3d(0.0, 0.0, 5027.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 0.0));
     mars_lander.stabilized_attitude = false;
-    mars_lander.autopilot_enabled = false;
     mars_lander.autopilot_status = ORBIT_INJECTION;
     break;
 
@@ -388,7 +378,6 @@ void initialize_simulation(void)
     mars_lander.set_velocity(vector3d(4000.0, 0.0, 0.0));
     mars_lander.set_orientation(vector3d(0.0, 90.0, 0.0));
     mars_lander.stabilized_attitude = false;
-    mars_lander.autopilot_enabled = false;
     break;
 
   case 5:
@@ -397,16 +386,14 @@ void initialize_simulation(void)
     mars_lander.set_velocity(vector3d(0.0, 0.0, 0.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     mars_lander.stabilized_attitude = true;
-    mars_lander.autopilot_enabled = false;
     break;
 
   case 6:
     //orbit above a fixed point on the martian equator
     mars_lander.set_position(vector3d(aerostationary_radius, 0.0, 0.0));
-    mars_lander.set_velocity(vector3d(0.0, pow(GRAVITY*MARS_MASS / aerostationary_radius, 0.5), 0.0));
+    mars_lander.set_velocity(vector3d(0.0, std::sqrt(GRAVITY*MARS_MASS / aerostationary_radius), 0.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     mars_lander.stabilized_attitude = true;
-    mars_lander.autopilot_enabled = false;
     mars_lander.autopilot_status = ORBIT_RE_ENTRY;
     break;
 
@@ -415,7 +402,6 @@ void initialize_simulation(void)
     mars_lander.set_velocity(vector3d(mars_lander.get_planetary_rotation().abs(), 0.0, 0.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     mars_lander.stabilized_attitude = true;
-    mars_lander.autopilot_enabled = false;
     break;
 
   case 8:
@@ -423,7 +409,6 @@ void initialize_simulation(void)
     mars_lander.set_velocity(vector3d(mars_lander.get_planetary_rotation().abs(), 0.0, 0.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     mars_lander.stabilized_attitude = true;
-    mars_lander.autopilot_enabled = false;
     break;
 
   case 9:

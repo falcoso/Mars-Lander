@@ -84,6 +84,7 @@ lander::lander()
   landed   = FALSE;
   position = vector3d{ MARS_RADIUS + 5 ,0,0 };
   velocity = vector3d{ 0,0,0 };
+  polar_velocity = vector3d{ 0,0,0 };
   virt_obj = false;
   fuel     = 1;
   throttle = 0;
@@ -192,7 +193,7 @@ void lander::update_members()
   mass     = UNLOADED_LANDER_MASS + fuel*FUEL_CAPACITY*FUEL_DENSITY;
   altitude = position.abs() - MARS_RADIUS;
   if (fuel < 0) fuel = 0.0;
-  planetary_rotation = pow(pow(position.x, 2) + pow(position.y, 2), 0.5)*(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
+  planetary_rotation = std::sqrt(pow(position.x, 2) + pow(position.y, 2))*(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
   relative_velocity  = velocity - planetary_rotation;
 
   //note originally taken from safe_to_deploy function
@@ -203,6 +204,8 @@ void lander::update_members()
   vector3d av_p = (old_position + position) / 2;
   climb_speed   = velocity*av_p.norm();
   ground_speed  = (relative_velocity - climb_speed*av_p.norm()).abs();
+  polar_velocity.x = climb_speed;
+  polar_velocity.y = (velocity - climb_speed*av_p.norm()).abs();
 
   if (landed || (fuel == 0.0)) throttle = 0.0;
 

@@ -75,6 +75,7 @@ protected:
   double ground_speed;
   double climb_speed;
   vector3d orientation;
+  vector3d polar_velocity;
 };
 #endif
 
