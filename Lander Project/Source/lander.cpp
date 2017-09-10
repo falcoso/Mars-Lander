@@ -36,15 +36,8 @@ void lander::autopilot(bool reset)
   static double *transfer_radius = nullptr;
 
   //PID controller for orbital injection
-  constexpr double Kp_pid = 0.8*0.0003;
-  constexpr double Tu_pid = 2000;
-  constexpr double Ti_pid = Tu_pid/1.2;
-  constexpr double Td_pid = Tu_pid/8;
-  static double *error_sum = new double(0);
-  static double *old_error = new double(0);
-  double error_d;
   constexpr double Kp_v = 1;
-  vector3d Kh_v{ 0.005,0.0005,0 };
+  vector3d Kh_v{ 0.0005, 0.00005,0 };
   constexpr double Ki_v = 0.1;
   constexpr double Kd_v = 0.003;
   vector3d Pout_v{ 0,0,0 };
@@ -64,14 +57,10 @@ void lander::autopilot(bool reset)
     }
     delete initial_radius;
     delete transfer_radius;
-    delete error_sum;
-    delete old_error;
     delete old_error_v;
     delete error_i;
     initial_radius  = nullptr;
     transfer_radius = nullptr;
-    error_sum = nullptr;
-    old_error = nullptr;
     old_error_v = nullptr;
     error_i = nullptr;
     return;
@@ -125,7 +114,7 @@ void lander::autopilot(bool reset)
           << "Fuel level:\t" << fuel * 100 << "%\n"
           << "Descent Speed:\t" << fabs(velocity*position.norm()) << " m/s\n"
           << "***COMMENCE ORBITAL DESCENT***" << std::endl;
-        delete burst_complete;
+        autopilot(reset);
       }
       //arrived at destination radius
       else if (fabs(climb_speed) < 5 && (position.abs() > 0.95*(*transfer_radius) && position.abs() < 1.05*(*transfer_radius)))
@@ -159,12 +148,7 @@ void lander::autopilot(bool reset)
     else
     {
       throttle = 0;
-      delete burst_complete;
-      burst_complete = nullptr;
-      delete initial_radius;
-      initial_radius = nullptr;
-      delete transfer_radius;
-      transfer_radius = nullptr;
+      autopilot(true);
       autopilot_status = ORBIT_RE_ENTRY;
       autopilot_enabled = false;
     }
@@ -229,15 +213,13 @@ void lander::autopilot(bool reset)
     fuel = 1;
     if (transfer_radius == nullptr)  transfer_radius = new double(1.2*MARS_RADIUS);
     else *transfer_radius = 1.2*MARS_RADIUS;
-    if (error_sum == nullptr) error_sum = new double(0);
-    if (old_error == nullptr) old_error = new double(0);
     if (error_i == nullptr) error_i = new vector3d{ 0,0,0 };
     if (old_error_v == nullptr) old_error_v = new vector3d{ 0,0,0 };
 
     target_velocity = std::sqrt(GRAVITY*MARS_MASS / (*transfer_radius));
 
     error_v.x = (*transfer_radius - position.abs())*Kh_v.x - polar_velocity.x;
-    error_v.y = target_velocity + (*transfer_radius - position.abs())*Kh_v.y - polar_velocity.y; //this is the part that seems to lose stability first
+    error_v.y = target_velocity + (*transfer_radius - position.abs())*Kh_v.y - polar_velocity.y; //this is the part that seems to lose stability first when Kp i higher
 
     *error_i += error_v;
 
@@ -249,11 +231,18 @@ void lander::autopilot(bool reset)
     delta_v.y = (gravity()*velocity.norm()*velocity.norm() / MAX_THRUST - delta_v.x*position.norm()).abs();
     Pout_v = Kp_v*error_v + Ki_v*(*error_i) + Kd_v*error_d_v + delta_v;
 
-
-    //std::cout << error_v<< "\t"<< target_velocity << "\n";
+    if(simulation_time > 30000)   std::cout << error_v.y << "\n";
     stabilized_attitude_angle = acos(Pout_v.norm().x);
     if (Pout_v.abs() >= 1)  throttle = 1;
     else                    throttle = Pout_v.abs();
+
+    if (fabs((position.abs() - (*transfer_radius)) / (*transfer_radius)) < 0.001 && fabs((polar_velocity.y - target_velocity) / target_velocity) < 0.000001)
+    {
+      autopilot_enabled = false;
+      autopilot_status  = ORBIT_RE_ENTRY;
+      throttle = 0;
+      autopilot(true);
+    }
     break;
   }
 }
@@ -330,7 +319,7 @@ void initialize_simulation(void)
   mars_lander.autopilot_enabled = false;
   mars_lander.parachute_status = NOT_DEPLOYED;
   mars_lander.stabilized_attitude_angle = 0;
-  mars_lander.autopilot_status = ORBIT_DESCENT;
+  mars_lander.autopilot_status = ORBIT_INJECTION;
   wind_enabled = FALSE;
 
   switch (scenario) {
