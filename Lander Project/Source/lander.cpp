@@ -43,6 +43,16 @@ void lander::autopilot(bool reset)
   static double *error_sum = new double(0);
   static double *old_error = new double(0);
   double error_d;
+  constexpr double Kp_v = 1;
+  vector3d Kh_v{ 0.005,0.0005,0 };
+  constexpr double Ki_v = 0.1;
+  constexpr double Kd_v = 0.003;
+  vector3d Pout_v{ 0,0,0 };
+  vector3d error_v{ 0,0,0, };
+  vector3d error_d_v{ 0,0,0 };
+  vector3d *old_error_v = new vector3d{ 0,0,0 };
+  vector3d *error_i = new vector3d{ 0,0,0 };
+  vector3d delta_v;
 
 
   if (reset)
@@ -56,10 +66,14 @@ void lander::autopilot(bool reset)
     delete transfer_radius;
     delete error_sum;
     delete old_error;
+    delete old_error_v;
+    delete error_i;
     initial_radius  = nullptr;
     transfer_radius = nullptr;
     error_sum = nullptr;
     old_error = nullptr;
+    old_error_v = nullptr;
+    error_i = nullptr;
     return;
   }
 
@@ -217,43 +231,29 @@ void lander::autopilot(bool reset)
     else *transfer_radius = 1.2*MARS_RADIUS;
     if (error_sum == nullptr) error_sum = new double(0);
     if (old_error == nullptr) old_error = new double(0);
+    if (error_i == nullptr) error_i = new vector3d{ 0,0,0 };
+    if (old_error_v == nullptr) old_error_v = new vector3d{ 0,0,0 };
+
     target_velocity = std::sqrt(GRAVITY*MARS_MASS / (*transfer_radius));
-   
-    error = *transfer_radius - position.abs();
-    *error_sum += error*delta_t;
-    error_d = (error - *old_error) / delta_t;
-    Pout = -Kp_pid*(error + (*error_sum)/Ti_pid + Td_pid*error_d);
-    *old_error = error;
 
-    if (((velocity - (velocity*position.norm())*position.norm()).abs() < target_velocity) || (position.abs()< *transfer_radius))
-    {
-      if (Pout <= -M_PI_2) stabilized_attitude_angle = 0;
-      else if (Pout >= M_PI_2) stabilized_attitude_angle = M_PI;
-      else stabilized_attitude_angle = Pout + M_PI_2;
-      if (altitude > 180000)  throttle = 1;
-    }
-    else
-    {
-      throttle = 0;
-      if (position.abs() > *transfer_radius)
-      {
-        //autopilot_status = ORBIT_RE_ENTRY;
-        //autopilot_enabled = false;
-        delete transfer_radius;
-        delete old_error;
-        delete error_sum;
-        transfer_radius = nullptr;
-        old_error = nullptr;
-        error_sum = nullptr;
-      }
-    }
-    
-    //if (fout)
-    //{
-    //  fout << simulation_time << " " << altitude << " " << (velocity - (velocity*position.norm())*position.norm()).abs() << "\n";
-    //}
-    //else std::cout << "Could not open file for writing\n";
+    error_v.x = (*transfer_radius - position.abs())*Kh_v.x - polar_velocity.x;
+    error_v.y = target_velocity + (*transfer_radius - position.abs())*Kh_v.y - polar_velocity.y; //this is the part that seems to lose stability first
 
+    *error_i += error_v;
+
+    error_d_v = (error_v - *old_error_v) / delta_t;
+    *old_error_v = error_v;
+
+    //make sure delta is defined in the same 2D coordinate system by taking the correct components
+    delta_v.x = gravity()*velocity.norm() / MAX_THRUST;
+    delta_v.y = (gravity()*velocity.norm()*velocity.norm() / MAX_THRUST - delta_v.x*position.norm()).abs();
+    Pout_v = Kp_v*error_v + Ki_v*(*error_i) + Kd_v*error_d_v + delta_v;
+
+
+    //std::cout << error_v<< "\t"<< target_velocity << "\n";
+    stabilized_attitude_angle = acos(Pout_v.norm().x);
+    if (Pout_v.abs() >= 1)  throttle = 1;
+    else                    throttle = Pout_v.abs();
     break;
   }
 }
