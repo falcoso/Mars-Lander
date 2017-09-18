@@ -186,7 +186,7 @@ void lander::autopilot(bool reset)
     else                         throttle = delta + Pout;
 
     //in attitude_stabilization() up is set to velocity direction to help remove lateral motion. The specific
-    //stabilised_attitude angle can be calculated with M_PI - acos(position.norm()*velocity.norm())
+    //stabilised_attitude angle can be calculated with M_PI - acos(direction)
 
     //Determine parachute release
     if (parachute_status == NOT_DEPLOYED && altitude < 50000 && safe_to_deploy_parachute) //if lost or already deployed, save processing and skip next

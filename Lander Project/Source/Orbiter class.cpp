@@ -93,6 +93,11 @@ lander::lander()
   return;
 }
 
+lander::~lander() 
+{
+  autopilot(true); //remove all the pointers stored in static variables
+}
+
 void lander::set_virt_obj(bool input) { virt_obj = input; }
 void lander::set_orientation(vector3d input_orientation) { orientation = input_orientation; }
 vector3d lander::get_orientation() { return orientation; }

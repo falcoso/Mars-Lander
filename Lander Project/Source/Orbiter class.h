@@ -55,6 +55,7 @@ public:
   autopilot_t autopilot_status;
 
   lander();
+  ~lander();
   virtual void numerical_dynamics();
   void attitude_stabilization();
   vector3d lander_drag();
