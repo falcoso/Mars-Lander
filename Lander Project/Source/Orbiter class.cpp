@@ -131,7 +131,7 @@ vector3d lander::thrust_wrt_world(void)
     last_time_lag_updated = simulation_time;
   }
     delayed_throttle = throttle;
-  if (stabilized_attitude && (abs(stabilized_attitude_angle) < 1E-7)) { // specific solution, avoids rounding errors in the more general calculation below
+  if (stabilized_attitude && (abs(stabilized_attitude_angle) < 1E-7) && !autopilot_enabled && (autopilot_status != ORBIT_DESCENT)) { // specific solution, avoids rounding errors in the more general calculation below
     b = throttle*MAX_THRUST*position.norm();
   }
   else {

@@ -8,19 +8,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 plt.close("all")
-results = np.loadtxt('./PID_tuning.txt')
+results = np.loadtxt('./Angle_plot.txt')
+
+pout = np.array([j/np.sqrt(j**2+k**2) for i,j,k,l in results])
+
+plt.plot(results[:,0], pout)
+plt.ylim(pout[0],pout.max())
 
 fig, (ax1) = plt.subplots(1)
 ax1.set_xlabel('time (hours)')
-ax1.set_ylabel("altitude (km)")
+ax1.set_ylabel("Attitude Angle (rads)")
 ax1.grid()
-ax1.plot(results[:, 0]/3600, results[:, 1]/1000,  label='altitude (km)')
+ax1.plot(results[:, 0], results[:, 3],  label='attitude angle')
+plt.ylim(ymax = -2.95)
 
 ax2 = plt.twinx(ax1)
-ax2.plot(results[:,0]/3600, results[:,2], "#FF7F0E", label = "angular velocity (m/s)")
-ax2.set_ylabel("Velocity (m/s)")
-plt.xlim(0)
-plt.ylim(0)
+ax2.plot(results[:,0], results[:,1]*1e5, "#FF7F0E", label = "attitude angle")
+#ax2.plot(results[:,0], results[:,2]*1E5, "#2ca02c", label = "attitude angle")
+ax2.set_ylabel("Error 1E-5")
+plt.ylim(1.83,1.85)
+plt.xlim(results[:,0].min(),4100)
 plt.show()
 
-#tu = 0.2
+plt.tight_layout()
+##tu = 0.2

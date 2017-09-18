@@ -25,7 +25,6 @@ void lander::autopilot(bool reset)
 {
   constexpr double ideal_ver = 0.5;
   constexpr double Kp = 1;
-  double direction    = position.norm()*relative_velocity.norm();
   double delta, error, Pout;
   static bool *burst_complete = new bool(false);
 
@@ -37,9 +36,9 @@ void lander::autopilot(bool reset)
 
   //PID controller for orbital injection
   constexpr double Kp_v = 1;
-  vector3d Kh_v{ 0.0005, 0.00005,0 };
-  constexpr double Ki_v = 0.1;
-  constexpr double Kd_v = 0.003;
+  vector3d Kh_v{ 0.005, 0.0005,0 };
+  constexpr double Ki_v = 0;
+  constexpr double Kd_v = 0;
   vector3d Pout_v{ 0,0,0 };
   vector3d error_v{ 0,0,0, };
   vector3d error_d_v{ 0,0,0 };
@@ -50,7 +49,7 @@ void lander::autopilot(bool reset)
 
   if (reset)
   {
-    if (burst_complete != nullptr)
+    if (burst_complete != nullptr) //sometimes throws an error if alraedy a nullptr and you try to delete
     {
       delete burst_complete;
       burst_complete = nullptr;
@@ -178,9 +177,8 @@ void lander::autopilot(bool reset)
     else if (Pout >= 1 - delta)  throttle = 1;
     else                         throttle = delta + Pout;
 
-    //in attitude_stabilization() up is set to velocity direction, though this is still required for it to stay stable???
-    if (velocity*closeup_coords.right < 0) stabilized_attitude_angle = (float)(M_PI + acos(direction));
-    else                                   stabilized_attitude_angle = (float)(M_PI - acos(direction));
+    //in attitude_stabilization() up is set to velocity direction to help remove lateral motion. The specific
+    //stabilised_attitude angle can be calculated with M_PI - acos(position.norm()*velocity.norm())
 
     //Determine parachute release
     if (parachute_status == NOT_DEPLOYED && altitude < 50000 && safe_to_deploy_parachute) //if lost or already deployed, save processing and skip next
@@ -211,8 +209,13 @@ void lander::autopilot(bool reset)
     break;
   case ORBIT_INJECTION:
     fuel = 1;
-    if (transfer_radius == nullptr)  transfer_radius = new double(1.2*MARS_RADIUS);
-    else *transfer_radius = 1.2*MARS_RADIUS;
+    if (transfer_radius == nullptr)
+    {
+      transfer_radius = new double(1.2*MARS_RADIUS);
+      //std::cout << "Input transfer radius as multiple of Mars' radius (Exosphere = 1.059, Aerostationary = 6.03356):" << std::endl;
+      //std::cin >> *transfer_radius;
+      //*transfer_radius *= MARS_RADIUS;
+    }
     if (error_i == nullptr) error_i = new vector3d{ 0,0,0 };
     if (old_error_v == nullptr) old_error_v = new vector3d{ 0,0,0 };
 
@@ -231,18 +234,18 @@ void lander::autopilot(bool reset)
     delta_v.y = (gravity()*velocity.norm()*velocity.norm() / MAX_THRUST - delta_v.x*position.norm()).abs();
     Pout_v = Kp_v*error_v + Ki_v*(*error_i) + Kd_v*error_d_v + delta_v;
 
-    if(simulation_time > 30000)   std::cout << error_v.y << "\n";
-    stabilized_attitude_angle = acos(Pout_v.norm().x);
+    stabilized_attitude_angle = -acos(Pout_v.norm().x); //negative to work with the atmospher rotation rather than against it for launch not from pole
     if (Pout_v.abs() >= 1)  throttle = 1;
     else                    throttle = Pout_v.abs();
 
-    if (fabs((position.abs() - (*transfer_radius)) / (*transfer_radius)) < 0.001 && fabs((polar_velocity.y - target_velocity) / target_velocity) < 0.000001)
-    {
-      autopilot_enabled = false;
-      autopilot_status  = ORBIT_RE_ENTRY;
-      throttle = 0;
-      autopilot(true);
-    }
+    if(simulation_time > 3500)   fout << simulation_time << " " << error_v.x << " " << error_v.y << " " << stabilized_attitude_angle << "\n";
+    //if (fabs((position.abs() - (*transfer_radius)) / (*transfer_radius)) < 0.001 && fabs((polar_velocity.y - target_velocity) / target_velocity) < 0.000001)
+    //{
+    //  autopilot_enabled = false;
+    //  autopilot_status  = ORBIT_RE_ENTRY;
+    //  throttle = 0;
+    //  autopilot(true);
+    //}
     break;
   }
 }
@@ -319,7 +322,7 @@ void initialize_simulation(void)
   mars_lander.autopilot_enabled = false;
   mars_lander.parachute_status = NOT_DEPLOYED;
   mars_lander.stabilized_attitude_angle = 0;
-  mars_lander.autopilot_status = ORBIT_INJECTION;
+  mars_lander.autopilot_status = ORBIT_DESCENT;
   wind_enabled = FALSE;
 
   switch (scenario) {
@@ -353,7 +356,7 @@ void initialize_simulation(void)
 
   case 3:
     // polar surface launch at escape velocity (but drag prevents escape)
-    fout.open("../Data/PID_tuning.txt", std::ios::app);
+    fout.open("../Data/Angle_plot.txt", std::ios::app);
     mars_lander.set_position(vector3d(0.0, 0.0, MARS_RADIUS + LANDER_SIZE / 2.0));
     mars_lander.set_velocity(vector3d(0.0, 0.0, 5027.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 0.0));
