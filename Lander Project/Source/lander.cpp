@@ -19,12 +19,13 @@
 #include <fstream>
 #include <iostream>
 
-std::ofstream fout;
+//std::ofstream fout;
 extern lander mars_lander;
 void lander::autopilot(bool reset)
 {
   constexpr double ideal_ver = 0.5;
   constexpr double Kp = 1;
+  double direction = position.norm()*velocity.norm();
   double delta, error, Pout;
   static bool *burst_complete = new bool(false);
 
@@ -82,7 +83,10 @@ void lander::autopilot(bool reset)
     //check to see if lander is at perigee or apogee of new orbit
     if (*transfer_radius < *initial_radius && !*burst_complete) //at apogee
     {
-      stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
+      //check based on the direction relative to the window as if coming from ORBITAL_INJECTIOn it may go the wrong way
+      if (velocity*closeup_coords.right > 0 ) stabilized_attitude_angle = (float)(acos(direction) + M_PI);
+      else                                    stabilized_attitude_angle = (float)(-acos(direction) + M_PI);
+
       target_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*(*transfer_radius)) / ((*initial_radius)*((*transfer_radius) + (*initial_radius))));
       if ((velocity - (velocity*position.norm())*position.norm()).abs() > target_velocity && !*burst_complete) throttle = 1;
       else
@@ -93,7 +97,9 @@ void lander::autopilot(bool reset)
     }
     else if (*transfer_radius > *initial_radius && !*burst_complete) //at perigee
     {
-      stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()));
+      if (velocity*closeup_coords.right > 0) stabilized_attitude_angle = (float)(acos(direction));
+      else                                   stabilized_attitude_angle = (float)(-acos(direction));
+
       target_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*(*transfer_radius)) / ((*initial_radius)*((*transfer_radius) + (*initial_radius))));
       if ((velocity - (velocity*position.norm())*position.norm()).abs() < target_velocity && !*burst_complete)  throttle = 1;
       else
@@ -133,13 +139,15 @@ void lander::autopilot(bool reset)
     target_velocity = std::sqrt(GRAVITY*MARS_MASS / *transfer_radius);
     if (*transfer_radius < *initial_radius && !*burst_complete)
     {
-      stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()) + M_PI);
+      if (velocity*closeup_coords.right > 0) stabilized_attitude_angle = (float)(acos(direction) + M_PI);
+      else                                   stabilized_attitude_angle = (float)(-acos(direction) + M_PI);
       if ((velocity - (velocity*position.norm())*position.norm()).abs() > target_velocity) throttle = 1;
       else { *burst_complete = true;        throttle = 0; }
     }
     else if (*transfer_radius > *initial_radius && !*burst_complete)
     {
-      stabilized_attitude_angle = (float)(acos(position.norm()*relative_velocity.norm()));
+      if (velocity*closeup_coords.right > 0) stabilized_attitude_angle = (float)(acos(direction));
+      else                                   stabilized_attitude_angle = (float)(-acos(direction));
       if ((velocity - (velocity*position.norm())*position.norm()).abs() < target_velocity) throttle = 1;
       else { *burst_complete = true;        throttle = 0; }
     }
@@ -147,8 +155,8 @@ void lander::autopilot(bool reset)
     else
     {
       throttle = 0;
-      autopilot(true);
-      autopilot_status = ORBIT_RE_ENTRY;
+      autopilot(true); //reset autopilot
+      autopilot_status = ORBIT_RE_ENTRY; //allow further transfers
       autopilot_enabled = false;
     }
     break;
@@ -238,14 +246,14 @@ void lander::autopilot(bool reset)
     if (Pout_v.abs() >= 1)  throttle = 1;
     else                    throttle = Pout_v.abs();
 
-    if(simulation_time > 3500)   fout << simulation_time << " " << error_v.x << " " << error_v.y << " " << stabilized_attitude_angle << "\n";
-    //if (fabs((position.abs() - (*transfer_radius)) / (*transfer_radius)) < 0.001 && fabs((polar_velocity.y - target_velocity) / target_velocity) < 0.000001)
-    //{
-    //  autopilot_enabled = false;
-    //  autopilot_status  = ORBIT_RE_ENTRY;
-    //  throttle = 0;
-    //  autopilot(true);
-    //}
+    //if(simulation_time > 3500)   fout << simulation_time << " " << error_v.x << " " << error_v.y << " " << stabilized_attitude_angle << "\n";
+    if (fabs((position.abs() - (*transfer_radius)) / (*transfer_radius)) < 0.001 && fabs((polar_velocity.y - target_velocity) / target_velocity) < 0.000001)
+    {
+      autopilot_enabled = false;
+      autopilot_status  = ORBIT_RE_ENTRY; //allow further transfers
+      throttle = 0;
+      autopilot(true); //reset autopilot 
+    }
     break;
   }
 }
@@ -320,9 +328,9 @@ void initialize_simulation(void)
   delta_t = 0.1;
   mars_lander.autopilot(true);
   mars_lander.autopilot_enabled = false;
-  mars_lander.parachute_status = NOT_DEPLOYED;
+  mars_lander.parachute_status  = NOT_DEPLOYED;
+  mars_lander.autopilot_status  = ORBIT_DESCENT;
   mars_lander.stabilized_attitude_angle = 0;
-  mars_lander.autopilot_status = ORBIT_DESCENT;
   wind_enabled = FALSE;
 
   switch (scenario) {
@@ -356,7 +364,7 @@ void initialize_simulation(void)
 
   case 3:
     // polar surface launch at escape velocity (but drag prevents escape)
-    fout.open("../Data/Angle_plot.txt", std::ios::app);
+    //fout.open("../Data/Angle_plot.txt", std::ios::app);
     mars_lander.set_position(vector3d(0.0, 0.0, MARS_RADIUS + LANDER_SIZE / 2.0));
     mars_lander.set_velocity(vector3d(0.0, 0.0, 5027.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 0.0));
@@ -391,14 +399,14 @@ void initialize_simulation(void)
 
   case 7:
     mars_lander.set_position(vector3d(0.0, -(MARS_RADIUS + 10000.0), 0.0));
-    mars_lander.set_velocity(vector3d(mars_lander.get_planetary_rotation().abs(), 0.0, 0.0));
+    mars_lander.set_velocity(mars_lander.get_planetary_rotation());
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     mars_lander.stabilized_attitude = true;
     break;
 
   case 8:
     mars_lander.set_position(vector3d(0.0, -(MARS_RADIUS + EXOSPHERE), 0.0));
-    mars_lander.set_velocity(vector3d(mars_lander.get_planetary_rotation().abs(), 0.0, 0.0));
+    mars_lander.set_velocity(mars_lander.get_planetary_rotation());
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     mars_lander.stabilized_attitude = true;
     break;
