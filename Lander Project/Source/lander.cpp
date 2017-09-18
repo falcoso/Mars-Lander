@@ -88,7 +88,7 @@ void lander::autopilot(bool reset)
       else                                    stabilized_attitude_angle = (float)(-acos(direction) + M_PI);
 
       target_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*(*transfer_radius)) / ((*initial_radius)*((*transfer_radius) + (*initial_radius))));
-      if ((velocity - (velocity*position.norm())*position.norm()).abs() > target_velocity && !*burst_complete) throttle = 1;
+      if (polar_velocity.y > target_velocity && !*burst_complete) throttle = 1;
       else
       {
         *burst_complete = true;
@@ -101,7 +101,7 @@ void lander::autopilot(bool reset)
       else                                   stabilized_attitude_angle = (float)(-acos(direction));
 
       target_velocity = std::sqrt((2 * GRAVITY*MARS_MASS*(*transfer_radius)) / ((*initial_radius)*((*transfer_radius) + (*initial_radius))));
-      if ((velocity - (velocity*position.norm())*position.norm()).abs() < target_velocity && !*burst_complete)  throttle = 1;
+      if (polar_velocity.y < target_velocity && !*burst_complete)  throttle = 1;
       else
       {
         *burst_complete = true;
@@ -141,14 +141,14 @@ void lander::autopilot(bool reset)
     {
       if (velocity*closeup_coords.right > 0) stabilized_attitude_angle = (float)(acos(direction) + M_PI);
       else                                   stabilized_attitude_angle = (float)(-acos(direction) + M_PI);
-      if ((velocity - (velocity*position.norm())*position.norm()).abs() > target_velocity) throttle = 1;
+      if (polar_velocity.y > target_velocity) throttle = 1;
       else { *burst_complete = true;        throttle = 0; }
     }
     else if (*transfer_radius > *initial_radius && !*burst_complete)
     {
       if (velocity*closeup_coords.right > 0) stabilized_attitude_angle = (float)(acos(direction));
       else                                   stabilized_attitude_angle = (float)(-acos(direction));
-      if ((velocity - (velocity*position.norm())*position.norm()).abs() < target_velocity) throttle = 1;
+      if (polar_velocity.y < target_velocity) throttle = 1;
       else { *burst_complete = true;        throttle = 0; }
     }
 
