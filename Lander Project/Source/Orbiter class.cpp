@@ -37,12 +37,7 @@ vector3d orbiter::get_relative_velocity()  { return relative_velocity; }
 double orbiter::get_altitude()   { return altitude; }
 double orbiter::get_mass()       { return mass; }
 
-void orbiter::set_position(vector3d input_pos) 
-{ 
-  position = input_pos; 
-  planetary_rotation = (pow(pow(position.x, 2) + pow(position.y, 2), 0.5))
-    *(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
-}
+void orbiter::set_position(vector3d input_pos) { position = input_pos; }
 void orbiter::set_velocity(vector3d input_vel) { velocity = input_vel; }
 void orbiter::set_altitude(double input_alt)   { altitude = input_alt; }
 
@@ -68,8 +63,7 @@ void orbiter::update_members()
 {
   altitude           = position.abs() - MARS_RADIUS;
   acceleration       = gravity() / mass;
-  planetary_rotation = (pow(pow(position.x, 2) + pow(position.y, 2), 0.5))
-                      *(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
+  planetary_rotation = std::sqrt(pow(position.x, 2) + pow(position.y, 2))*(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
   relative_velocity  = velocity - planetary_rotation;
 }
 
