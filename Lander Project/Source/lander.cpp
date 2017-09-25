@@ -36,7 +36,7 @@ void lander::autopilot(bool reset)
   static double *transfer_radius = nullptr;
 
   //PID controller for ORBITAL_INJECTION
-  constexpr double Kp_v = 0.001;
+  constexpr double Kp_v = 0.1;
   vector3d Kh_v{ 0.005, 0.0005,0 };
   vector3d Pout_v{ 0,0,0 };
   vector3d error_v{ 0,0,0, };
@@ -236,7 +236,6 @@ void lander::autopilot(bool reset)
       autopilot_enabled = false;
       autopilot_status  = ORBIT_RE_ENTRY; //allow further transfers
       throttle = 0;
-      std::cout << simulation_time << "\n";
       autopilot(true); //reset autopilot 
     }
 

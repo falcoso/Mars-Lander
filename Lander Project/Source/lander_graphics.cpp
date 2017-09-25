@@ -1992,7 +1992,8 @@ void glut_key(unsigned char k, int x, int y)
 
   case 'd': case 'D':
     //set autopilot mode
-    mars_lander.autopilot_status = ORBIT_DESCENT;
+    if (mars_lander.autopilot_status == ORBIT_INJECTION)  mars_lander.autopilot_status = ORBIT_DESCENT;
+    else if (mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.autopilot_status = ORBIT_INJECTION;
     break;
 
   case 'r': case 'R':
