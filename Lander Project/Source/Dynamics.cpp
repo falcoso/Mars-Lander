@@ -10,8 +10,8 @@
 extern lander mars_lander;
 double wind(const lander &mars_lander)
 {
-  constexpr double average_speed = 10; //(m/s)
-  std::normal_distribution<double> distribution(average_speed, 1.0);
+  constexpr double average_speed = 20; //(m/s)
+  std::normal_distribution<double> distribution(average_speed, 5.0);
   std::default_random_engine generator((int)mars_lander.timer);
   return wind_enabled*distribution(generator);
 

@@ -2005,6 +2005,7 @@ void glut_key(unsigned char k, int x, int y)
   case 'w': case 'W':
     //toggle wind
     wind_enabled = !wind_enabled;
+    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
     break;
 
   case 'm': case 'M':

@@ -187,7 +187,7 @@ void lander::autopilot(bool reset)
       {
         std::cout << "***PARACHUTE SUCCESSFULLY OPENED***\n"
           << "Altitude:\t" << altitude << " m\n"
-          << "Descent Speed:\t" << fabs(velocity*position.norm()) << " m/s" << std::endl;
+          << "Descent Speed:\t" << -velocity*position.norm() << " m/s" << std::endl;
       }
     }
     else if (parachute_status == DEPLOYED && altitude < 1000) //reduce drag at lower level
@@ -199,7 +199,7 @@ void lander::autopilot(bool reset)
         {
           std::cout << "***PARACHUTE EJECTED TO REDUCE GROUND SPEED***\n"
             << "Altitude:\t" << altitude << "m\n"
-            << "Descent Speed:\t" << velocity*position.norm() << "m/s" << std::endl;
+            << "Descent Speed:\t" << -velocity*position.norm() << "m/s" << std::endl;
         }
       }
     }
