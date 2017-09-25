@@ -63,7 +63,7 @@ double kh_tuner(const lander *mars_lander, const bool mode)
     virt_lander.numerical_dynamics();
     virt_lander.attitude_stabilization();
     virt_lander.autopilot();
-    timer += delta_t;
+    virt_lander.timer += delta_t;
     if (virt_lander.get_altitude() <= 0.5)
     {
       if (mode)
@@ -83,13 +83,12 @@ double kh_tuner(const lander *mars_lander, const bool mode)
       
       if ((Kh_upper - Kh_lower) / Kh_upper < 0.01) break;
       //reset loop
-      timer = 0;
       virt_lander = *mars_lander;
       virt_lander.set_virt_obj(true);
       virt_lander.Kh = (Kh_upper + Kh_lower) / 2;
     }
 
-    if (timer > 1500)
+    if (virt_lander.timer - simulation_time > 1500)
     {
       std::cout << "Tuner timed out\n";
       return 0.0; //add time out

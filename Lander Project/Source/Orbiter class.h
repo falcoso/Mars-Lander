@@ -53,6 +53,11 @@ public:
   bool safe_to_deploy_parachute;
   parachute_status_t parachute_status;
   autopilot_t autopilot_status;
+  double timer;
+
+  double *throttle_buffer;
+  unsigned long throttle_buffer_length;
+  unsigned long throttle_buffer_pointer;
 
   lander();
   ~lander();

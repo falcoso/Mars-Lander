@@ -83,6 +83,11 @@ lander::lander()
   fuel     = 1;
   throttle = 0;
   mass     = 0;
+  timer = simulation_time;
+
+  throttle_buffer = nullptr;
+  throttle_buffer_length = 0;
+  throttle_buffer_pointer = 0;
   update_members();
   return;
 }
@@ -90,6 +95,8 @@ lander::lander()
 lander::~lander() 
 {
   autopilot(true); //remove all the pointers stored in static variables
+  delete throttle_buffer;
+  throttle_buffer = nullptr;
 }
 
 void lander::set_virt_obj(bool input) { virt_obj = input; }
@@ -106,15 +113,16 @@ vector3d lander::thrust_wrt_world(void)
   static double lagged_throttle = 0.0;
   static double last_time_lag_updated = -1.0;
 
-  //if (simulation_time < last_time_lag_updated) lagged_throttle = 0.0; // simulation restarted
+  if (timer < last_time_lag_updated) lagged_throttle = 0.0; // simulation restarted
   if (throttle < 0.0) throttle = 0.0;
   if (throttle > 1.0) throttle = 1.0;
   if (landed || (fuel == 0.0)) throttle = 0.0;
 
-  if (simulation_time != last_time_lag_updated) 
+  if (timer != last_time_lag_updated) 
   {
     // Delayed throttle value from the throttle history buffer
-    if (throttle_buffer_length > 0) {
+    if (throttle_buffer_length > 0) 
+    {
       delayed_throttle = throttle_buffer[throttle_buffer_pointer];
       throttle_buffer[throttle_buffer_pointer] = throttle;
       throttle_buffer_pointer = (throttle_buffer_pointer + 1) % throttle_buffer_length;
@@ -126,21 +134,19 @@ vector3d lander::thrust_wrt_world(void)
     else k = pow(exp(-1.0), delta_t / lag);
     lagged_throttle = k*lagged_throttle + (1.0 - k)*delayed_throttle;
 
-
-    last_time_lag_updated = simulation_time;
+    last_time_lag_updated = timer;
   }
-    delayed_throttle = throttle;
+  lagged_throttle = throttle;
   if (stabilized_attitude && (abs(stabilized_attitude_angle) < 1E-7) && !autopilot_enabled && (autopilot_status != ORBIT_DESCENT)) { // specific solution, avoids rounding errors in the more general calculation below
-    b = throttle*MAX_THRUST*position.norm();
+    b = lagged_throttle*MAX_THRUST*position.norm();
   }
   else {
-    a.x = 0.0; a.y = 0.0; a.z = throttle*MAX_THRUST;
+    a.x = 0.0; a.y = 0.0; a.z = lagged_throttle*MAX_THRUST;
     xyz_euler_to_matrix(orientation, m);
     b.x = m[0] * a.x + m[4] * a.y + m[8] * a.z;
     b.y = m[1] * a.x + m[5] * a.y + m[9] * a.z;
     b.z = m[2] * a.x + m[6] * a.y + m[10] * a.z;
   }
-  
   return b;
 }
 
@@ -205,6 +211,8 @@ void lander::update_members()
   ground_speed  = (relative_velocity - climb_speed*av_p.norm()).abs();
   polar_velocity.x = climb_speed;
   polar_velocity.y = (velocity - climb_speed*av_p.norm()).abs();
+
+  if (!virt_obj) timer = simulation_time;
 
   if (landed || (fuel == 0.0)) throttle = 0.0;
 

@@ -1648,13 +1648,13 @@ void reset_simulation(void)
   update_closeup_coords();
 
   // Initialize the throttle history buffer
-  if (delta_t > 0.0) throttle_buffer_length = (unsigned long)(ENGINE_DELAY / delta_t + 0.5);
-  else throttle_buffer_length = 0;
-  if (throttle_buffer_length > 0) {
-    if (throttle_buffer != NULL) delete[] throttle_buffer;
-    throttle_buffer = new double[throttle_buffer_length];
-    for (i = 0; i<throttle_buffer_length; i++) throttle_buffer[i] = mars_lander.throttle;
-    throttle_buffer_pointer = 0;
+  if (delta_t > 0.0) mars_lander.throttle_buffer_length = (unsigned long)(ENGINE_DELAY / delta_t + 0.5);
+  else mars_lander.throttle_buffer_length = 0;
+  if (mars_lander.throttle_buffer_length > 0) {
+    if (mars_lander.throttle_buffer != NULL) delete[] mars_lander.throttle_buffer;
+    mars_lander.throttle_buffer = new double[mars_lander.throttle_buffer_length];
+    for (i = 0; i<mars_lander.throttle_buffer_length; i++) mars_lander.throttle_buffer[i] = mars_lander.throttle;
+    mars_lander.throttle_buffer_pointer = 0;
   }
 
   // Reset GLUT state

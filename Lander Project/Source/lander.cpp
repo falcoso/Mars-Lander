@@ -316,7 +316,6 @@ void initialize_simulation(void)
   mars_lander.parachute_status  = NOT_DEPLOYED;
   mars_lander.autopilot_status  = ORBIT_DESCENT;
   mars_lander.stabilized_attitude_angle = 0;
-  wind_enabled = false;
 
   switch (scenario) {
 
