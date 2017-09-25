@@ -35,35 +35,25 @@ void lander::autopilot(bool reset)
   double target_velocity;
   static double *transfer_radius = nullptr;
 
-  //PID controller for orbital injection
-  constexpr double Kp_v = 1;
+  //PID controller for ORBITAL_INJECTION
+  constexpr double Kp_v = 0.001;
   vector3d Kh_v{ 0.005, 0.0005,0 };
-  //Kh_v *= 0.1;
-  constexpr double Ki_v = 0.0000001;
-  constexpr double Kd_v = 0.001;
   vector3d Pout_v{ 0,0,0 };
   vector3d error_v{ 0,0,0, };
-  vector3d error_d_v{ 0,0,0 };
-  vector3d *old_error_v = new vector3d{ 0,0,0 };
-  vector3d *error_i = new vector3d{ 0,0,0 };
   vector3d delta_v;
 
 
   if (reset)
   {
-    if (burst_complete != nullptr) //sometimes throws an error if alraedy a nullptr and you try to delete
+    if (burst_complete != nullptr) //sometimes throws an error if already a nullptr and you try to delete
     {
       delete burst_complete;
       burst_complete = nullptr;
     }
     delete initial_radius;
     delete transfer_radius;
-    delete old_error_v;
-    delete error_i;
     initial_radius  = nullptr;
     transfer_radius = nullptr;
-    old_error_v = nullptr;
-    error_i = nullptr;
     return;
   }
 
@@ -156,9 +146,7 @@ void lander::autopilot(bool reset)
     else
     {
       throttle = 0;
-      //autopilot(true); //reset autopilot
-      autopilot_status = ORBIT_INJECTION; //allow further transfers
-      //autopilot_enabled = false;
+      autopilot_status = ORBIT_INJECTION; //tighten up orbit
     }
     break;
 
@@ -225,23 +213,15 @@ void lander::autopilot(bool reset)
       std::cin >> *transfer_radius;
       *transfer_radius *= MARS_RADIUS;
     }
-    if (error_i == nullptr) error_i = new vector3d{ 0,0,0 };
-    if (old_error_v == nullptr) old_error_v = new vector3d{ 0,0,0 };
-
     target_velocity = std::sqrt(GRAVITY*MARS_MASS / (*transfer_radius));
 
     error_v.x = (*transfer_radius - position.abs())*Kh_v.x - polar_velocity.x;
     error_v.y = target_velocity + (*transfer_radius - position.abs())*Kh_v.y - polar_velocity.y; //this is the part that seems to lose stability first when Kp i higher
 
-    *error_i += error_v;
-
-    error_d_v = (error_v - *old_error_v) / delta_t;
-    *old_error_v = error_v;
-
     //make sure delta is defined in the same 2D coordinate system by taking the correct components
     delta_v.x = gravity()*velocity.norm() / MAX_THRUST;
     delta_v.y = (gravity()*velocity.norm()*velocity.norm() / MAX_THRUST - delta_v.x*position.norm()).abs();
-    Pout_v = Kp_v*error_v + Ki_v*(*error_i) + Kd_v*error_d_v + delta_v;
+    Pout_v = Kp_v*error_v + delta_v;
 
     stabilized_attitude_angle = -acos(Pout_v.norm().x); //negative to work with the atmosphere rotation rather than against it for launch not from pole
     
@@ -256,6 +236,7 @@ void lander::autopilot(bool reset)
       autopilot_enabled = false;
       autopilot_status  = ORBIT_RE_ENTRY; //allow further transfers
       throttle = 0;
+      std::cout << simulation_time << "\n";
       autopilot(true); //reset autopilot 
     }
 
@@ -336,7 +317,7 @@ void initialize_simulation(void)
   mars_lander.parachute_status  = NOT_DEPLOYED;
   mars_lander.autopilot_status  = ORBIT_DESCENT;
   mars_lander.stabilized_attitude_angle = 0;
-  wind_enabled = FALSE;
+  wind_enabled = false;
 
   switch (scenario) {
 
