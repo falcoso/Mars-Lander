@@ -1928,7 +1928,7 @@ void glut_key(unsigned char k, int x, int y)
   case 'a': case 'A':
     // a or A - autopilot
     if (!mars_lander.landed) mars_lander.autopilot_enabled = !mars_lander.autopilot_enabled;
-    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(&mars_lander, tuning_mode);
+    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
     if (paused) refresh_all_subwindows();
     break;
 
@@ -1999,7 +1999,7 @@ void glut_key(unsigned char k, int x, int y)
   case 'r': case 'R':
     //remove parachute from autopilot
     mars_lander.parachute_status = LOST;
-    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(&mars_lander, tuning_mode);
+    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
     break;
 
   case 'w': case 'W':
@@ -2010,7 +2010,7 @@ void glut_key(unsigned char k, int x, int y)
   case 'm': case 'M':
     //toggle tuning mode true is fuel efficiency, false is soft landing
     tuning_mode = !tuning_mode;
-    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(&mars_lander, tuning_mode);
+    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
     break;
 
   case 32:

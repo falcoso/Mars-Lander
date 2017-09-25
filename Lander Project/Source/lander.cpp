@@ -104,7 +104,7 @@ void lander::autopilot(bool reset)
       if (altitude < EXOSPHERE) //if within atmosphere, lander will crash so autopilot must prepare
       {
         autopilot_status = ORBIT_DESCENT;
-        Kh = kh_tuner(this, tuning_mode);
+        Kh = kh_tuner(*this, tuning_mode);
         stabilized_attitude_angle = 0;
         std::cout << "***ORBITAL RE-ENTRY COMPLETE***\n"
           << "Fuel level:\t" << fuel * 100 << "%\n"
@@ -192,7 +192,7 @@ void lander::autopilot(bool reset)
     }
     else if (parachute_status == DEPLOYED && altitude < 1000) //reduce drag at lower level
     {
-      if (ground_speed < abs(1.1*wind()) && wind() > 20)
+      if (ground_speed < abs(1.1*wind(*this)) && wind(*this) > 20)
       {
         parachute_status = LOST;
         if (!virt_obj)
@@ -249,7 +249,6 @@ void lander::numerical_dynamics()
 {
   //new position variables for verlet intergrator
   vector3d new_position;
-
   if(parachute_status == DEPLOYED)  acceleration = (gravity() + thrust_wrt_world() + lander_drag() + parachute_drag()) / mass;
   else                              acceleration = (gravity() + thrust_wrt_world() + lander_drag()) / mass;
 

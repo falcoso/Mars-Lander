@@ -8,11 +8,11 @@
 #include "Dynamics.h"
 
 extern lander mars_lander;
-double wind()
+double wind(const lander &mars_lander)
 {
-  constexpr double average_speed = -5; //(m/s)
-  std::normal_distribution<double> distribution(average_speed, 100.0);
-  std::default_random_engine generator;
+  constexpr double average_speed = 10; //(m/s)
+  std::normal_distribution<double> distribution(average_speed, 1.0);
+  std::default_random_engine generator((int)mars_lander.timer);
   return wind_enabled*distribution(generator);
 
 }
@@ -27,23 +27,23 @@ double wind()
 //calculates the drag on the lander returning a Force vector
 vector3d lander::parachute_drag(void)
 {
-  vector3d rotation = planetary_rotation + wind()*planetary_rotation.norm();
+  vector3d rotation = planetary_rotation + wind(*this)*planetary_rotation.norm();
   return -0.5*atmospheric_density(position)*DRAG_COEF_CHUTE*5.0*2.0*LANDER_SIZE*2.0*LANDER_SIZE*(velocity - rotation).abs()*(velocity - rotation);
 }
 
 vector3d lander::lander_drag(void)
 {
-  vector3d rotation = planetary_rotation + wind()*planetary_rotation.norm();
+  vector3d rotation = planetary_rotation + wind(*this)*planetary_rotation.norm();
   return -0.5*front_facing_area*atmospheric_density(position)*(DRAG_COEF_LANDER)*(velocity - rotation).abs()*(velocity - rotation);
 }
 
 //calculates gravity on the lander returning a Force vector
 vector3d orbiter::gravity() { return -(GRAVITY*MARS_MASS*mass / position.abs2())*position.norm(); }
 
-double kh_tuner(const lander *mars_lander, const bool mode)
+double kh_tuner(const lander &mars_lander, const bool mode)
 {
   double timer = 0;
-  lander virt_lander = *mars_lander;
+  lander virt_lander = mars_lander;
   virt_lander.set_virt_obj(true);
   double Kh_upper;
   double Kh_lower;
@@ -83,7 +83,7 @@ double kh_tuner(const lander *mars_lander, const bool mode)
       
       if ((Kh_upper - Kh_lower) / Kh_upper < 0.01) break;
       //reset loop
-      virt_lander = *mars_lander;
+      virt_lander = mars_lander;
       virt_lander.set_virt_obj(true);
       virt_lander.Kh = (Kh_upper + Kh_lower) / 2;
     }
