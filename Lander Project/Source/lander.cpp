@@ -383,6 +383,7 @@ void initialize_simulation(void)
 
   case 7:
     mars_lander.set_position(vector3d(0.0, -(MARS_RADIUS + 10000.0), 0.0));
+    mars_lander.update_members();
     mars_lander.set_velocity(mars_lander.get_planetary_rotation());
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     mars_lander.stabilized_attitude = true;
@@ -390,6 +391,7 @@ void initialize_simulation(void)
 
   case 8:
     mars_lander.set_position(vector3d(0.0, -(MARS_RADIUS + EXOSPHERE), 0.0));
+    mars_lander.update_members();
     mars_lander.set_velocity(mars_lander.get_planetary_rotation());
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
     mars_lander.stabilized_attitude = true;
