@@ -38,8 +38,9 @@ void lander::autopilot(bool reset)
   //PID controller for orbital injection
   constexpr double Kp_v = 1;
   vector3d Kh_v{ 0.005, 0.0005,0 };
-  constexpr double Ki_v = 0;
-  constexpr double Kd_v = 0;
+  //Kh_v *= 0.1;
+  constexpr double Ki_v = 0.0000001;
+  constexpr double Kd_v = 0.001;
   vector3d Pout_v{ 0,0,0 };
   vector3d error_v{ 0,0,0, };
   vector3d error_d_v{ 0,0,0 };
@@ -155,9 +156,9 @@ void lander::autopilot(bool reset)
     else
     {
       throttle = 0;
-      autopilot(true); //reset autopilot
-      autopilot_status = ORBIT_RE_ENTRY; //allow further transfers
-      autopilot_enabled = false;
+      //autopilot(true); //reset autopilot
+      autopilot_status = ORBIT_INJECTION; //allow further transfers
+      //autopilot_enabled = false;
     }
     break;
 
@@ -219,10 +220,10 @@ void lander::autopilot(bool reset)
     fuel = 1;
     if (transfer_radius == nullptr)
     {
-      transfer_radius = new double(1.2*MARS_RADIUS);
-      //std::cout << "Input transfer radius as multiple of Mars' radius (Exosphere = 1.059, Aerostationary = 6.03356):" << std::endl;
-      //std::cin >> *transfer_radius;
-      //*transfer_radius *= MARS_RADIUS;
+      transfer_radius = new double;
+      std::cout << "Input transfer radius as multiple of Mars' radius (Exosphere = 1.059, Aerostationary = 6.03356):" << std::endl;
+      std::cin >> *transfer_radius;
+      *transfer_radius *= MARS_RADIUS;
     }
     if (error_i == nullptr) error_i = new vector3d{ 0,0,0 };
     if (old_error_v == nullptr) old_error_v = new vector3d{ 0,0,0 };
@@ -242,11 +243,14 @@ void lander::autopilot(bool reset)
     delta_v.y = (gravity()*velocity.norm()*velocity.norm() / MAX_THRUST - delta_v.x*position.norm()).abs();
     Pout_v = Kp_v*error_v + Ki_v*(*error_i) + Kd_v*error_d_v + delta_v;
 
-    stabilized_attitude_angle = -acos(Pout_v.norm().x); //negative to work with the atmospher rotation rather than against it for launch not from pole
+    stabilized_attitude_angle = -acos(Pout_v.norm().x); //negative to work with the atmosphere rotation rather than against it for launch not from pole
+    
+    if (Pout_v.y < 0) stabilized_attitude_angle *= -1; //to slow down the lander if the ground speed is going too fast by pointing it in the other direction
+    if (velocity*closeup_coords.right > 0 && simulation_time > 100) stabilized_attitude_angle *= -1;  //to apply correction relative to the direction of motion
+    
     if (Pout_v.abs() >= 1)  throttle = 1;
     else                    throttle = Pout_v.abs();
 
-    //if(simulation_time > 3500)   fout << simulation_time << " " << error_v.x << " " << error_v.y << " " << stabilized_attitude_angle << "\n";
     if (fabs((position.abs() - (*transfer_radius)) / (*transfer_radius)) < 0.001 && fabs((polar_velocity.y - target_velocity) / target_velocity) < 0.000001)
     {
       autopilot_enabled = false;
@@ -254,6 +258,7 @@ void lander::autopilot(bool reset)
       throttle = 0;
       autopilot(true); //reset autopilot 
     }
+
     break;
   }
 }
