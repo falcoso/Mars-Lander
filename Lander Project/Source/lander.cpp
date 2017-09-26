@@ -192,7 +192,7 @@ void lander::autopilot(bool reset)
     }
     else if (parachute_status == DEPLOYED && altitude < 1000) //reduce drag at lower level
     {
-      if (ground_speed < abs(1.1*wind(*this)) && wind(*this) > 20)
+      if (ground_speed < fabs(1.1*wind(*this)) && fabs(wind(*this)) > 20)
       {
         parachute_status = LOST;
         if (!virt_obj)

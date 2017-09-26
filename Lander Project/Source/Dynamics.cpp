@@ -11,8 +11,8 @@ extern lander mars_lander;
 double wind(const lander &mars_lander)
 {
   constexpr double average_speed = -10; //(m/s)
-  std::normal_distribution<double> distribution(average_speed, 5.0);
-  std::default_random_engine generator((int)mars_lander.timer);
+  std::normal_distribution<double> distribution(average_speed, 10.0);
+  std::default_random_engine generator(mars_lander.timer);
   return wind_enabled*distribution(generator);
 
 }
@@ -42,6 +42,7 @@ vector3d orbiter::gravity() { return -(GRAVITY*MARS_MASS*mass / position.abs2())
 
 double kh_tuner(const lander &mars_lander, const bool mode)
 {
+  // mode 1 = fuel efficiency     mode 0 = soft landing
   double timer = 0;
   lander virt_lander = mars_lander;
   virt_lander.set_virt_obj(true);
@@ -64,6 +65,7 @@ double kh_tuner(const lander &mars_lander, const bool mode)
     virt_lander.attitude_stabilization();
     virt_lander.autopilot();
     virt_lander.timer += delta_t;
+
     if (virt_lander.get_altitude() <= 0.5)
     {
       if (mode)
@@ -81,7 +83,7 @@ double kh_tuner(const lander &mars_lander, const bool mode)
         else Kh_upper = virt_lander.Kh;
       }
       
-      if ((Kh_upper - Kh_lower) / Kh_upper < 0.01) break;
+      if ((Kh_upper - Kh_lower) / Kh_upper < 0.05) break;
       //reset loop
       virt_lander = mars_lander;
       virt_lander.set_virt_obj(true);
