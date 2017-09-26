@@ -37,7 +37,9 @@
 
 #Folders
 Lander\ Project/Debug/*
+Lander\ Project/Release/*
 Lander\ Project/Lander/Debug/*
+Lander\ Project/Lander/Release/*
 .vs
 
 # End of https://www.gitignore.io/api/c++

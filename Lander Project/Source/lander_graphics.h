@@ -27,8 +27,6 @@ bool static_lighting = false;
 closeup_coords_t closeup_coords;
 float randtab[N_RAND];
 bool do_texture = true;
-unsigned long throttle_buffer_length, throttle_buffer_pointer;
-double *throttle_buffer = NULL;
 unsigned long long time_program_started;
 
 // Lander state - the visualization routines use velocity_from_positions, so not sensitive to 

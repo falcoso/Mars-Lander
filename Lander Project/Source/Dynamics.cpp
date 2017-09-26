@@ -35,6 +35,7 @@ vector3d orbiter::gravity() { return -(GRAVITY*MARS_MASS*mass / position.abs2())
 
 double kh_tuner(const lander &mars_lander, const bool mode)
 {
+  if (delay_enabled || lag_enabled) return 0.018;
   // mode 1 = fuel efficiency     mode 0 = soft landing
   double timer = 0;
 
@@ -84,7 +85,7 @@ double kh_tuner(const lander &mars_lander, const bool mode)
         else Kh_upper = virt_lander.Kh;
       }
       
-      if ((Kh_upper - Kh_lower) / Kh_upper < 0.001) break;
+      if ((Kh_upper - Kh_lower) / Kh_upper < 0.1) break;
       //reset loop
       virt_lander = mars_lander;
       virt_lander.set_virt_obj(true);

@@ -51,6 +51,22 @@ void lander::autopilot(bool reset)
     return;
   }
 
+  //predict future positions
+  vector3d temp_position = position;
+  vector3d temp_velocity = velocity;
+  vector3d acceleration;
+
+  if (ENGINE_LAG != 0.0 && lag_enabled)
+  {
+    for (double i = 0.0; i <= ENGINE_LAG; i += delta_t)
+    {
+      acceleration = (gravity() + thrust_wrt_world() + lander_drag()) / mass;
+      if (parachute_status == DEPLOYED)  acceleration += parachute_drag() / mass;
+      position += delta_t*velocity;
+      velocity += delta_t*acceleration;
+    }
+  }
+
   switch (autopilot_status)
   {
   case ORBIT_RE_ENTRY:
@@ -228,6 +244,8 @@ void lander::autopilot(bool reset)
     }
     break;
   }
+  position = temp_position;
+  velocity = temp_velocity;
 }
 
 void lander::numerical_dynamics()
