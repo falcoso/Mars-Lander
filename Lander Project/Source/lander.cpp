@@ -62,8 +62,8 @@ void lander::autopilot(bool reset)
     {
       acceleration = (gravity() + thrust_wrt_world() + lander_drag()) / mass;
       if (parachute_status == DEPLOYED)  acceleration += parachute_drag() / mass;
-      position += delta_t*velocity;
       velocity += delta_t*acceleration;
+      position += delta_t*velocity;
     }
   }
 
@@ -127,20 +127,17 @@ void lander::autopilot(bool reset)
 
   case TRANSFER_ORBIT:
     fuel = 1;
-
     target_velocity = std::sqrt(GRAVITY*MARS_MASS / *transfer_radius);
-    if (!*burst_complete)
+    if (velocity*closeup_coords.right > 0) stabilized_attitude_angle = (float)(acos(direction));
+    else                                   stabilized_attitude_angle = (float)(-acos(direction));
+    if (*transfer_radius < *initial_radius && !*burst_complete)
     {
-      if (velocity*closeup_coords.right > 0) stabilized_attitude_angle = (float)(acos(direction));
-      else                                   stabilized_attitude_angle = (float)(-acos(direction));
-
-      if (*transfer_radius > *initial_radius) //going to perigee
-      {
-        polar_velocity.y *= -1;
-        target_velocity *= -1;
-      }
-      else stabilized_attitude_angle += M_PI; //going to apogee
-
+      stabilized_attitude_angle += M_PI;
+      if (polar_velocity.y > target_velocity) throttle = 1;
+      else { *burst_complete = true;        throttle = 0; }
+    }
+    else if (*transfer_radius > *initial_radius && !*burst_complete)
+    {
       if (polar_velocity.y < target_velocity) throttle = 1;
       else *burst_complete = true;
     }

@@ -35,7 +35,7 @@ vector3d orbiter::gravity() { return -(GRAVITY*MARS_MASS*mass / position.abs2())
 
 double kh_tuner(const lander &mars_lander, const bool mode)
 {
-  if (delay_enabled || lag_enabled) return 0.018;
+  if (delay_enabled || lag_enabled) return 0.017;
   // mode 1 = fuel efficiency     mode 0 = soft landing
   double timer = 0;
 
