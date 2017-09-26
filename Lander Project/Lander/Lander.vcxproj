@@ -145,13 +145,13 @@
     <ClCompile Include="..\Source\Dynamics.cpp" />
     <ClCompile Include="..\Source\lander.cpp" />
     <ClCompile Include="..\Source\lander_graphics.cpp" />
-    <ClCompile Include="..\Source\Orbiter class.cpp" />
+    <ClCompile Include="..\Source\orbiter_class.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\Dynamics.h" />
     <ClInclude Include="..\Source\lander.h" />
     <ClInclude Include="..\Source\lander_graphics.h" />
-    <ClInclude Include="..\Source\Orbiter class.h" />
+    <ClInclude Include="..\Source\orbiter_class.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

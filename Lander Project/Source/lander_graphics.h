@@ -1,7 +1,7 @@
 #ifndef LANDER_GRAPHICS
 #define LANDER_GRAPHICS
 #include "lander.h"
-#include "Orbiter class.h"
+#include "orbiter_class.h"
 
 #ifdef DECLARE_GLOBAL_VARIABLES
 // GL windows and objects

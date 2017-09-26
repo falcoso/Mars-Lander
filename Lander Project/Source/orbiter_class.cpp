@@ -1,6 +1,6 @@
 #include "lander.h"
-#include "Dynamics.h"
-#include "Orbiter class.h"
+#include "dynamics.h"
+#include "orbiter_class.h"
 #include "lander_graphics.h"
 
 void orbiter::numerical_dynamics()

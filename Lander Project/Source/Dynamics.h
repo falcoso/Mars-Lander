@@ -1,7 +1,7 @@
 #ifndef DYNAMICS
 #define DYNAMICS
 #include "lander.h"
-#include "Orbiter class.h"
+#include "orbiter_class.h"
 //calcualtes the wind speed on the lander based on a normal distribution
 double wind(const lander &mars_lander);
 

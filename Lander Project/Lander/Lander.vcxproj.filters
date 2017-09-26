@@ -27,7 +27,7 @@
     <ClCompile Include="..\Source\Dynamics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Orbiter class.cpp">
+    <ClCompile Include="..\Source\orbiter_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,10 +38,10 @@
     <ClInclude Include="..\Source\Dynamics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Orbiter class.h">
+    <ClInclude Include="..\Source\lander_graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\lander_graphics.h">
+    <ClInclude Include="..\Source\orbiter_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

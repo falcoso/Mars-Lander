@@ -76,8 +76,8 @@
 
 #define DECLARE_GLOBAL_VARIABLES
 #include "lander.h"
-#include "Dynamics.h"
 #include "lander_graphics.h"
+#include "dynamics.h"
 
 void invert(double m[], double mout[])
 // Inverts a 4x4 OpenGL rotation matrix
@@ -1992,8 +1992,16 @@ void glut_key(unsigned char k, int x, int y)
 
   case 'd': case 'D':
     //set autopilot mode
-    if (mars_lander.autopilot_status == ORBIT_INJECTION)  mars_lander.autopilot_status = ORBIT_DESCENT;
-    else if (mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.autopilot_status = ORBIT_INJECTION;
+    if (mars_lander.autopilot_status == ORBIT_INJECTION)
+    {
+      mars_lander.autopilot_status = ORBIT_DESCENT;
+      if (mars_lander.autopilot_enabled) kh_tuner(mars_lander, tuning_mode);
+    }
+    else if (mars_lander.autopilot_status == ORBIT_DESCENT)
+    {
+      mars_lander.autopilot(true); //so if it switches back it will require a new radius
+      mars_lander.autopilot_status = ORBIT_INJECTION;
+    }
     break;
 
   case 'r': case 'R':

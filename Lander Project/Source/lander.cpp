@@ -13,9 +13,9 @@
 // ahg@eng.cam.ac.uk and gc121@eng.cam.ac.uk.
 
 #include "lander.h"
-#include "Dynamics.h"
+#include "dynamics.h"
 #include "lander_graphics.h"
-#include "Orbiter class.h"
+#include "orbiter_class.h"
 
 extern lander mars_lander;
 void lander::autopilot(bool reset)
