@@ -1,6 +1,4 @@
 /* Functions to calculate the Dynamics on an object*/
-#ifndef DYNAMICS
-#define DYNAMICS
 #include "lander.h"
 #include "lander_graphics.h"
 #include <random>
@@ -11,29 +9,24 @@ extern lander mars_lander;
 double wind(const lander &mars_lander)
 {
   constexpr double average_speed = -10; //(m/s)
-  std::normal_distribution<double> distribution(average_speed, 10.0);
+  std::normal_distribution<double> distribution(average_speed, 5.0);
   std::default_random_engine generator(mars_lander.timer);
-  return wind_enabled*distribution(generator);
+  double wind_speed = distribution(generator);
+  if (fabs((wind_speed - average_speed) / average_speed) < 0.3 || fabs(wind_speed-average_speed) < 5) wind_speed = average_speed;
+  return wind_enabled*wind_speed;
 
 }
-
-//vector3d fluid_rotation(void)
-//{
-//  double fluid_motion = ((MARS_RADIUS * 2 * M_PI) / MARS_DAY) - ((MARS_RADIUS * 2 * M_PI) / (EXOSPHERE*MARS_DAY))*(position.abs() - MARS_RADIUS);
-//  vector3d tangential = { -position.norm().y, position.norm().x, 0 };
-//  return tangential*fluid_motion;
-//}
 
 //calculates the drag on the lander returning a Force vector
 vector3d lander::parachute_drag(void)
 {
-  vector3d rotation = planetary_rotation + wind(*this)*planetary_rotation.norm();
+  vector3d rotation = atmosphere_rotation + wind(*this)*planetary_rotation.norm();
   return -0.5*atmospheric_density(position)*DRAG_COEF_CHUTE*5.0*2.0*LANDER_SIZE*2.0*LANDER_SIZE*(velocity - rotation).abs()*(velocity - rotation);
 }
 
 vector3d lander::lander_drag(void)
 {
-  vector3d rotation = planetary_rotation + wind(*this)*planetary_rotation.norm();
+  vector3d rotation = atmosphere_rotation + wind(*this)*planetary_rotation.norm();
   return -0.5*front_facing_area*atmospheric_density(position)*(DRAG_COEF_LANDER)*(velocity - rotation).abs()*(velocity - rotation);
 }
 
@@ -83,7 +76,7 @@ double kh_tuner(const lander &mars_lander, const bool mode)
         else Kh_upper = virt_lander.Kh;
       }
       
-      if ((Kh_upper - Kh_lower) / Kh_upper < 0.05) break;
+      if ((Kh_upper - Kh_lower) / Kh_upper < 0.001) break;
       //reset loop
       virt_lander = mars_lander;
       virt_lander.set_virt_obj(true);
@@ -108,4 +101,3 @@ double kh_tuner(const lander &mars_lander, const bool mode)
     return Kh_upper; //to ensure it does actually land
   }
 }
-#endif

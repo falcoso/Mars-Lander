@@ -82,6 +82,7 @@ protected:
   double climb_speed;
   vector3d orientation;
   vector3d polar_velocity;
+  vector3d atmosphere_rotation;
 };
 #endif
 

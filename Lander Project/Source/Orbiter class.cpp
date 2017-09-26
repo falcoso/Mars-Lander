@@ -201,11 +201,12 @@ void lander::update_members()
   planetary_rotation = std::sqrt(pow(position.x, 2) + pow(position.y, 2))*(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
   relative_velocity  = velocity - planetary_rotation;
 
+  atmosphere_rotation = planetary_rotation*(1 - altitude / EXOSPHERE);
+
   //note originally taken from safe_to_deploy function
   if (parachute_drag().abs() > MAX_PARACHUTE_DRAG || (velocity.abs() > MAX_PARACHUTE_SPEED && (altitude < EXOSPHERE))) safe_to_deploy_parachute = false;
   else safe_to_deploy_parachute = true;
 
-  //originally average of current and old position used
   vector3d av_p = (old_position + position) / 2;
   climb_speed   = velocity*av_p.norm();
   ground_speed  = (relative_velocity - climb_speed*av_p.norm()).abs();
