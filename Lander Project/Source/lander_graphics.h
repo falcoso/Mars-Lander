@@ -35,6 +35,8 @@ unsigned long long time_program_started;
 // any errors in the velocity update in numerical_dynamics
 bool wind_enabled;
 bool tuning_mode = true;
+bool lag_enabled = false;
+bool delay_enabled = false;
 lander mars_lander;
 
 // Orbital and closeup view parameters

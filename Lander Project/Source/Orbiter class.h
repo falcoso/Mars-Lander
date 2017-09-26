@@ -83,6 +83,10 @@ protected:
   vector3d orientation;
   vector3d polar_velocity;
   vector3d atmosphere_rotation;
+
+  //for thrust_wrt_world
+  double last_time_lag_updated;
+  double lagged_throttle;
 };
 #endif
 

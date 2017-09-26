@@ -37,6 +37,14 @@ double kh_tuner(const lander &mars_lander, const bool mode)
 {
   // mode 1 = fuel efficiency     mode 0 = soft landing
   double timer = 0;
+
+  //save copy of buffer to restore afterwards
+  double *temp_buffer = new double[mars_lander.throttle_buffer_length];
+  for (int i = 0; i < mars_lander.throttle_buffer_length; i++)
+  {
+    temp_buffer[i] = mars_lander.throttle_buffer[i];
+  }
+
   lander virt_lander = mars_lander;
   virt_lander.set_virt_obj(true);
   double Kh_upper;
@@ -89,6 +97,14 @@ double kh_tuner(const lander &mars_lander, const bool mode)
       return 0.0; //add time out
     }
   }
+  //reset buffer
+  for (int i = 0; i < mars_lander.throttle_buffer_length; i++)
+  {
+    virt_lander.throttle_buffer[i] = temp_buffer[i];
+  }
+  delete temp_buffer;
+  temp_buffer = nullptr;
+
   //to ensure it does actually land return the value within the safe bounds
   if (mode)
   {

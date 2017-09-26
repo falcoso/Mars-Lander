@@ -16,8 +16,6 @@
 #include "Dynamics.h"
 #include "lander_graphics.h"
 #include "Orbiter class.h"
-#include <fstream>
-#include <iostream>
 
 extern lander mars_lander;
 void lander::autopilot(bool reset)

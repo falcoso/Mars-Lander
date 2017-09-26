@@ -82,8 +82,8 @@
 #define FUEL_DENSITY 1.0 // (kg/l)
 // MAX_THRUST, as defined below, is 1.5 * weight of fully loaded lander at surface
 #define MAX_THRUST (1.5 * (FUEL_DENSITY*FUEL_CAPACITY+UNLOADED_LANDER_MASS) * (GRAVITY*MARS_MASS/(MARS_RADIUS*MARS_RADIUS))) // (N)
-#define ENGINE_LAG 0.0 // (s)
-#define ENGINE_DELAY 0.0 // (s)
+#define ENGINE_LAG 5.0 // (s)
+#define ENGINE_DELAY 10.0 // (s)
 #define DRAG_COEF_CHUTE 2.0
 #define DRAG_COEF_LANDER 1.0
 #define MAX_PARACHUTE_DRAG 20000.0 // (N)
@@ -145,7 +145,7 @@ enum intergrator_t {VERLET = 0, EULER = 1};
 enum autopilot_t {ORBIT_RE_ENTRY, ORBIT_DESCENT, ORBIT_INJECTION, HOVER, TRANSFER_ORBIT};
 
 
-extern bool wind_enabled, tuning_mode;
+extern bool wind_enabled, tuning_mode, lag_enabled, delay_enabled;
 extern double delta_t, simulation_time;
 extern unsigned short scenario;
 extern std::string scenario_description[];

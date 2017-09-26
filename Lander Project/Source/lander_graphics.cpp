@@ -2014,6 +2014,18 @@ void glut_key(unsigned char k, int x, int y)
     if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
     break;
 
+  case 'c': case 'C':
+    //toggle log
+    lag_enabled = !lag_enabled;
+    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
+    break;
+
+  case 'v': case 'V':
+    //toggle delay
+    delay_enabled = !delay_enabled;
+    if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
+    break;
+
   case 32:
     // space bar
     simulation_speed = 0;

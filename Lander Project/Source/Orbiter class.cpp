@@ -88,6 +88,8 @@ lander::lander()
   throttle_buffer = nullptr;
   throttle_buffer_length = 0;
   throttle_buffer_pointer = 0;
+  last_time_lag_updated = -1.0;
+  lagged_throttle = 0;
   update_members();
   return;
 }
@@ -95,8 +97,12 @@ lander::lander()
 lander::~lander() 
 {
   autopilot(true); //remove all the pointers stored in static variables
-  delete throttle_buffer;
-  throttle_buffer = nullptr;
+  //to stop access violation if returning from tuning function, only delete pointer if actual used object
+  if (!virt_obj)
+  {
+    delete throttle_buffer;
+    throttle_buffer = nullptr;
+  }
 }
 
 void lander::set_virt_obj(bool input) { virt_obj = input; }
@@ -107,22 +113,20 @@ double lander::get_ground_speed()  { return ground_speed; }
 
 vector3d lander::thrust_wrt_world(void)
 // Works out thrust vector in the world reference frame, given the lander's orientation
+// Works out thrust vector in the world reference frame, given the lander's orientation
 {
-  double m[16], k, delayed_throttle, lag = ENGINE_LAG;
+  double m[16], k, delayed_throttle, lag = ENGINE_LAG*lag_enabled;
   vector3d a, b;
-  static double lagged_throttle = 0.0;
-  static double last_time_lag_updated = -1.0;
 
   if (timer < last_time_lag_updated) lagged_throttle = 0.0; // simulation restarted
   if (throttle < 0.0) throttle = 0.0;
   if (throttle > 1.0) throttle = 1.0;
   if (landed || (fuel == 0.0)) throttle = 0.0;
 
-  if (timer != last_time_lag_updated) 
-  {
+  if (timer != last_time_lag_updated) {
+
     // Delayed throttle value from the throttle history buffer
-    if (throttle_buffer_length > 0) 
-    {
+    if (throttle_buffer_length > 0 && delay_enabled) {
       delayed_throttle = throttle_buffer[throttle_buffer_pointer];
       throttle_buffer[throttle_buffer_pointer] = throttle;
       throttle_buffer_pointer = (throttle_buffer_pointer + 1) % throttle_buffer_length;
@@ -136,7 +140,7 @@ vector3d lander::thrust_wrt_world(void)
 
     last_time_lag_updated = timer;
   }
-  lagged_throttle = throttle;
+
   if (stabilized_attitude && (abs(stabilized_attitude_angle) < 1E-7) && !autopilot_enabled && (autopilot_status != ORBIT_DESCENT)) { // specific solution, avoids rounding errors in the more general calculation below
     b = lagged_throttle*MAX_THRUST*position.norm();
   }
@@ -160,7 +164,7 @@ void lander::attitude_stabilization(void)
   {
     up = -relative_velocity.norm();
   }
-  else if (abs(stabilized_attitude_angle) < 1E-7) //skip expensive calculations if aproximately 0
+  else if (abs(stabilized_attitude_angle) < 1E-5) //skip expensive calculations if aproximately 0
   {
     up = position.norm();
   }
@@ -183,10 +187,10 @@ void lander::attitude_stabilization(void)
   left = left.norm();
   out = left^up;
   // Construct modelling matrix (rotation only) from these three vectors
-  m[0] = out.x; m[1] = out.y; m[2] = out.z; m[3] = 0.0;
+  m[0] = out.x;  m[1] = out.y;  m[2] = out.z;  m[3] = 0.0;
   m[4] = left.x; m[5] = left.y; m[6] = left.z; m[7] = 0.0;
-  m[8] = up.x; m[9] = up.y; m[10] = up.z; m[11] = 0.0;
-  m[12] = 0.0; m[13] = 0.0; m[14] = 0.0; m[15] = 1.0;
+  m[8] = up.x;   m[9] = up.y;   m[10] = up.z;  m[11] = 0.0;
+  m[12] = 0.0;   m[13] = 0.0;   m[14] = 0.0;   m[15] = 1.0;
   // Decomponse into xyz Euler angles
   orientation = matrix_to_xyz_euler(m);
   return;
