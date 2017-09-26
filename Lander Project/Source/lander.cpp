@@ -19,17 +19,17 @@
 #include <fstream>
 #include <iostream>
 
-//std::ofstream fout;
 extern lander mars_lander;
 void lander::autopilot(bool reset)
 {
+  //constants for ORBIT_DESCENT
   constexpr double ideal_ver = 0.5;
   constexpr double Kp = 1;
-  double direction = position.norm()*velocity.norm();
   double delta, error, Pout;
-  static bool *burst_complete = new bool(false);
 
-  //constants for TRANSFER_ORBIT
+  //constants for TRANSFER_ORBIT and ORBIT_RE_ENTRY
+  static bool *burst_complete = new bool(false);
+  double direction = position.norm()*velocity.norm();
   double transfer_impulse_time;
   static double *initial_radius = new double(position.abs());
   double target_velocity;
@@ -130,8 +130,11 @@ void lander::autopilot(bool reset)
     target_velocity = std::sqrt(GRAVITY*MARS_MASS / *transfer_radius);
     if (*transfer_radius < *initial_radius && !*burst_complete)
     {
+      //ensure that the lander is rotated appropriately based on direction of motion
       if (velocity*closeup_coords.right > 0) stabilized_attitude_angle = (float)(acos(direction) + M_PI);
       else                                   stabilized_attitude_angle = (float)(-acos(direction) + M_PI);
+
+      //burst to slow down to circular orbit velocity
       if (polar_velocity.y > target_velocity) throttle = 1;
       else { *burst_complete = true;        throttle = 0; }
     }
@@ -143,11 +146,7 @@ void lander::autopilot(bool reset)
       else { *burst_complete = true;        throttle = 0; }
     }
 
-    else
-    {
-      throttle = 0;
-      autopilot_status = ORBIT_INJECTION; //tighten up orbit
-    }
+    else autopilot_status = ORBIT_INJECTION; //tighten up orbit
     break;
 
   case ORBIT_DESCENT:
@@ -164,7 +163,7 @@ void lander::autopilot(bool reset)
     Scenario 3  Kh = 0.01812  Fuel Used = 59.1        Kh = 0.01625
     Scenario 5  Kh = 0.01898  Fuel Used = 57.1        Kh = 0.01675
     */
-    delta = gravity().abs() / MAX_THRUST; // - drag()*gravity(lander_mass).norm() considering drag as part of the thrus seems to make fuel efficiency worse
+    delta = gravity().abs() / MAX_THRUST; //considering drag as part of the thrus seems to make fuel efficiency worse
 
     error = -(ideal_ver + Kh*altitude + climb_speed);
     Pout  = Kp*error;
@@ -178,10 +177,8 @@ void lander::autopilot(bool reset)
     //stabilised_attitude angle can be calculated with M_PI - acos(direction)
 
     //Determine parachute release
-    if (parachute_status == NOT_DEPLOYED && altitude < 50000 && safe_to_deploy_parachute) //if lost or already deployed, save processing and skip next
+    if (parachute_status == NOT_DEPLOYED && altitude < 50000 && safe_to_deploy_parachute)
     {
-      //must always be safe to deploy and falling towards mars, as well as either, cause correct deceleration 
-      //to not break or already have the throttle engaged, which will assist in braking
       parachute_status = DEPLOYED;
       if (!virt_obj)
       {
@@ -204,6 +201,7 @@ void lander::autopilot(bool reset)
       }
     }
     break;
+
   case ORBIT_INJECTION:
     fuel = 1;
     if (transfer_radius == nullptr)
@@ -216,7 +214,7 @@ void lander::autopilot(bool reset)
     target_velocity = std::sqrt(GRAVITY*MARS_MASS / (*transfer_radius));
 
     error_v.x = (*transfer_radius - position.abs())*Kh_v.x - polar_velocity.x;
-    error_v.y = target_velocity + (*transfer_radius - position.abs())*Kh_v.y - polar_velocity.y; //this is the part that seems to lose stability first when Kp i higher
+    error_v.y = target_velocity + (*transfer_radius - position.abs())*Kh_v.y - polar_velocity.y;
 
     //make sure delta is defined in the same 2D coordinate system by taking the correct components
     delta_v.x = gravity()*velocity.norm() / MAX_THRUST;
@@ -238,7 +236,6 @@ void lander::autopilot(bool reset)
       throttle = 0;
       autopilot(true); //reset autopilot 
     }
-
     break;
   }
 }
@@ -249,8 +246,9 @@ void lander::numerical_dynamics()
 {
   //new position variables for verlet intergrator
   vector3d new_position;
-  if(parachute_status == DEPLOYED)  acceleration = (gravity() + thrust_wrt_world() + lander_drag() + parachute_drag()) / mass;
-  else                              acceleration = (gravity() + thrust_wrt_world() + lander_drag()) / mass;
+  
+  acceleration = (gravity() + thrust_wrt_world() + lander_drag()) / mass;
+  if (parachute_status == DEPLOYED)  acceleration += parachute_drag() / mass;
 
   //so that if the simulation is reset so does the old position
   if (simulation_time == 0.0) old_position = position - delta_t*velocity;
@@ -258,6 +256,7 @@ void lander::numerical_dynamics()
   switch (intergrator) //switch based on intergration method chosen
   {
   case VERLET:
+    //note old_position is already initialised in lander class to be an Euler timestep before
     new_position = 2 * position - old_position + delta_t*delta_t*acceleration;
     velocity = (new_position - position)/delta_t;
     //shift along positions
@@ -270,6 +269,7 @@ void lander::numerical_dynamics()
     break;
   }
 
+  //update fuel, altitude and other derived quantities
   update_members();
 
   // Here we can apply 3-axis stabilization to ensure the base is always pointing downwards
@@ -279,7 +279,7 @@ void lander::numerical_dynamics()
   if (autopilot_enabled)
   {
     if (Kh == 0) Kh = 0.018;
-    stabilized_attitude = 1;
+    stabilized_attitude = true;
     autopilot();
   }
   return;
@@ -329,7 +329,6 @@ void initialize_simulation(void)
 
   case 1:
     // a descent from rest at 10km altitude
-    //fout.open("Power_scenerio_1.txt", ios::app);
     mars_lander.set_position(vector3d(0.0, -(MARS_RADIUS + 10000.0), 0.0));
     mars_lander.set_velocity(vector3d(0.0, 0.0, 0.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
@@ -347,7 +346,6 @@ void initialize_simulation(void)
 
   case 3:
     // polar surface launch at escape velocity (but drag prevents escape)
-    //fout.open("../Data/Angle_plot.txt", std::ios::app);
     mars_lander.set_position(vector3d(0.0, 0.0, MARS_RADIUS + LANDER_SIZE / 2.0));
     mars_lander.set_velocity(vector3d(0.0, 0.0, 5027.0));
     mars_lander.set_orientation(vector3d(0.0, 0.0, 0.0));
