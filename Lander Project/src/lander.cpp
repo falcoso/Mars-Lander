@@ -28,7 +28,7 @@ void lander::autopilot(bool reset)
 	//constants for TRANSFER_ORBIT and ORBIT_RE_ENTRY
 	static bool *burst_complete = new bool(false);
 	double direction = position.norm()*velocity.norm();
-	double transfer_impulse_time;
+	// double transfer_impulse_time;
 	static double *initial_radius = new double(position.abs());
 	double target_velocity;
 	static double *transfer_radius = nullptr;
@@ -250,6 +250,9 @@ void lander::autopilot(bool reset)
 				throttle = 0;
 				autopilot(true); //reset autopilot 
 			}
+			break;
+			
+		case HOVER: 
 			break;
 	}
 	position = temp_position;

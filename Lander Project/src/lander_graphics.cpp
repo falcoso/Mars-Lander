@@ -1111,16 +1111,21 @@ void update_closeup_coords(void)
 
 	// Adjust the terrain texture angle if the lander has changed direction. The motion will still be along
 	// the x-axis, so we need to rotate the texture to compensate.
-	if (closeup_coords.initialized) {
-		if (closeup_coords.backwards) {
+	if (closeup_coords.initialized) 
+	{
+		if (closeup_coords.backwards) 
+		{
 			tmp = -closeup_coords.right*t;
-			if (tmp > 1.0) tmp = 1.0; if (tmp < -1.0) tmp = -1.0;
+			if (tmp > 1.0) tmp = 1.0; 
+			if (tmp < -1.0) tmp = -1.0;
 			if ((-closeup_coords.right^t)*mars_lander.get_position().norm() < 0.0) terrain_angle += (180.0 / M_PI)*acos(tmp);
 			else terrain_angle -= (180.0 / M_PI)*acos(tmp);
 		}
-		else {
+		else 
+		{
 			tmp = closeup_coords.right*t;
-			if (tmp > 1.0) tmp = 1.0; if (tmp < -1.0) tmp = -1.0;
+			if (tmp > 1.0) tmp = 1.0; 
+			if (tmp < -1.0) tmp = -1.0;
 			if ((closeup_coords.right^t)*mars_lander.get_position().norm() < 0.0) terrain_angle += (180.0 / M_PI)*acos(tmp);
 			else terrain_angle -= (180.0 / M_PI)*acos(tmp);
 		}
