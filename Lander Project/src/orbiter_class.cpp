@@ -28,6 +28,9 @@ void orbiter::numerical_dynamics()
 	return;
 }
 
+//calculates gravity on the lander returning a Force vector
+vector3d orbiter::gravity() { return -(GRAVITY*MARS_MASS*mass / position.abs2())*position.norm(); }
+
 vector3d orbiter::get_position() { return position; }
 
 vector3d orbiter::get_old_position() { return old_position; }
@@ -73,6 +76,9 @@ void orbiter::update_members()
 	planetary_rotation = std::sqrt(pow(position.x, 2) + pow(position.y, 2))*(2 * M_PI / MARS_DAY)*vector3d { -position.norm().y, position.norm().x, 0 };
 	relative_velocity  = velocity - planetary_rotation;
 }
+
+
+
 
 //===========================================================================================================
 
@@ -167,6 +173,19 @@ vector3d lander::thrust_wrt_world(void)
 		b.z = m[2] * a.x + m[6] * a.y + m[10] * a.z;
 	}
 	return b;
+}
+
+//calculates the drag on the lander returning a Force vector
+vector3d lander::parachute_drag(void)
+{
+	vector3d rotation = atmosphere_rotation + wind(*this)*planetary_rotation.norm();
+	return -0.5*atmospheric_density(position)*DRAG_COEF_CHUTE*5.0*2.0*LANDER_SIZE*2.0*LANDER_SIZE*(velocity - rotation).abs()*(velocity - rotation);
+}
+
+vector3d lander::lander_drag(void)
+{
+	vector3d rotation = atmosphere_rotation + wind(*this)*planetary_rotation.norm();
+	return -0.5*front_facing_area*atmospheric_density(position)*(DRAG_COEF_LANDER)*(velocity - rotation).abs()*(velocity - rotation);
 }
 
 void lander::attitude_stabilization(void)

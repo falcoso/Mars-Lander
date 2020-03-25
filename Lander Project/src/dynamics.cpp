@@ -19,22 +19,6 @@ double wind(const lander &mars_lander)
 
 }
 
-//calculates the drag on the lander returning a Force vector
-vector3d lander::parachute_drag(void)
-{
-	vector3d rotation = atmosphere_rotation + wind(*this)*planetary_rotation.norm();
-	return -0.5*atmospheric_density(position)*DRAG_COEF_CHUTE*5.0*2.0*LANDER_SIZE*2.0*LANDER_SIZE*(velocity - rotation).abs()*(velocity - rotation);
-}
-
-vector3d lander::lander_drag(void)
-{
-	vector3d rotation = atmosphere_rotation + wind(*this)*planetary_rotation.norm();
-	return -0.5*front_facing_area*atmospheric_density(position)*(DRAG_COEF_LANDER)*(velocity - rotation).abs()*(velocity - rotation);
-}
-
-//calculates gravity on the lander returning a Force vector
-vector3d orbiter::gravity() { return -(GRAVITY*MARS_MASS*mass / position.abs2())*position.norm(); }
-
 double kh_tuner(const lander &mars_lander, const bool mode)
 {
 	if (delay_enabled || lag_enabled) return 0.017;
