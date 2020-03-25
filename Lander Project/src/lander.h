@@ -150,7 +150,7 @@ extern double delta_t, simulation_time;
 extern unsigned short scenario;
 extern std::string scenario_description[];
 extern closeup_coords_t closeup_coords;
-extern constexpr intergrator_t intergrator = VERLET;
+constexpr intergrator_t intergrator = VERLET;
 
 
 // Function prototypes

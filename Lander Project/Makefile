@@ -1,26 +1,28 @@
 CC = g++
-CCSW = -O3 -Wno-deprecated-declarations
-PLATFORM = `uname`
+BINDIR = ./bin/
+SRCDIR = ./src/
 
-all:	lander spring
+PROG = lander
+OBJS = $(BINDIR)lander.o $(BINDIR)lander_graphics.o $(BINDIR)orbiter_class.o $(BINDIR)dynamics.o
+CPPFLAGS = -lGL -lGLU -lglut
 
-lander: lander.o lander_graphics.o
-	@if [ ${PLATFORM} = "Linux" ]; \
-	then $(CC) -o lander lander.o lander_graphics.o ${CCSW} -lGL -lGLU -lglut; \
-	echo Linking for Linux; \
-	elif [ ${PLATFORM} = "Darwin" ]; \
-	then $(CC) -o lander lander.o lander_graphics.o ${CCSW} -framework GLUT -framework OpenGL; \
-	echo Linking for Mac OS X; \
-	else $(CC) -o lander lander.o lander_graphics.o ${CCSW} -lglut32 -lglu32 -lopengl32; \
-	echo Linking for Cygwin; \
-	fi
+$(PROG): $(OBJS)
+	mv *.o $(BINDIR)
+	$(CC) -o $(PROG) $(OBJS) $(CPPFLAGS) 
+	
+	
+$(BINDIR)lander.o: $(SRCDIR)lander.cpp $(SRCDIR)lander.h
+	$(CC) $(CPPFLAGS) -c $(SRCDIR)lander.cpp
 
-lander_graphics.o lander.o: lander.h
+$(BINDIR)lander_graphics.o: $(SRCDIR)lander_graphics.cpp $(SRCDIR)lander.h
+	$(CC) $(CCSW) $(CPPFLAGS) -c $(SRCDIR)lander_graphics.cpp
 
-spring: spring.o
+$(BINDIR)orbiter_class.o: $(SRCDIR)orbiter_class.cpp $(SRCDIR)orbiter_class.h
+	$(CC) $(CCSW) $(CPPFLAGS) -c $(SRCDIR)orbiter_class.cpp
 
-.cpp.o:
-	$(CC) ${CCSW} -c $<
-
+$(BINDIR)dynamics.o: $(SRCDIR)dynamics.cpp $(SRCDIR)dynamics.h
+	$(CC) $(CCSW) $(CPPFLAGS) -c $(SRCDIR)dynamics.cpp
+	
 clean:
-	echo cleaning up; /bin/rm -f core *.o lander spring
+	rm $(BINDIR)*.o
+	rm $(PROG)

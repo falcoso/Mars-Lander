@@ -6,6 +6,8 @@
 #include "dynamics.h"
 
 extern lander mars_lander;
+
+
 double wind(const lander &mars_lander)
 {
   constexpr double average_speed = -10; //(m/s)

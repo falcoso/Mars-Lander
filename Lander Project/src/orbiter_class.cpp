@@ -75,7 +75,7 @@ lander::lander()
   parachute_status = NOT_DEPLOYED;
   front_facing_area = M_PI*LANDER_SIZE*LANDER_SIZE;
   radius   = LANDER_SIZE;
-  landed   = FALSE;
+  landed   = false;
   position = vector3d{ MARS_RADIUS + 5 ,0,0 };
   velocity = vector3d{ 0,0,0 };
   polar_velocity = vector3d{ 0,0,0 };
