@@ -4,11 +4,11 @@ SRCDIR = ./src/
 
 PROG = lander
 OBJS = $(BINDIR)lander.o $(BINDIR)lander_graphics.o $(BINDIR)orbiter_class.o $(BINDIR)dynamics.o
-CPPFLAGS = -lGL -lGLU -lglut
+CPPFLAGS = -Wall
 
 $(PROG): $(OBJS)
 	mv *.o $(BINDIR)
-	$(CC) -o $(PROG) $(OBJS) $(CPPFLAGS) 
+	$(CC) -o $(PROG) $(OBJS) -lGL -lGLU -lglut
 	
 	
 $(BINDIR)lander.o: $(SRCDIR)lander.cpp $(SRCDIR)lander.h
