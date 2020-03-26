@@ -1623,7 +1623,11 @@ void reset_simulation(void)
 // Resets the simulation to the initial state
 {
 	unsigned long i;
+#ifdef WIN32
 	std::system("CLS");
+#else
+	std::system("clear");
+#endif
 
 	// Reset these three lander parameters here, so they can be overwritten in initialize_simulation() if so desired
 	mars_lander.stabilized_attitude_angle = 0;
