@@ -7,7 +7,7 @@ extern unsigned long throttle_buffer_length, throttle_buffer_pointer;
 extern double *throttle_buffer;
 
 class orbiter {
-public: 
+public:
   orbiter(vector3d input_pos, vector3d input_vel, double input_mass, double input_radius);
   orbiter();
   virtual void numerical_dynamics();
@@ -28,10 +28,10 @@ public:
 
 protected:
   double radius;
-  double mass; 
+  double mass;
   vector3d velocity;
   vector3d position;
-  
+
   vector3d old_position;
   vector3d acceleration;
   double altitude;

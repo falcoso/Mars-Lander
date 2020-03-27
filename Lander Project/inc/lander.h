@@ -92,51 +92,77 @@
 #define MAX_IMPACT_GROUND_SPEED 1.0 // (m/s)
 #define MAX_IMPACT_DESCENT_RATE 1.0 // (m/s)
 
-class vector3d {
-  // Utility class for three-dimensional vector operations
+class vector3d
+{
+	// Utility class for three-dimensional vector operations
 public:
-  vector3d() {x=0.0; y=0.0; z=0.0;}
-  vector3d (double a, double b, double c=0.0) {x=a; y=b; z=c;}
-  bool operator== (const vector3d &v) const { if ((x==v.x)&&(y==v.y)&&(z==v.z)) return true; else return false; }
-  bool operator!= (const vector3d &v) const { if ((x!=v.x)||(y!=v.y)||(z!=v.z)) return true; else return false; }
-  vector3d operator+ (const vector3d &v) const { return vector3d(x+v.x, y+v.y, z+v.z); }
-  vector3d operator- (const vector3d &v) const { return vector3d(x-v.x, y-v.y, z-v.z); }
-  friend vector3d operator- (const vector3d &v) { return vector3d(-v.x, -v.y, -v.z); }
-  vector3d& operator+= (const vector3d &v) { x+=v.x; y+=v.y; z+=v.z; return *this; }
-  vector3d& operator-= (const vector3d &v) { x-=v.x; y-=v.y; z-=v.z; return *this; }
-  vector3d operator^ (const vector3d &v) const { return vector3d(y*v.z-z*v.y, z*v.x-x*v.z, x*v.y-y*v.x); }
-  double operator* (const vector3d &v) const { return (x*v.x + y*v.y +z*v.z); }
-  friend vector3d operator* (const vector3d &v, const double &a) { return vector3d(v.x*a, v.y*a, v.z*a); }
-  friend vector3d operator* (const double &a, const vector3d &v) { return vector3d(v.x*a, v.y*a, v.z*a); }
-  vector3d& operator*= (const double &a) { x*=a; y*=a; z*=a; return *this; }
-  vector3d operator/ (const double &a) const { return vector3d(x/a, y/a, z/a); }
-  vector3d& operator/= (const double &a) { x/=a; y/=a; z/=a; return *this; }
-  double abs2() const { return (x*x + y*y + z*z); }
-  double abs() const { return sqrt(this->abs2()); }
-  vector3d norm() const { double s(this->abs()); if (s==0) return *this; else return vector3d(x/s, y/s, z/s); }
-  friend std::ostream& operator << (std::ostream &out, const vector3d &v) { out << v.x << ' ' << v.y << ' ' << v.z; return out; }
-  double x, y, z;
+
+	vector3d();
+
+	vector3d (double a, double b, double c);
+
+	bool operator== (const vector3d &v) const;
+
+	bool operator!= (const vector3d &v) const;
+
+	vector3d operator+ (const vector3d &v) const;
+
+	vector3d        operator- (const vector3d &v) const;
+
+	friend vector3d operator- (const vector3d &v);
+
+	vector3d& operator+= (const vector3d &v);
+
+	vector3d& operator-= (const vector3d &v);
+
+	vector3d operator^ (const vector3d &v) const;
+
+	double          operator* (const vector3d &v) const;
+
+	friend vector3d operator* (const vector3d &v, const double &a);
+
+	friend vector3d operator* (const double &a, const vector3d &v);
+
+	vector3d& operator*= (const double &a);
+
+	vector3d operator/ (const double &a) const;
+
+	vector3d& operator/= (const double &a);
+
+	double abs2() const;
+
+	double abs() const;
+
+	vector3d norm() const;
+
+	friend std::ostream& operator << (std::ostream &out, const vector3d &v);
+
+	double x, y, z;
+
 private:
 };
 
 // Data type for recording lander's previous positions
-struct track_t {
-  unsigned short n;
-  unsigned short p;
-  vector3d pos[N_TRACK];
+struct track_t
+{
+	unsigned short n;
+	unsigned short p;
+	vector3d pos[N_TRACK];
 };
 
 // Quaternions for orbital view transformation
-struct quat_t {
-  vector3d v;
-  double s;
+struct quat_t
+{
+	vector3d v;
+	double s;
 };
 
 // Data structure for the state of the close-up view's coordinate system
-struct closeup_coords_t {
-  bool initialized;
-  bool backwards;
-  vector3d right;
+struct closeup_coords_t
+{
+	bool initialized;
+	bool backwards;
+	vector3d right;
 };
 
 // Enumerated data type for parachute status

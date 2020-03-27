@@ -26,3 +26,4 @@ $(OBJ_DIR):
 
 clean:
 	$(RM) -r $(OBJ_DIR)
+	$(RM) -r ./inc/*.h.gch
