@@ -26,7 +26,7 @@ Pressing any of the following numbers starts the given scenario:
 In all modes, the console will post updates on any changes and what it is doing.
 
 ### `ORBITAL_RE_ENTRY`/`ORBITAL_TRANSFER`
-The lander will transfer from the current orbit to a different one. Upon activating the autopilot, the simulation will freeze awaiting an input radius as a multiple of Mars’, into the console window. Upon arriving at the desired radius, the fuel will refill and not decay. The autopilot will correct the elliptical orbit to a circular one. The autopilot will then reset, allowing you to perform further maneuver. Should the lander come within the exosphere, it will switch to Descent and land. This mode is active in scenarios 0, 2 and 6.
+The lander will transfer from the current orbit to a different one. Upon activating the autopilot, the simulation will freeze awaiting an input radius as a multiple of Mars’, into the console window. Upon arriving at the desired radius, the fuel will refill and not decay. The autopilot will correct the elliptical orbit to a circular one. The autopilot will then reset, allowing you to perform further manoeuvre. Should the lander come within the exosphere, it will switch to Descent and land. This mode is active in scenarios 0, 2 and 6.
 
 ### `ORBITAL_DESCENT`
 The lander will attempt to land with the remaining fuel on the surface using a proportional gain controller. The autopilot may freeze for a moment as it tunes to the ideal value of  to be most fuel efficient or softest landing (version can be toggled using the `m` key, the default is fuel efficiency). This mode is active in scenarios 1, 4, 5, 7 and 8.

@@ -1,28 +1,28 @@
+EXE := lander
 CC = g++
-BINDIR = ./bin/
-SRCDIR = ./src/
 
-PROG = lander
-OBJS = $(BINDIR)lander.o $(BINDIR)lander_graphics.o $(BINDIR)orbiter_class.o $(BINDIR)dynamics.o
-CPPFLAGS = -Wall
+SRC_DIR := src
+OBJ_DIR := obj
 
-$(PROG): $(OBJS)
-	mv *.o $(BINDIR)
-	$(CC) -o $(PROG) $(OBJS) -lGL -lGLU -lglut
-	
-	
-$(BINDIR)lander.o: $(SRCDIR)lander.cpp $(SRCDIR)lander.h
-	$(CC) $(CPPFLAGS) -c $(SRCDIR)lander.cpp
+SRC := $(wildcard $(SRC_DIR)/*.cpp)
+OBJ := $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
-$(BINDIR)lander_graphics.o: $(SRCDIR)lander_graphics.cpp $(SRCDIR)lander.h
-	$(CC) $(CCSW) $(CPPFLAGS) -c $(SRCDIR)lander_graphics.cpp
+CPPFLAGS := -Iinc
+CFLAGS   := -Wall
+LDFLAGS  :=
+LDLIBS   := -lGL -lGLU -lglut
 
-$(BINDIR)orbiter_class.o: $(SRCDIR)orbiter_class.cpp $(SRCDIR)orbiter_class.h
-	$(CC) $(CCSW) $(CPPFLAGS) -c $(SRCDIR)orbiter_class.cpp
+all: $(EXE)
 
-$(BINDIR)dynamics.o: $(SRCDIR)dynamics.cpp $(SRCDIR)dynamics.h
-	$(CC) $(CCSW) $(CPPFLAGS) -c $(SRCDIR)dynamics.cpp
-	
+$(EXE): $(OBJ)
+	echo $(OBJ)
+	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR):
+	mkdir $@
+
 clean:
-	rm $(BINDIR)*.o
-	rm $(PROG)
+	$(RM) -r $(OBJ_DIR)
