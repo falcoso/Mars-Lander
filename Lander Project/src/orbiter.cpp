@@ -1,6 +1,6 @@
 #include "lander.h"
 #include "dynamics.h"
-#include "orbiter_class.h"
+#include "orbiter.h"
 #include "lander_graphics.h"
 
 void orbiter::numerical_dynamics()
@@ -77,9 +77,6 @@ void orbiter::update_members()
 	relative_velocity  = velocity - planetary_rotation;
 }
 
-
-
-
 //===========================================================================================================
 
 lander::lander()
@@ -129,7 +126,6 @@ double lander::get_climb_speed()   { return climb_speed; }
 double lander::get_ground_speed()  { return ground_speed; }
 
 vector3d lander::thrust_wrt_world(void)
-// Works out thrust vector in the world reference frame, given the lander's orientation
 // Works out thrust vector in the world reference frame, given the lander's orientation
 {
 	double m[16], k, delayed_throttle, lag = ENGINE_LAG*lag_enabled;
@@ -273,6 +269,10 @@ void lander::autopilot(bool reset)
 	constexpr double Kp = 1;
 	double delta, error, Pout;
 
+	//constants for hover
+	static double err_sum = 0;
+	static double old_err = 0;
+
 	//constants for TRANSFER_ORBIT and ORBIT_RE_ENTRY
 	static bool *burst_complete = new bool(false);
 	double direction = position.norm()*velocity.norm();
@@ -296,6 +296,8 @@ void lander::autopilot(bool reset)
 		burst_complete = nullptr;
 		initial_radius  = nullptr;
 		transfer_radius = nullptr;
+		err_sum = 0;
+		old_err = 0;
 		return;
 	}
 
@@ -501,6 +503,20 @@ void lander::autopilot(bool reset)
 			break;
 
 		case HOVER:
+			double Kp = 0.01;
+			double Ki = 1;
+			double Kd = 0.1;
+			double eq = 500 + MARS_RADIUS;
+			double eq_grav = -(GRAVITY*MARS_MASS*mass / (eq*eq));
+			double thrust_eq = -eq_grav/MAX_THRUST;
+
+			error = eq- position.abs();
+			err_sum += error*delta_t;
+
+
+			throttle = thrust_eq + Kp*error + Kd*(error-old_err)/delta_t + Ki*err_sum;
+			old_err = error;
+			fuel = 1;
 			break;
 	}
 	position = temp_position;

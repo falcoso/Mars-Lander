@@ -15,7 +15,6 @@ LDLIBS   := -lGL -lGLU -lglut
 all: $(EXE)
 
 $(EXE): $(OBJ)
-	echo $(OBJ)
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)

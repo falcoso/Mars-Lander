@@ -1111,20 +1111,20 @@ void update_closeup_coords(void)
 
 	// Adjust the terrain texture angle if the lander has changed direction. The motion will still be along
 	// the x-axis, so we need to rotate the texture to compensate.
-	if (closeup_coords.initialized) 
+	if (closeup_coords.initialized)
 	{
-		if (closeup_coords.backwards) 
+		if (closeup_coords.backwards)
 		{
 			tmp = -closeup_coords.right*t;
-			if (tmp > 1.0) tmp = 1.0; 
+			if (tmp > 1.0) tmp = 1.0;
 			if (tmp < -1.0) tmp = -1.0;
 			if ((-closeup_coords.right^t)*mars_lander.get_position().norm() < 0.0) terrain_angle += (180.0 / M_PI)*acos(tmp);
 			else terrain_angle -= (180.0 / M_PI)*acos(tmp);
 		}
-		else 
+		else
 		{
 			tmp = closeup_coords.right*t;
-			if (tmp > 1.0) tmp = 1.0; 
+			if (tmp > 1.0) tmp = 1.0;
 			if (tmp < -1.0) tmp = -1.0;
 			if ((closeup_coords.right^t)*mars_lander.get_position().norm() < 0.0) terrain_angle += (180.0 / M_PI)*acos(tmp);
 			else terrain_angle -= (180.0 / M_PI)*acos(tmp);
@@ -1189,7 +1189,7 @@ void draw_closeup_window(void)
 	// Above the exosphere we see a long way and there is no fog.
 	// Between the exosphere and transition_altitude, we see up to the horizon with increasing fog.
 	// At transition_altitude we have a totally opaque haze, to disguise the transition from spherical surface to flat surface.
-	// Below transition_altitude, we can see as far as the horizon (or transition_altitude with no terrain texture), 
+	// Below transition_altitude, we can see as far as the horizon (or transition_altitude with no terrain texture),
 	// with the fog decreasing towards touchdown.
 	if (mars_lander.get_altitude() > EXOSPHERE) gluPerspective(CLOSEUP_VIEW_ANGLE, aspect_ratio, 1.0, closeup_offset + 2.0*MARS_RADIUS);
 	else {
@@ -1315,7 +1315,7 @@ void draw_closeup_window(void)
 				// centre (tmp) and altitude: the lower the lander gets, the more pronounced the fade.
 				// We need to do draw each line in two parts, with a vertex nearby, to get the fog calculations correct in all OpenGL implementations.
 				// To make the lines fade more strongly when landed, decrease the second number.
-				// To make the lines less apparent at high altitude, decrease the first number. 
+				// To make the lines less apparent at high altitude, decrease the first number.
 				f = exp(-fabs(pow((transition_altitude - mars_lander.get_altitude()) / transition_altitude, 10.0) * tmp / (10.0*GROUND_LINE_SPACING)));
 				glColor4f(0.32f, 0.17f, 0.11f, (GLfloat)f);
 				glVertex3d((GLfloat)(tmp), (GLfloat)(-mars_lander.get_altitude()), (GLfloat)(-transition_altitude));
@@ -1329,7 +1329,7 @@ void draw_closeup_window(void)
 			glDisable(GL_BLEND);
 		}
 
-		if (!crashed) 
+		if (!crashed)
 		{ // draw a circular shadow below the lander
 			glColor3f(0.32f, 0.17f, 0.11f);
 			glBegin(GL_TRIANGLES);
@@ -1340,12 +1340,12 @@ void draw_closeup_window(void)
 			}
 			glEnd();
 		}
-		else 
+		else
 		{
 			rtmp = 0;
 			glColor3f(1.0, 1.0, 1.0);
 			glBegin(GL_TRIANGLES); // draw some shards of metal
-			for (i = 0; i<60; i++) 
+			for (i = 0; i<60; i++)
 			{
 				for (j = 0; j<8; j++) { rand_tri[j] = randtab[rtmp]; rtmp = (rtmp + 1) % N_RAND; }
 				cx = 40.0 * (rand_tri[0] - 0.5);
@@ -1356,11 +1356,11 @@ void draw_closeup_window(void)
 				glVertex3d(cx + 2.0*LANDER_SIZE*rand_tri[6], -mars_lander.get_altitude(), cy + 2.0*LANDER_SIZE*rand_tri[7]);
 			}
 			glEnd();
-			if (mars_lander.parachute_status != LOST) 
+			if (mars_lander.parachute_status != LOST)
 			{
 				glColor3f(1.0, 1.0, 0.0);
 				glBegin(GL_TRIANGLES);  // draw some shreds of yellow canvas
-				for (i = 0; i<30; i++) 
+				for (i = 0; i<30; i++)
 				{
 					for (j = 0; j<8; j++) { rand_tri[j] = randtab[rtmp]; rtmp = (rtmp + 1) % N_RAND; }
 					cx = 40.0 * (rand_tri[0] - 0.5);
@@ -1376,13 +1376,13 @@ void draw_closeup_window(void)
 		glEnable(GL_DEPTH_TEST);
 
 	}
-	else 
+	else
 	{
 		// Draw spherical planet - can disable depth test (for speed)
 		glDisable(GL_DEPTH_TEST);
 		glPushMatrix();
 
-		if (mars_lander.get_altitude() > EXOSPHERE) 
+		if (mars_lander.get_altitude() > EXOSPHERE)
 		{
 			// Draw the planet reduced size at a reduced displacement, to avoid numerical OpenGL problems with huge viewing distances.
 			glTranslated(0.0, -MARS_RADIUS, 0.0);
@@ -1390,7 +1390,7 @@ void draw_closeup_window(void)
 			glRotated(360.0*simulation_time / MARS_DAY, 0.0, 0.0, 1.0); // to make the planet spin
 			glutMottledSphere(MARS_RADIUS * (MARS_RADIUS / (mars_lander.get_altitude() + MARS_RADIUS)), 160, 100);
 		}
-		else 
+		else
 		{
 			// Draw the planet actual size at the correct displacement
 			glTranslated(0.0, -(MARS_RADIUS + mars_lander.get_altitude()), 0.0);
@@ -1405,7 +1405,7 @@ void draw_closeup_window(void)
 
 	glDisable(GL_FOG); // fog only applies to the ground
 	dark_side = (static_lighting && (mars_lander.get_position().y > 0.0) && (sqrt(mars_lander.get_position().x*mars_lander.get_position().x + mars_lander.get_position().z*mars_lander.get_position().z) < MARS_RADIUS));
-	if (dark_side) 
+	if (dark_side)
 	{ // in the shadow of the planet, we need some diffuse lighting to highlight the lander
 		glDisable(GL_LIGHT2); glDisable(GL_LIGHT3);
 		glEnable(GL_LIGHT4); glEnable(GL_LIGHT5);
@@ -1418,14 +1418,14 @@ void draw_closeup_window(void)
 	chute_drag_abs  = mars_lander.parachute_drag().abs();
 
 	// Draw the lander's parachute - behind the lander in the direction of travel
-	if ((mars_lander.parachute_status == DEPLOYED) && !crashed) 
+	if ((mars_lander.parachute_status == DEPLOYED) && !crashed)
 	{
-		if (mars_lander.get_velocity().abs() < SMALL_NUM) 
+		if (mars_lander.get_velocity().abs() < SMALL_NUM)
 		{
 			// Lander is apparently stationary - so draw the parachute above and near to the lander
 			gs = 0.0; cs = -1.0; tmp = 2.0;
 		}
-		else 
+		else
 		{
 			gs = mars_lander.get_ground_speed(); cs = mars_lander.get_climb_speed();
 			if (chute_drag_abs) tmp = 5.0; // parachute fully open
@@ -1453,7 +1453,7 @@ void draw_closeup_window(void)
 	glTranslated(0.0, 0.0, -LANDER_SIZE / 2);
 
 	// Draw lander
-	if (!crashed) 
+	if (!crashed)
 	{
 		glColor3f(1.0, 1.0, 1.0);
 		glutCone(LANDER_SIZE, LANDER_SIZE, 50, 50, true);
@@ -1465,7 +1465,7 @@ void draw_closeup_window(void)
 	}
 
 	// Draw engine exhaust flare
-	if (mars_lander.thrust_wrt_world().abs() > 0.0) 
+	if (mars_lander.thrust_wrt_world().abs() > 0.0)
 	{
 		glColor3f(1.0, 0.5, 0.0);
 		glRotated(180.0, 1.0, 0.0, 0.0);
@@ -1477,7 +1477,7 @@ void draw_closeup_window(void)
 	glPopMatrix(); // back to the world coordinate system
 
 								 // Draw incandescent glow surrounding lander
-	if (lander_drag_abs*mars_lander.get_velocity().abs() > HEAT_FLUX_GLOW_THRESHOLD) 
+	if (lander_drag_abs*mars_lander.get_velocity().abs() > HEAT_FLUX_GLOW_THRESHOLD)
 	{
 		// Calculate an heuristic "glow factor", in the range 0 to 1, for graphics effects
 		glow_factor = (lander_drag_abs*mars_lander.get_velocity().abs() - HEAT_FLUX_GLOW_THRESHOLD) / (4.0*HEAT_FLUX_GLOW_THRESHOLD);
@@ -1579,7 +1579,7 @@ void update_visualization(void)
 	if (mars_lander.parachute_status == DEPLOYED) {
 		if (!mars_lander.safe_to_deploy_parachute) { mars_lander.parachute_status = LOST; }}
 
-	// Update record of lander's previous positions, but only if the position or the velocity has 
+	// Update record of lander's previous positions, but only if the position or the velocity has
 	// changed significantly since the last update
 	if (!track.n || (mars_lander.get_position() - last_track_position).norm() * mars_lander.get_velocity().norm() < TRACK_ANGLE_DELTA
 		|| (mars_lander.get_position() - last_track_position).abs() > TRACK_DISTANCE_DELTA) {
@@ -1936,8 +1936,12 @@ void glut_key(unsigned char k, int x, int y)
 
 	case 'a': case 'A':
 		// a or A - autopilot
-		if (!mars_lander.landed) mars_lander.autopilot_enabled = !mars_lander.autopilot_enabled;
-		if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
+		if (!mars_lander.landed)
+			mars_lander.autopilot_enabled = !mars_lander.autopilot_enabled;
+
+		if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT)
+			mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
+			
 		if (paused) refresh_all_subwindows();
 		break;
 
@@ -1974,13 +1978,15 @@ void glut_key(unsigned char k, int x, int y)
 	case 'p': case 'P':
 		// p or P - deploy parachute
 		// add !autopilot_enabled && to stop parachute control on autopilot
-		if (!mars_lander.landed && (mars_lander.parachute_status == NOT_DEPLOYED)) mars_lander.parachute_status = DEPLOYED;
+		if (!mars_lander.landed && (mars_lander.parachute_status == NOT_DEPLOYED))
+			mars_lander.parachute_status = DEPLOYED;
 		if (paused) refresh_all_subwindows();
 		break;
 
 	case 's': case 'S':
 		// s or S - attitude stabilizer
-		if (!mars_lander.autopilot_enabled && !mars_lander.landed) mars_lander.stabilized_attitude = !mars_lander.stabilized_attitude;
+		if (!mars_lander.autopilot_enabled && !mars_lander.landed)
+			mars_lander.stabilized_attitude = !mars_lander.stabilized_attitude;
 		if (paused) refresh_all_subwindows();
 		break;
 
@@ -2016,31 +2022,50 @@ void glut_key(unsigned char k, int x, int y)
 	case 'r': case 'R':
 		//remove parachute from autopilot
 		mars_lander.parachute_status = LOST;
-		if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
+		if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT)
+			mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
 		break;
 
 	case 'w': case 'W':
 		//toggle wind
 		wind_enabled = !wind_enabled;
-		if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
+		if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT)
+			mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
 		break;
 
 	case 'm': case 'M':
 		//toggle tuning mode true is fuel efficiency, false is soft landing
 		tuning_mode = !tuning_mode;
-		if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
+		if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT)
+			mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
 		break;
 
 	case 'c': case 'C':
 		//toggle log
 		lag_enabled = !lag_enabled;
-		if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
+		if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT)
+			mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
 		break;
 
 	case 'v': case 'V':
 		//toggle delay
 		delay_enabled = !delay_enabled;
-		if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT) mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
+		if (mars_lander.autopilot_enabled && mars_lander.autopilot_status == ORBIT_DESCENT)
+			mars_lander.Kh = kh_tuner(mars_lander, tuning_mode);
+		break;
+
+	case 'b': case 'B':
+		//toggle delay
+		if (mars_lander.autopilot_status == HOVER)
+		{
+			mars_lander.autopilot_status = ORBIT_DESCENT;
+			if (mars_lander.autopilot_enabled) kh_tuner(mars_lander, tuning_mode);
+		}
+		else if (mars_lander.autopilot_status == ORBIT_DESCENT)
+		{
+			mars_lander.autopilot(true); //so if it switches back it will require a new radius
+			mars_lander.autopilot_status = HOVER;
+		}
 		break;
 
 	case 32:

@@ -15,7 +15,7 @@
 #include "lander.h"
 #include "dynamics.h"
 #include "lander_graphics.h"
-#include "orbiter_class.h"
+#include "orbiter.h"
 
 extern lander mars_lander;
 
@@ -126,7 +126,7 @@ void initialize_simulation(void)
 	scenario_description[6] = "aerostationary orbit";
 	scenario_description[7] = "descent at perfect rotation from 10km";
 	scenario_description[8] = "descent at perfect rotation from 200km";
-	scenario_description[9] = "";
+	scenario_description[9] = "hover at 500m";
 
 	//reset common parameters
 	delta_t = 0.1;
@@ -215,6 +215,12 @@ void initialize_simulation(void)
 			break;
 
 		case 9:
+			mars_lander.set_position(vector3d(0.0, -(MARS_RADIUS + 600), 0.0));
+			mars_lander.update_members();
+			mars_lander.set_velocity(mars_lander.get_planetary_rotation());
+			mars_lander.set_orientation(vector3d(0.0, 0.0, 90.0));
+			mars_lander.stabilized_attitude = true;
+			mars_lander.autopilot_status = HOVER;
 			break;
 	}
 	mars_lander.update_members();
