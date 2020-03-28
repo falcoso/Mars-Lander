@@ -24,7 +24,6 @@ short simulation_speed = 5;
 double delta_t, simulation_time;
 unsigned short scenario = 0;
 std::string scenario_description[10];
-bool static_lighting = false;
 closeup_coords_t closeup_coords;
 float randtab[N_RAND];
 bool do_texture = true;
@@ -42,12 +41,6 @@ lander mars_lander;
 double orbital_zoom, save_orbital_zoom, closeup_offset, closeup_xr, closeup_yr, terrain_angle;
 quat_t orbital_quat;
 
-// For GL lights
-GLfloat plus_y[] = { 0.0, 1.0, 0.0, 0.0 };
-GLfloat minus_y[] = { 0.0, -1.0, 0.0, 0.0 };
-GLfloat plus_z[] = { 0.0, 0.0, 1.0, 0.0 };
-GLfloat top_right[] = { 1.0, 1.0, 1.0, 0.0 };
-GLfloat straight_on[] = { 0.0, 0.0, 1.0, 0.0 };
 #endif
 
 // Function prototypes
@@ -55,8 +48,6 @@ void fghCircleTable(double **sint, double **cost, const int n);
 void glutOpenHemisphere(GLdouble radius, GLint slices, GLint stacks);
 void glutMottledSphere(GLdouble radius, GLint slices, GLint stacks);
 void glutCone(GLdouble base, GLdouble height, GLint slices, GLint stacks, bool closed);
-void enable_lights(void);
-void setup_lights(void);
 void glut_print(float x, float y, std::string s);
 double atmospheric_density(vector3d pos);
 void draw_dial(double cx, double cy, double val, std::string title, std::string units);

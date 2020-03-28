@@ -21,17 +21,11 @@ MyCanvas::MyCanvas(wxFrame *parent, bool init=false)
 
 	context = new wxGLContext(this);
 
-	/*
-	NOTE: this example uses GLUT in order to have a free teapot model
-	to display, to show 3D capabilities. GLUT, however, seems to cause problems
-	on some systems. If you meet problems, first try commenting out glutInit(),
-	then try comeenting out all glut code
-	*/
     if(init)
     {
         glutInit(&argc, argv);
+        glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     }
-    // glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 }
 
 
