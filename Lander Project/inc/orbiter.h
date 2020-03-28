@@ -2,11 +2,13 @@
 #define ORBITER
 
 #include "lander.h"
+#include "math_utils.h"
 
 extern unsigned long throttle_buffer_length, throttle_buffer_pointer;
 extern double *throttle_buffer;
 
-class orbiter {
+class orbiter
+{
 public:
   orbiter(vector3d input_pos, vector3d input_vel, double input_mass, double input_radius);
   orbiter();

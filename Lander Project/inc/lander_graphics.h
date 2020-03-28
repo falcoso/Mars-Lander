@@ -2,6 +2,7 @@
 #define LANDER_GRAPHICS
 #include "lander.h"
 #include "orbiter.h"
+#include "math_utils.h"
 
 #ifdef DECLARE_GLOBAL_VARIABLES
 // GL windows and objects
@@ -50,16 +51,6 @@ GLfloat straight_on[] = { 0.0, 0.0, 1.0, 0.0 };
 #endif
 
 // Function prototypes
-void invert(double m[], double mout[]);
-void xyz_euler_to_matrix(vector3d ang, double m[]);
-vector3d matrix_to_xyz_euler(double m[]);
-void normalize_quat(quat_t &q);
-quat_t axis_to_quat(vector3d a, const double phi);
-double project_to_sphere(const double r, const double x, const double y);
-quat_t add_quats(quat_t q1, quat_t q2);
-void quat_to_matrix(double m[], const quat_t q);
-quat_t track_quats(const double p1x, const double p1y, const double p2x, const double p2y);
-void microsecond_time(unsigned long long &t);
 void fghCircleTable(double **sint, double **cost, const int n);
 void glutOpenHemisphere(GLdouble radius, GLint slices, GLint stacks);
 void glutMottledSphere(GLdouble radius, GLint slices, GLint stacks);

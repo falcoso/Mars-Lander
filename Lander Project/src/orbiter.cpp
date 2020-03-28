@@ -504,7 +504,7 @@ void lander::autopilot(bool reset)
 
 		case HOVER:
 			double Kp = 0.01;
-			double Ki = 1;
+			double Ki = 0;
 			double Kd = 0.1;
 			double eq = 500 + MARS_RADIUS;
 			double eq_grav = -(GRAVITY*MARS_MASS*mass / (eq*eq));

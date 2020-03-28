@@ -32,8 +32,18 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	SetMenuBar( menuBar );
 	CreateStatusBar();
 	SetStatusText( "Welcome to wxWidgets!" );
+
+	wxBoxSizer *glsizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer *viewsizer = new wxBoxSizer(wxHORIZONTAL);
+	viewsizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 10);
+	viewsizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 10);
+
+	glsizer->Add(viewsizer);
+	glsizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 10);
+
 	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
-	sizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 10);
+	sizer->Add(glsizer);
+	// sizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 10);
 	sizer->Add(new MyPanel(this));
 	SetSizer(sizer);
 

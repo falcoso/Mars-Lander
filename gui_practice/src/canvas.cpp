@@ -28,6 +28,7 @@ MyCanvas::MyCanvas(wxFrame *parent)
 	then try comeenting out all glut code
 	*/
     glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 }
 
 
@@ -40,6 +41,11 @@ void MyCanvas::Render()
 {
     SetCurrent(*context);
     wxPaintDC(this);
+
+    glDrawBuffer(GL_BACK);
+    glLineWidth(2.0);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, (GLint)GetSize().x, (GLint)GetSize().y);

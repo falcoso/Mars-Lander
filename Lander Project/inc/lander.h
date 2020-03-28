@@ -35,8 +35,9 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-#include <cmath>
 #include <cstdlib>
+
+#include "math_utils.h"
 
 // GLUT mouse wheel operations work under Linux only
 #if !defined (GLUT_WHEEL_UP)
@@ -91,71 +92,6 @@
 #define THROTTLE_GRANULARITY 20 // for manual control
 #define MAX_IMPACT_GROUND_SPEED 1.0 // (m/s)
 #define MAX_IMPACT_DESCENT_RATE 1.0 // (m/s)
-
-class vector3d
-{
-	// Utility class for three-dimensional vector operations
-public:
-
-	vector3d();
-
-	vector3d (double a, double b, double c);
-
-	bool operator== (const vector3d &v) const;
-
-	bool operator!= (const vector3d &v) const;
-
-	vector3d operator+ (const vector3d &v) const;
-
-	vector3d        operator- (const vector3d &v) const;
-
-	friend vector3d operator- (const vector3d &v);
-
-	vector3d& operator+= (const vector3d &v);
-
-	vector3d& operator-= (const vector3d &v);
-
-	vector3d operator^ (const vector3d &v) const;
-
-	double          operator* (const vector3d &v) const;
-
-	friend vector3d operator* (const vector3d &v, const double &a);
-
-	friend vector3d operator* (const double &a, const vector3d &v);
-
-	vector3d& operator*= (const double &a);
-
-	vector3d operator/ (const double &a) const;
-
-	vector3d& operator/= (const double &a);
-
-	double abs2() const;
-
-	double abs() const;
-
-	vector3d norm() const;
-
-	friend std::ostream& operator << (std::ostream &out, const vector3d &v);
-
-	double x, y, z;
-
-private:
-};
-
-// Data type for recording lander's previous positions
-struct track_t
-{
-	unsigned short n;
-	unsigned short p;
-	vector3d pos[N_TRACK];
-};
-
-// Quaternions for orbital view transformation
-struct quat_t
-{
-	vector3d v;
-	double s;
-};
 
 // Data structure for the state of the close-up view's coordinate system
 struct closeup_coords_t
