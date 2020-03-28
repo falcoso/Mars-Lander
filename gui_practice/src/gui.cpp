@@ -33,20 +33,26 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	CreateStatusBar();
 	SetStatusText( "Welcome to wxWidgets!" );
 	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
-	sizer->Add(new MyCanvas(this));
+	sizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 10);
 	sizer->Add(new MyPanel(this));
 	SetSizer(sizer);
 
 }
+
+
 void MyFrame::OnExit(wxCommandEvent& event)
 {
 	Close( true );
 }
+
+
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
 	wxMessageBox( "This is a wxWidgets' Hello world sample",
 				  "About Hello World", wxOK | wxICON_INFORMATION );
 }
+
+
 void MyFrame::OnHello(wxCommandEvent& event)
 {
 	wxLogMessage("Hello world from wxWidgets!");

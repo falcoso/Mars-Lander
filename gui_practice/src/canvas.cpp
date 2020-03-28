@@ -19,6 +19,8 @@ MyCanvas::MyCanvas(wxFrame *parent)
     int argc = 1;
     char* argv[1] = { wxString((wxTheApp->argv)[0]).char_str() };
 
+	context = new wxGLContext(this);
+
 	/*
 	NOTE: this example uses GLUT in order to have a free teapot model
 	to display, to show 3D capabilities. GLUT, however, seems to cause problems
@@ -36,7 +38,7 @@ void MyCanvas::Paintit(wxPaintEvent& WXUNUSED(event))
 
 void MyCanvas::Render()
 {
-    // SetCurrent();
+    SetCurrent(*context);
     wxPaintDC(this);
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -69,5 +71,5 @@ void MyCanvas::Render()
     glutWireTeapot(0.6);
 	// done using glut
     glFlush();
-    // SwapBuffers();
+    SwapBuffers();
 }

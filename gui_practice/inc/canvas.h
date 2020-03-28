@@ -14,6 +14,8 @@ class MyCanvas: public wxGLCanvas
 {
         void Render();
 public:
+	wxGLContext *context;
+	
     MyCanvas(wxFrame* parent);
     void Paintit(wxPaintEvent& event);
 protected:
