@@ -13,7 +13,7 @@ BEGIN_EVENT_TABLE(MyCanvas, wxGLCanvas)
     EVT_PAINT    (MyCanvas::Paintit)
 END_EVENT_TABLE()
 
-MyCanvas::MyCanvas(wxFrame *parent)
+MyCanvas::MyCanvas(wxFrame *parent, bool init=false)
 		:wxGLCanvas (parent, wxID_ANY, NULL, wxDefaultPosition, wxDefaultSize, 0, "GLCanvas", wxNullPalette)
 {
     int argc = 1;
@@ -27,8 +27,11 @@ MyCanvas::MyCanvas(wxFrame *parent)
 	on some systems. If you meet problems, first try commenting out glutInit(),
 	then try comeenting out all glut code
 	*/
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+    if(init)
+    {
+        glutInit(&argc, argv);
+    }
+    // glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 }
 
 

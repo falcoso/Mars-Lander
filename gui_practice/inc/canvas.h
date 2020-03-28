@@ -15,8 +15,8 @@ class MyCanvas: public wxGLCanvas
         void Render();
 public:
 	wxGLContext *context;
-	
-    MyCanvas(wxFrame* parent);
+
+    MyCanvas(wxFrame* parent, bool init=false);
     void Paintit(wxPaintEvent& event);
 protected:
     DECLARE_EVENT_TABLE()
