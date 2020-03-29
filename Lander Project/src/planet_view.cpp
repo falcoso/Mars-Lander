@@ -47,7 +47,7 @@ void PlanetCanvas::draw_orbital_window(void)
 	if (orbital_zoom > 2.0)
 	{ // gradual pan towards the lander when zoomed in
 		sf = 1.0 - exp((2.0 - orbital_zoom) / 5.0);
-		glTranslated(-sf*mars_lander.get_position().x, -sf*mars_lander.get_position().y, -sf*mars_lander.get_position().z);
+		glTranslated(-sf*mars_lander->get_position().x, -sf*mars_lander->get_position().y, -sf*mars_lander->get_position().z);
 	}
 
 	if (static_lighting)
@@ -85,7 +85,7 @@ void PlanetCanvas::draw_orbital_window(void)
 
 	glBegin(GL_LINE_STRIP);
 		glColor3f(0.0, 1.0, 1.0);
-		glVertex3d(mars_lander.get_position().x, mars_lander.get_position().y, mars_lander.get_position().z);
+		glVertex3d(mars_lander->get_position().x, mars_lander->get_position().y, mars_lander->get_position().z);
 		j = (track.p + N_TRACK - 1) % N_TRACK;
 
 		for (i = 0; i<track.n; i++)
@@ -104,7 +104,7 @@ void PlanetCanvas::draw_orbital_window(void)
 	glColor3f(0.0, 1.0, 1.0);
 	glPointSize(3.0);
 	glBegin(GL_POINTS);
-		glVertex3d(mars_lander.get_position().x, mars_lander.get_position().y, mars_lander.get_position().z);
+		glVertex3d(mars_lander->get_position().x, mars_lander->get_position().y, mars_lander->get_position().z);
 	glEnd();
 	glEnable(GL_LIGHTING);
 
@@ -131,7 +131,7 @@ void PlanetCanvas::Render()
 	glShadeModel(GL_SMOOTH);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 	glEnable(GL_COLOR_MATERIAL);
-	glutDisplayFunc(draw_orbital_window);
+	// glutDisplayFunc(draw_orbital_window);
 	// glutMouseFunc(orbital_mouse_button);
 	// glutMotionFunc(orbital_mouse_motion);
 	// glutKeyboardFunc(glut_key);

@@ -10,7 +10,7 @@ int main_window, closeup_window, orbital_window, instrument_window, view_width, 
 GLUquadricObj *quadObj;
 GLuint terrain_texture;
 short throttle_control;
-track_t track;
+// track_t track;
 bool texture_available;
 
 // Simulation parameters

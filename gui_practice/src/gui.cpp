@@ -35,14 +35,14 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	wxBoxSizer *glsizer = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer *viewsizer = new wxBoxSizer(wxHORIZONTAL);
-	viewsizer->Add(new MyCanvas(this, true), 1, wxEXPAND | wxALL, 10);
-	viewsizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 10);
+	viewsizer->Add(new MyCanvas(this, true), 1, wxEXPAND | wxALL, 1);
+	viewsizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 1);
 
-	glsizer->Add(viewsizer, 1, wxEXPAND | wxALL, 10);
-	glsizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 10);
+	glsizer->Add(viewsizer, 1, wxEXPAND | wxALL, 1);
+	glsizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 1);
 
 	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
-	sizer->Add(glsizer, 1, wxEXPAND | wxALL, 10);
+	sizer->Add(glsizer, 1, wxEXPAND | wxALL, 1);
 	// sizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 10);
 	sizer->Add(new MyPanel(this));
 	SetSizer(sizer);

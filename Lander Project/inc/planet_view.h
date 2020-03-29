@@ -3,6 +3,7 @@
 
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
+#include "orbiter.h"
 
 #ifdef __WXMAC__
 #include <GLUT/glut.h>
@@ -16,7 +17,7 @@ class PlanetCanvas: public wxGLCanvas
 public:
 	wxGLContext *context;
 
-    PlanetCanvas(wxFrame* parent, bool init=false);
+    PlanetCanvas(wxFrame* parent, bool init);
     void Paintit(wxPaintEvent& event);
 	void draw_orbital_window();
 protected:
@@ -24,6 +25,7 @@ protected:
 	double orbital_zoom, save_orbital_zoom;
 	quat_t orbital_quat;
 	GLUquadricObj *quadObj; // may need to be accessed elsewhere??
+    lander *mars_lander;
 };
 
 #endif

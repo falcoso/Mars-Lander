@@ -13,7 +13,7 @@ BEGIN_EVENT_TABLE(MyCanvas, wxGLCanvas)
     EVT_PAINT    (MyCanvas::Paintit)
 END_EVENT_TABLE()
 
-MyCanvas::MyCanvas(wxFrame *parent, bool init=false)
+MyCanvas::MyCanvas(wxFrame *parent, bool init)
 		:wxGLCanvas (parent, wxID_ANY, NULL, wxDefaultPosition, wxDefaultSize, 0, "GLCanvas", wxNullPalette)
 {
     int argc = 1;
