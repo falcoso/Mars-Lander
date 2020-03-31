@@ -1,5 +1,14 @@
+// #define DECLARE_GLOBAL_VARIABLES
 #include "gui.h"
-#include "canvas.h"
+#include "planet_view.h"
+
+#include "lander.h"
+#include "lander_graphics.h"
+#include "graphics_setup.h"
+#include "dynamics.h"
+#include "instrument_window.h"
+
+extern lander mars_lander;
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_MENU(ID_Hello,   MyFrame::OnHello)
@@ -18,8 +27,6 @@ bool MyApp::OnInit()
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 		: wxFrame(NULL, wxID_ANY, title, pos, size)
 {
-	int args[] = {WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0};
-
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
 					 "Help string shown in status bar for this menu item");
@@ -35,18 +42,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	CreateStatusBar();
 	SetStatusText( "Welcome to wxWidgets!" );
 
-	wxBoxSizer *glsizer = new wxBoxSizer(wxVERTICAL);
-	wxBoxSizer *viewsizer = new wxBoxSizer(wxHORIZONTAL);
-	viewsizer->Add(new MyCanvas(this, true), 1, wxEXPAND | wxALL, 1);
-	viewsizer->Add(new BasicGLPane(this, args), 1, wxEXPAND | wxALL, 1);
-
-	glsizer->Add(viewsizer, 1, wxEXPAND | wxALL, 1);
-	glsizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 1);
-
 	wxBoxSizer *sizer = new wxBoxSizer(wxHORIZONTAL);
-	sizer->Add(glsizer, 1, wxEXPAND | wxALL, 1);
-	// sizer->Add(new MyCanvas(this), 1, wxEXPAND | wxALL, 10);
-	sizer->Add(new MyPanel(this));
+	sizer->Add(new InstrumentCanvas(this, &mars_lander, true), 1, wxEXPAND | wxALL, 10);
+	sizer->Add(new PlanetCanvas(this, &mars_lander, false), 1, wxEXPAND | wxALL, 10);
 	SetSizer(sizer);
 
 }

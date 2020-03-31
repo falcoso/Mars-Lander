@@ -51,3 +51,12 @@ void setup_lights(void)
 
 	enable_lights();
 }
+
+void glut_print(float x, float y, std::string s)
+// Prints string at location (x,y) in a bitmap font
+{
+	unsigned short i;
+
+	glRasterPos2f(x, y);
+	for (i = 0; i < s.length(); i++) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, s[i]);
+}

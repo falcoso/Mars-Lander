@@ -17,7 +17,7 @@ class PlanetCanvas: public wxGLCanvas
 public:
 	wxGLContext *context;
 
-    PlanetCanvas(wxFrame* parent, bool init);
+    PlanetCanvas(wxFrame* parent, lander *mars_lander_ptr, bool init=false);
     void Paintit(wxPaintEvent& event);
 	void draw_orbital_window();
 protected:

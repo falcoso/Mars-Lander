@@ -15,12 +15,12 @@ bool texture_available;
 
 // Simulation parameters
 bool help = false;
-bool paused = false;
+
 bool landed = false;
 bool crashed = false;
 int last_click_x = -1;
 int last_click_y = -1;
-short simulation_speed = 5;
+
 double delta_t, simulation_time;
 unsigned short scenario = 0;
 std::string scenario_description[10];

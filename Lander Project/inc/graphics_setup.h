@@ -19,6 +19,10 @@ GLfloat top_right[] = { 1.0, 1.0, 1.0, 0.0 };
 GLfloat straight_on[] = { 0.0, 0.0, 1.0, 0.0 };
 
 track_t track;
+
+short simulation_speed = 5;
+bool paused = false;
+
 #else
 extern bool static_lighting;
 
@@ -29,10 +33,13 @@ extern GLfloat top_right[];
 extern GLfloat straight_on[];
 
 extern track_t track;
-#endif
 
+extern short simulation_speed;
+extern bool paused;
+#endif
 
 void enable_lights(void);
 void setup_lights(void);
+void glut_print(float x, float y, std::string s);
 
 #endif

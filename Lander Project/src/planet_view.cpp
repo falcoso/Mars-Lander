@@ -8,7 +8,7 @@ BEGIN_EVENT_TABLE(PlanetCanvas, wxGLCanvas)
     EVT_PAINT    (PlanetCanvas::Paintit)
 END_EVENT_TABLE()
 
-PlanetCanvas::PlanetCanvas(wxFrame *parent, bool init=false)
+PlanetCanvas::PlanetCanvas(wxFrame *parent, lander* mars_lander_ptr, bool init)
 		:wxGLCanvas (parent, wxID_ANY, NULL, wxDefaultPosition, wxDefaultSize, 0, "GLCanvas", wxNullPalette)
 {
     int argc = 1;
@@ -21,6 +21,12 @@ PlanetCanvas::PlanetCanvas(wxFrame *parent, bool init=false)
         glutInit(&argc, argv);
         glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     }
+    mars_lander = mars_lander_ptr;
+    mars_lander->set_position (vector3d(1.2*MARS_RADIUS, 0.0, 0.0));
+    mars_lander->set_velocity (vector3d(0.0, -std::sqrt(GRAVITY*MARS_MASS / (1.2*MARS_RADIUS)), 0.0));
+    mars_lander->set_orientation(vector3d(0.0, 90.0, 0.0));
+    mars_lander->stabilized_attitude = false;
+    mars_lander->autopilot_status = ORBIT_RE_ENTRY;
 }
 
 
@@ -64,8 +70,11 @@ void PlanetCanvas::draw_orbital_window(void)
 	glRotated(360.0*simulation_time / MARS_DAY, 0.0, 0.0, 1.0); // to make the planet spin
 	if (orbital_zoom > 1.0)
 	{
-		slices = (int)(16 * orbital_zoom); if (slices > 160) slices = 160;
-		stacks = (int)(10 * orbital_zoom); if (stacks > 100) stacks = 100;
+		slices = (int)(16 * orbital_zoom);
+        if (slices > 160) slices = 160;
+
+		stacks = (int)(10 * orbital_zoom);
+        if (stacks > 100) stacks = 100;
 	}
 	else
 	{
@@ -110,14 +119,22 @@ void PlanetCanvas::draw_orbital_window(void)
 
 	// Help information
 	// if (help) display_help_text();
-
-	glutSwapBuffers();
+    glFlush();
+	SwapBuffers();
 }
 
 void PlanetCanvas::Render()
 {
     SetCurrent(*context);
     wxPaintDC(this);
+
+    glDrawBuffer(GL_BACK);
+    glLineWidth(2.0);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glViewport(0, 0, (GLint)GetSize().x, (GLint)GetSize().y);
 
 	glDrawBuffer(GL_BACK);
 	setup_lights();
@@ -136,6 +153,7 @@ void PlanetCanvas::Render()
 	// glutMotionFunc(orbital_mouse_motion);
 	// glutKeyboardFunc(glut_key);
 	// glutSpecialFunc(glut_special);
+
 	quadObj = gluNewQuadric();
 	orbital_quat.v.x = 0.53; orbital_quat.v.y = -0.21;
 	orbital_quat.v.z = 0.047; orbital_quat.s = 0.82;
@@ -144,5 +162,6 @@ void PlanetCanvas::Render()
 	orbital_zoom = 1.0;
     glFlush();
     SwapBuffers();
-}
+    draw_orbital_window();
 
+}
