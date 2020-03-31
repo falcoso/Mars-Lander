@@ -209,19 +209,19 @@ void BasicGLPane::render( wxPaintEvent& evt )
     // white background
     glColor4f(1, 1, 1, 1);
     glBegin(GL_QUADS);
-    glVertex3f(0,0,0);
-    glVertex3f(getWidth(),0,0);
-    glVertex3f(getWidth(),getHeight(),0);
-    glVertex3f(0,getHeight(),0);
+    glVertex2f(0,0);
+    glVertex2f(getWidth(),0);
+    glVertex2f(getWidth(),getHeight());
+    glVertex2f(0,getHeight());
     glEnd();
 
     // red square
     glColor4f(1, 0, 0, 1);
     glBegin(GL_QUADS);
-    glVertex3f(getWidth()/8, getHeight()/3, 0);
-    glVertex3f(getWidth()*3/8, getHeight()/3, 0);
-    glVertex3f(getWidth()*3/8, getHeight()*2/3, 0);
-    glVertex3f(getWidth()/8, getHeight()*2/3, 0);
+    glVertex2f(getWidth()/8, getHeight()/3);
+    glVertex2f(getWidth()*3/8, getHeight()/3);
+    glVertex2f(getWidth()*3/8, getHeight()*2/3);
+    glVertex2f(getWidth()/8, getHeight()*2/3);
     glEnd();
 
     // ------------- draw some 3D ----------------

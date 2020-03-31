@@ -3,7 +3,7 @@
 #include "planet_view.h"
 
 #include "lander.h"
-#include "lander_graphics.h"
+// #include "lander_graphics.h"
 #include "graphics_setup.h"
 #include "dynamics.h"
 #include "instrument_window.h"

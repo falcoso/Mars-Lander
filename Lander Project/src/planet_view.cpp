@@ -128,13 +128,31 @@ void PlanetCanvas::Render()
     SetCurrent(*context);
     wxPaintDC(this);
 
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black Background
+    glClearDepth(1.0f);	// Depth Buffer Setup
+    glEnable(GL_DEPTH_TEST); // Enables Depth Testing
+    glDepthFunc(GL_LEQUAL); // The Type Of Depth Testing To Do
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    glEnable(GL_TEXTURE_3D); 
+
+    glEnable(GL_COLOR_MATERIAL);
+
+    glViewport(0, 0, (GLint)GetSize().x, (GLint)GetSize().y);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    float ratio_w_h = (float)(GetSize().x)/(float)(GetSize().y);
+    gluPerspective(45 /*view angle*/, ratio_w_h, 0.1 /*clip close*/, 200 /*clip far*/);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
     glDrawBuffer(GL_BACK);
     glLineWidth(2.0);
     glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
-    glViewport(0, 0, (GLint)GetSize().x, (GLint)GetSize().y);
+    // glViewport(0, 0, (GLint)GetSize().x, (GLint)GetSize().y);
 
 	glDrawBuffer(GL_BACK);
 	setup_lights();

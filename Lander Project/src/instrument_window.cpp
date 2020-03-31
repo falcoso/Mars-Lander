@@ -189,8 +189,22 @@ void InstrumentCanvas::Render()
 	std::ostringstream s;
 
 	s.precision(1);
-	// glutSetWindow(instrument_window);
+
 	glClear(GL_COLOR_BUFFER_BIT);
+    // glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black Background
+    glEnable(GL_TEXTURE_2D);   // textures
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+    glViewport(0, 0, GetSize().x, GetSize().y);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    gluOrtho2D(0, GetSize().x, GetSize().y, 0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
 	// Draw altimeter
 	draw_dial(GetSize().x + GAP - 400, INSTRUMENT_HEIGHT / 2,
@@ -320,6 +334,7 @@ void InstrumentCanvas::Render()
 		}
 	}
 
+    glFlush();
 	SwapBuffers();
 
 }
